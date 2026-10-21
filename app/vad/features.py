@@ -101,10 +101,12 @@ def band_energies(power: np.ndarray, cfg: VADConfig = VAD) -> np.ndarray:
 
 
 def _smooth_freq(power: np.ndarray, n_bins: int) -> np.ndarray:
+    """Centred moving average across frequency (zero-padded at the edges), vectorised over frames."""
     if n_bins <= 1:
         return power
-    k = np.ones(n_bins) / n_bins
-    return np.apply_along_axis(lambda r: np.convolve(r, k, mode="same"), 1, power)
+    left = n_bins // 2
+    c = np.cumsum(np.pad(power, ((0, 0), (left + 1, n_bins - 1 - left))), axis=1)
+    return (c[:, n_bins:] - c[:, :-n_bins]) / n_bins
 
 
 def spectral_flatness(power: np.ndarray, lo_hz: float, hi_hz: float, cfg: VADConfig = VAD) -> np.ndarray:

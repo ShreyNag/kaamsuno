@@ -45,8 +45,12 @@ class PrismaSettings:
 
 PRISMA = PrismaSettings()
 
-TTS_MODEL = _env("TTS_MODEL", "timbre-v3.0")
-TTS_VOICE = _env("TTS_VOICE", "")  # empty = service default; v2.5 Hinglish voice is "Poorvi" (hi-en)
+# pipecat-gnani 0.5.12 only accepts timbre-v2.0 / timbre-v2.5 (v3.0 raises ValueError), and
+# `language` only on v2.5 from {auto, hi-IN, en-IN, ...}; "hi-en" is rejected. See decisions.md.
+TTS_MODEL = _env("TTS_MODEL", "timbre-v2.5")
+TTS_VOICE = _env("TTS_VOICE", "Poorvi")
+TTS_LANGUAGE = _env("TTS_LANGUAGE", "auto")
+TTS_SAMPLE_RATE = 16_000
 
 LLM_PROVIDER = _env("LLM_PROVIDER", "groq")
 LLM_MODEL = _env("LLM_MODEL", "llama-3.3-70b-versatile")

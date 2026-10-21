@@ -1,0 +1,9 @@
+pipecat-ai[silero,webrtc,groq,runner]==1.7.0  # 1.8+ renamed _NotGiven, breaking pipecat-gnani 0.5.12
+pipecat-gnani==0.5.12
+python-dotenv
+numpy
+scipy
+soundfile
+matplotlib
+webrtcvad-wheels
+pytest
