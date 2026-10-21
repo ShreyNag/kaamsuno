@@ -36,3 +36,7 @@ One line per non-obvious choice, with the reason. Newest at the bottom of each s
   - High ZCR means either a fricative ("s", "sh") or broadband hiss. Fricatives are tilted towards 4–8 kHz, so they are *not* flat over 0–8 kHz; hiss is. So high ZCR only counts as speech when the full band is not flat.
   - Full-band flatness (0–8 kHz) is used here instead of Feature B's 100–4000 Hz, because fricative energy lives above 4 kHz.
   - The thresholds are first guesses; Day 2 tunes them.
+
+## LLM
+
+- **Groq model = `openai/gpt-oss-20b`** (2026-10-22). `llama-3.3-70b-versatile` returned 404 model_not_found; our key's chat models are only gpt-oss-20b, gpt-oss-120b and qwen3.8-27b. Picked 20b for latency and JSON-mode support; 120b is the fallback if the interpreter's extraction quality is poor.

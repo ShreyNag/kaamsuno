@@ -53,7 +53,8 @@ TTS_LANGUAGE = _env("TTS_LANGUAGE", "auto")
 TTS_SAMPLE_RATE = 16_000
 
 LLM_PROVIDER = _env("LLM_PROVIDER", "groq")
-LLM_MODEL = _env("LLM_MODEL", "llama-3.3-70b-versatile")
+# Groq no longer serves the Llama 3.x chat models to our key (404 model_not_found); see decisions.md
+LLM_MODEL = _env("LLM_MODEL", "openai/gpt-oss-20b")
 
 
 # --- Custom VAD --------------------------------------------------------------

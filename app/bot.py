@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from loguru import logger
 from pipecat.audio.vad.silero import SileroVADAnalyzer
-from pipecat.frames.frames import LLMMessagesAppendFrame
+from pipecat.frames.frames import LLMMessagesAppendFrame, TTSSpeakFrame
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineParams, PipelineTask
@@ -37,8 +37,8 @@ transport_params = {
 
 
 def _require(name: str, value: str) -> str:
-    if not value:
-        raise RuntimeError(f"{name} is not set. Copy .env.example to .env and fill it in.")
+    if not value or value.startswith("paste-your-"):
+        raise RuntimeError(f"{name} is not set. Put your key in .env (replace the placeholder).")
     return value
 
 
@@ -65,13 +65,18 @@ def build_tts() -> GnaniTTSService:
     )
 
 
-def build_llm() -> GroqLLMService:
-    if config.LLM_PROVIDER != "groq":
-        raise NotImplementedError(f"LLM_PROVIDER={config.LLM_PROVIDER!r}; only groq is wired up")
-    return GroqLLMService(
-        api_key=_require("GROQ_API_KEY", config.GROQ_API_KEY),
-        settings=GroqLLMService.Settings(model=config.LLM_MODEL, system_instruction=SYSTEM_PROMPT),
-    )
+def build_llm() -> GroqLLMService | None:
+    """The LLM, or None if it can't be built: the bot then still listens and transcribes."""
+    try:
+        if config.LLM_PROVIDER != "groq":
+            raise NotImplementedError(f"LLM_PROVIDER={config.LLM_PROVIDER!r}; only groq is wired up")
+        return GroqLLMService(
+            api_key=_require("GROQ_API_KEY", config.GROQ_API_KEY),
+            settings=GroqLLMService.Settings(model=config.LLM_MODEL, system_instruction=SYSTEM_PROMPT),
+        )
+    except (RuntimeError, NotImplementedError) as e:
+        logger.error(f"LLM disabled, running transcription-only: {e}")
+        return None
 
 
 async def run_bot(transport: BaseTransport, runner_args: RunnerArguments) -> None:
@@ -85,9 +90,8 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments) -> Non
         user_params=LLMUserAggregatorParams(vad_analyzer=SileroVADAnalyzer()),
     )
 
-    pipeline = Pipeline(
-        [transport.input(), stt, aggregators.user(), llm, tts, transport.output(), aggregators.assistant()]
-    )
+    processors = [transport.input(), stt, aggregators.user(), llm, tts, transport.output(), aggregators.assistant()]
+    pipeline = Pipeline([p for p in processors if p is not None])
     task = PipelineTask(
         pipeline,
         params=PipelineParams(enable_metrics=True, enable_usage_metrics=True),
@@ -98,6 +102,9 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments) -> Non
     @transport.event_handler("on_client_connected")
     async def on_client_connected(transport, client):
         logger.info("Client connected")
+        if llm is None:
+            await task.queue_frames([TTSSpeakFrame("LLM key nahi mila. Abhi sirf transcription chal raha hai.")])
+            return
         await task.queue_frames(
             [LLMMessagesAppendFrame(messages=[{"role": "user", "content": "Namaste"}], run_llm=True)]
         )
