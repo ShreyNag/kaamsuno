@@ -27,6 +27,7 @@ def _env(name: str, default: str) -> str:
 # --- Secrets -----------------------------------------------------------------
 GNANI_API_KEY = os.getenv("GNANI_API_KEY", "")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 
 # --- Language / speech services ---------------------------------------------
 LANGUAGE_CODE = _env("LANGUAGE_CODE", "en-IN")  # en-IN accepts Hinglish, outputs Latin script
@@ -39,11 +40,17 @@ class PrismaSettings:
     min_speech_ms: int = 100
     vad_threshold: float = 0.5
     output_format: str = "transcribe"  # spoken numbers -> digits
-    bias_score: float = 2.0
+    bias_score: float = 2.0  # one of 0.0, 0.5, 1.0, 1.5, 2.0
     partials: bool = True  # x-partials: under-documented, see notes/decisions.md
+    # After our turn ends, how long to wait for Prisma's last segment of the turn
+    tail_timeout_ms: int = 1500
+    tail_grace_ms: int = 150  # extra wait past min_silence_ms for Prisma's "processing" message
 
 
 PRISMA = PrismaSettings()
+BIAS_LIST_PLACEHOLDER = (
+    "cement", "sariya", "rait", "gitti", "eent", "bori", "crane", "JCB", "mixer", "scaffolding", "manzil", "tower",
+)
 
 # pipecat-gnani 0.5.12 only accepts timbre-v2.0 / timbre-v2.5 (v3.0 raises ValueError), and
 # `language` only on v2.5 from {auto, hi-IN, en-IN, ...}; "hi-en" is rejected. See decisions.md.
@@ -55,6 +62,15 @@ TTS_SAMPLE_RATE = 16_000
 LLM_PROVIDER = _env("LLM_PROVIDER", "groq")
 # Groq no longer serves the Llama 3.x chat models to our key (404 model_not_found); see decisions.md
 LLM_MODEL = _env("LLM_MODEL", "openai/gpt-oss-20b")
+LLM_REASONING_EFFORT = _env("LLM_REASONING_EFFORT", "low")  # gpt-oss: low keeps a call well under 1 s
+LLM_TIMEOUT_S = float(_env("LLM_TIMEOUT_S", "8"))
+
+
+# --- Interpreter / dialogue ----------------------------------------------------
+LOW_CONFIDENCE = 0.6  # a critical field below this is asked about again
+INTERPRETER_DRAIN_TIMEOUT_S = 3.0  # at turn end, wait this long for in-flight interpreter calls
+GREETING = "Namaste. Kya hua hai? Bataiye."
+READBACK_PLACEHOLDER = "Shukriya, saari zaroori jaankari mil gayi. Report taiyaar hai."
 
 
 # --- Custom VAD --------------------------------------------------------------
@@ -103,9 +119,18 @@ VAD = VADConfig()
 # Which VAD drives Pipecat's user-speaking events: silero | custom | composite
 VAD_MODE = _env("VAD_MODE", "composite")
 
+# Pipecat VADParams for the Silero analyser. stop_secs is how long the VAD waits
+# before reporting "stopped"; 0.2 is what Smart Turn and Pipecat's latency tables assume.
+VAD_CONFIDENCE = float(_env("VAD_CONFIDENCE", "0.7"))
+VAD_START_SECS = float(_env("VAD_START_SECS", "0.2"))
+VAD_STOP_SECS = float(_env("VAD_STOP_SECS", "0.2"))
+
 # --- Turn taking -------------------------------------------------------------
 TURN_MODE = _env("TURN_MODE", "smart_turn")  # fixed_timeout | smart_turn
-FIXED_TIMEOUT_MS = int(_env("FIXED_TIMEOUT_MS", "700"))
+FIXED_TIMEOUT_MS = int(_env("FIXED_TIMEOUT_MS", "700"))  # silence after the last speech
+SMART_TURN_THRESHOLD = float(_env("SMART_TURN_THRESHOLD", "0.5"))  # P(complete) above this ends the turn
+SMART_TURN_STOP_SECS = float(_env("SMART_TURN_STOP_SECS", "3.0"))  # silence that ends the turn regardless
+USER_TURN_STOP_TIMEOUT_S = 5.0  # Pipecat's last-resort turn end if no strategy fires
 
 # Experiment: blank non-speech audio before sending to Prisma (off in v0)
 BLANK_NONSPEECH_TO_STT = _env("BLANK_NONSPEECH_TO_STT", "0") == "1"

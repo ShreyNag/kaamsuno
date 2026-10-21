@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live Report</title>
+<style>
+  :root { --bg:#fff; --fg:#1b1b1b; --muted:#6b6b6b; --line:#e2e2e2; --crit:#b3261e; --ok:#1e7a3c; --warn:#a15c00; --new:#fff5c2; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#161616; --fg:#e8e8e8; --muted:#9a9a9a; --line:#333; --crit:#ff8a80; --ok:#7bd88f; --warn:#ffb74d; --new:#4a4320; } }
+  body { margin:0; padding:16px; background:var(--bg); color:var(--fg); font:15px/1.45 system-ui, sans-serif; }
+  h1 { font-size:18px; margin:0 0 4px; } h2 { font-size:15px; margin:20px 0 6px; }
+  .meta { color:var(--muted); font-size:13px; }
+  table { border-collapse:collapse; width:100%; }
+  td, th { border-bottom:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:top; }
+  th { font-weight:600; color:var(--muted); font-size:13px; }
+  .crit { color:var(--crit); font-size:12px; } .null { color:var(--muted); }
+  .conf-hi { color:var(--ok); } .conf-lo { color:var(--warn); }
+  .ev { color:var(--muted); font-style:italic; } .hist { color:var(--muted); font-size:12px; text-decoration:line-through; }
+  tr.flash td { background:var(--new); transition:background 0s; } tr td { transition:background 1.5s; }
+  #question { padding:10px 12px; border:1px solid var(--line); border-radius:6px; }
+  #captions div { padding:3px 0; border-bottom:1px dotted var(--line); }
+  .wrap { overflow-x:auto; }
+</style>
+</head>
+<body>
+<h1>Incident report</h1>
+<div class="meta">session <span id="sid"></span> · <span id="status">connecting…</span></div>
+
+<h2>Bot asked</h2>
+<div id="question" class="null">nothing yet</div>
+
+<h2>Fields</h2>
+<div class="wrap"><table>
+  <thead><tr><th>field</th><th>value</th><th>conf.</th><th>evidence</th></tr></thead>
+  <tbody id="fields"></tbody>
+</table></div>
+
+<h2>Captions (final Prisma segments)</h2>
+<div id="captions" class="null">none yet</div>
+
+<script>
+const sid = location.pathname.split("/").filter(Boolean)[1];
+document.getElementById("sid").textContent = sid;
+let prev = {};
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function render(s) {
+  document.getElementById("status").textContent = s.status || "";
+  const q = document.getElementById("question");
+  if (s.question) { q.textContent = s.question.text + (s.question.field ? `  (${s.question.field}, ${s.question.reason})` : ""); q.className = ""; }
+  const rows = s.fields.map(f => {
+    const changed = prev[f.name] !== undefined && prev[f.name] !== JSON.stringify(f.value);
+    prev[f.name] = JSON.stringify(f.value);
+    const val = f.value === null ? '<span class="null">—</span>' : esc(f.value);
+    const conf = f.value === null ? "" : `<span class="${f.confidence >= s.low_confidence ? "conf-hi" : "conf-lo"}">${f.confidence.toFixed(2)}</span>`;
+    const hist = (f.history || []).map(h => `<div class="hist">${esc(h.value)}</div>`).join("");
+    return `<tr class="${changed ? "flash" : ""}"><td>${esc(f.name)}${f.critical ? ' <span class="crit">critical</span>' : ""}</td>`
+         + `<td>${val}${hist}</td><td>${conf}</td><td class="ev">${f.evidence ? "“" + esc(f.evidence) + "”" : ""}</td></tr>`;
+  }).join("");
+  document.getElementById("fields").innerHTML = rows;
+  requestAnimationFrame(() => document.querySelectorAll("tr.flash").forEach(r => r.classList.remove("flash")));
+  const c = document.getElementById("captions");
+  if (s.segments.length) { c.className = ""; c.innerHTML = s.segments.map(t => `<div>${esc(t)}</div>`).join(""); }
+}
+
+const es = new EventSource(`/report/${sid}/events`);
+es.onmessage = e => render(JSON.parse(e.data));
+es.onerror = () => document.getElementById("status").textContent = "disconnected (retrying)";
+</script>
+</body>
+</html>
