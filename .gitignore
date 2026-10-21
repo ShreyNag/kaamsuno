@@ -1,0 +1,18 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# data: audio is never committed except tiny fixtures in tests/fixtures
+data/**
+!data/**/
+!data/README.md
+!data/vad_dev/vad_labels.csv
+eval/out/
+logs/
