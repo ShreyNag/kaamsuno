@@ -31,7 +31,8 @@ Complete = Callable[[list[dict[str, str]]], Awaitable[str]]  # chat messages -> 
 
 def empty_report(schema: Schema) -> Report:
     """Every schema field, empty; the system fields we know at session start are filled."""
-    r = {n: {"value": None, "confidence": 0.0, "evidence": None, "history": [], "conflicts": []} for n in schema.names}
+    r = {n: {"value": None, "confidence": 0.0, "evidence": None, "history": [], "conflicts": [], "inferred": False}
+         for n in schema.names}
     known = {"site_name": config.SITE_NAME, "status": "draft", "reporter_confirmation": "not_obtained"}
     for name, value in known.items():
         if name in r:
@@ -57,9 +58,28 @@ def _enum_value(value: Any) -> str:
     return re.sub(r"[\s-]+", "_", str(value).strip().lower())
 
 
+# A value made only of these is a label the worker said ("employee ID ..."), not the value itself
+LABEL_WORDS = frozenset("id employee number no num naam name machine asset code worker mera meri".split())
 
-def merge_update(report: Report, updates: dict[str, Any], transcript: str, schema: Schema) -> Report:
-    """Apply LLM `updates` ({field: {value, confidence, evidence, correction?}}) to a copy of `report`.
+
+def is_known(entry: dict) -> bool:
+    """A field counts as filled only with a real, stated value: not null/empty, not "unknown", not inferred."""
+    v = entry.get("value")
+    if v is None or (isinstance(v, str) and not v.strip()) or entry.get("inferred"):
+        return False
+    return not (isinstance(v, str) and v.strip().lower() in config.UNKNOWN_VALUES)
+
+
+def _inferred(name: str, upd: dict, evidence: str) -> bool:
+    """The LLM says it guessed ("stated": false), or urgency whose evidence has no urgency word."""
+    if upd.get("stated") is False:
+        return True
+    return name == "urgency" and not set(_norm(evidence).split()) & config.URGENCY_CUES
+
+
+def merge_update(report: Report, updates: dict[str, Any], transcript: str, schema: Schema,
+                 assume_correction: bool = False) -> Report:
+    """Apply LLM `updates` ({field: {value, confidence, evidence, correction?, stated?}}) to a copy of `report`.
     The rules live here, not in the prompt, so they hold whatever the LLM says:
 
     - unknown fields, system fields, null values and values outside a field's `allowed` are ignored
@@ -72,6 +92,10 @@ def merge_update(report: Report, updates: dict[str, Any], transcript: str, schem
       and the dialogue asks which is right. Re-stating the current value clears its conflicts.
     - other fields: a different value replaces the old one (old -> `history`)
     - a quantity whose evidence isn't just the digits keeps the spoken phrase in spoken_number_raw
+    - a value that is only a label ("employee id") is dropped
+    - `inferred` marks a value the worker didn't state (the LLM's "stated": false, or urgency without an
+      urgency word in its evidence); it is kept and shown, but the dialogue still asks for it
+    - assume_correction (during the read-back): any different value is the worker correcting it
     """
     out = copy.deepcopy(report)
     said = f" {_norm(transcript)} "
@@ -83,6 +107,9 @@ def merge_update(report: Report, updates: dict[str, Any], transcript: str, schem
             continue
         if not _norm(evidence) or f" {_norm(evidence)} " not in said:
             logger.debug(f"interpreter: dropped {name}={value!r}, evidence {evidence!r} not in transcript")
+            continue
+        if isinstance(value, str) and set(_norm(value).split()) <= LABEL_WORDS:
+            logger.info(f"interpreter: dropped {name}={value!r}, a label, not a value")
             continue
         if name == "location" and not set(_norm(evidence).split()) & config.LOCATION_CUES:
             logger.info(f"interpreter: dropped location={value!r}, evidence {evidence!r} names no place")
@@ -97,17 +124,21 @@ def merge_update(report: Report, updates: dict[str, Any], transcript: str, schem
         if name == "urgency" and cur["value"] == "emergency" and value != "emergency":
             logger.info(f"interpreter: kept urgency=emergency, refused downgrade to {value!r}")
             continue
-        new = {"value": value, "confidence": _confidence(upd.get("confidence")), "evidence": evidence}
+        new = {"value": value, "confidence": _confidence(upd.get("confidence")), "evidence": evidence,
+               "inferred": _inferred(name, upd, evidence)}
+        if new["inferred"] and is_known(cur):
+            continue  # a guess never overwrites a stated value
         old_v = cur["value"]
+        correction = bool(upd.get("correction")) or assume_correction
         if old_v is None or _norm(str(old_v)) == _norm(str(value)):
             cur.update(new)
             cur["conflicts"] = []
-        elif name in config.CONFLICT_FIELDS and not upd.get("correction") and _norm(str(old_v)) not in _norm(str(value)):
+        elif name in config.CONFLICT_FIELDS and not correction and _norm(str(old_v)) not in _norm(str(value)):
             if all(_norm(str(c["value"])) != _norm(str(value)) for c in cur["conflicts"]):
                 cur["conflicts"].append(new)
             continue
         else:
-            cur["history"].append({k: cur[k] for k in ("value", "confidence", "evidence")})
+            cur["history"].append({k: cur.get(k) for k in ("value", "confidence", "evidence")})
             cur.update(new)
             cur["conflicts"] = []
         if name == "quantity" and "spoken_number_raw" in out and _norm(evidence) != _norm(str(value)):
@@ -178,6 +209,7 @@ class Interpreter:
         self.on_update = on_update
         self._log = log or (lambda event, **kw: None)
         self._results: dict[int, dict[str, Any]] = {}
+        self.assume_correction = False  # set by the dialogue during the read-back
         self._next_commit = 0
         self._tasks: set[asyncio.Task] = set()
 
@@ -219,7 +251,7 @@ class Interpreter:
         while self._next_commit in self._results:
             updates = self._results.pop(self._next_commit)
             transcript = " ".join(self.segments[: self._next_commit + 1])
-            self.report = merge_update(self.report, updates, transcript, self.schema)
+            self.report = merge_update(self.report, updates, transcript, self.schema, self.assume_correction)
             self._next_commit += 1
             changed = True
         if changed and self.on_update:

@@ -123,7 +123,8 @@ def test_unclear_different_value_is_kept_as_a_conflict_until_clarified():
     r = merge_update(r, {"quantity": upd(250, "250 bori")}, said, SCHEMA)  # no correction flag
     assert r["quantity"]["value"] == 300 and [c["value"] for c in r["quantity"]["conflicts"]] == [250]
     rest = filled(location=("Tower B", 0.9), incident_type=("material_shortage", 0.9),
-                  description=("cement short", 0.9), urgency=("normal", 0.9), unit=("bags", 0.9))
+                  description=("cement short", 0.9), urgency=("normal", 0.9), unit=("bags", 0.9),
+                  material=("cement", 0.9))
     q = next_question({**rest, "quantity": r["quantity"]}, SCHEMA, T)
     assert (q.field, q.reason) == ("quantity", "conflict") and "300 ya 250" in q.text
     said2 = said + " haan 250 sahi hai"
@@ -195,7 +196,7 @@ def filled(**values):
     return r
 
 
-ALL_CRITICAL = dict(location=("Tower B", 0.9), incident_type=("safety_hazard", 0.9),
+ALL_CRITICAL = dict(location=("Tower B", 0.9), incident_type=("other", 0.9),
                     description=("loose scaffolding", 0.9), urgency=("high", 0.9))
 
 
@@ -205,35 +206,80 @@ def test_nothing_captured_asks_the_opening_question_never_complete():
 
 
 @pytest.mark.parametrize("missing", ["location", "incident_type", "description", "urgency"])
-def test_never_complete_while_a_required_field_is_empty(missing):
+def test_a_required_field_that_is_empty_is_asked_not_read_back(missing):
     vals = {k: v for k, v in ALL_CRITICAL.items() if k != missing}
     q = next_question(filled(**vals), SCHEMA, T)
-    assert q.reason != "complete"
     assert (q.field, q.reason) == (missing, "missing")
 
 
+@pytest.mark.parametrize("value", ["unknown", "Unknown", "", "pata nahi"])
+def test_unknown_values_count_as_missing(value):
+    q = next_question(filled(**{**ALL_CRITICAL, "urgency": (value, 0.9)}), SCHEMA, T)
+    assert (q.field, q.reason) == ("urgency", "missing")
+
+
+def test_an_inferred_value_counts_as_missing():
+    r = filled(**ALL_CRITICAL)
+    r["urgency"]["inferred"] = True  # e.g. the LLM guessed "high" from "cement kam pad gaya hai"
+    assert next_question(r, SCHEMA, T).field == "urgency"
+
+
+def test_urgency_without_an_urgency_word_is_inferred():
+    said = "cement kam pad gaya hai bahut jaldi chahiye"
+    r = merge_update(empty_report(SCHEMA), {"urgency": upd("high", "cement kam pad gaya hai")}, said, SCHEMA)
+    assert r["urgency"]["inferred"]
+    r = merge_update(r, {"urgency": upd("high", "bahut jaldi chahiye")}, said, SCHEMA)
+    assert not r["urgency"]["inferred"]
+
+
+def test_llm_stated_false_marks_inferred_and_never_overwrites_a_stated_value():
+    said = "tower B mein"
+    r = merge_update(empty_report(SCHEMA), {"location": upd("Tower B", "tower B")}, said, SCHEMA)
+    r = merge_update(r, {"location": {**upd("Tower C", "tower B"), "stated": False}}, said, SCHEMA)
+    assert r["location"]["value"] == "Tower B" and not r["location"]["inferred"]
+
+
+def test_label_only_values_are_dropped():
+    said = "employee id chaar saat"
+    r = merge_update(empty_report(SCHEMA), {"asset_or_equipment": upd("employee id", "employee id")}, said, SCHEMA)
+    assert r["asset_or_equipment"]["value"] is None
+
+
 def test_guard_holds_for_a_critical_field_outside_the_ask_order(monkeypatch):
-    monkeypatch.setattr(config, "ASK_ORDER", (("location", None),))  # ask order forgot the others
+    monkeypatch.setattr(config, "ASK_FIRST", ("location",))
+    monkeypatch.setattr(config, "ASK_LAST", ())  # the ask order forgot the other required fields
     q = next_question(filled(location=("Tower B", 0.9)), SCHEMA, T)
-    assert q.reason == "missing" and q.field == "incident_type"
+    assert q.reason == "missing" and q.field in ("incident_type", "description", "urgency")
 
 
-def test_ask_order_location_first():
+def test_ask_order_required_fields_first():
     assert top_missing_field(filled(description=("crane leak", 0.9)), SCHEMA) == ("location", "missing")
     assert top_missing_field(filled(location=("Tower B", 0.9)), SCHEMA) == ("incident_type", "missing")
 
 
-def test_conditional_fields_only_for_their_incident_type():
-    eq = filled(**{**ALL_CRITICAL, "incident_type": ("equipment_failure", 0.9)})
-    assert top_missing_field(eq, SCHEMA) == ("asset_or_equipment", "missing")
-    ms = filled(**{**ALL_CRITICAL, "incident_type": ("material_shortage", 0.9)})
-    assert top_missing_field(ms, SCHEMA) == ("quantity", "missing")
-    assert top_missing_field(filled(**ALL_CRITICAL), SCHEMA) is None  # safety_hazard: neither is asked
+@pytest.mark.parametrize("itype, first", [
+    ("equipment_failure", "asset_or_equipment"),
+    ("material_shortage", "material"),
+    ("safety_hazard", "people_at_risk"),
+    ("injury_or_near_miss", "people_at_risk"),
+    ("other", None),
+])
+def test_type_dependent_fields_after_the_required_ones(itype, first):
+    schema = parse_schema({**PLACEHOLDER_SCHEMA, "fields": PLACEHOLDER_SCHEMA["fields"] + [
+        {"name": "people_at_risk", "type": "string", "required": False, "description": "who"}]})
+    r = empty_report(schema)
+    for k, (v, c) in {**ALL_CRITICAL, "incident_type": (itype, 0.9)}.items():
+        r[k].update(value=v, confidence=c, evidence="x")
+    q = next_question(r, schema, T)
+    assert q.field == first and (q.reason == "missing" if first else q.reason == "readback")
 
 
-def test_urgency_not_asked_when_already_clear():
-    vals = {**ALL_CRITICAL, "urgency": ("high", 0.9)}
-    assert next_question(filled(**vals), SCHEMA, T).reason == "complete"
+def test_equipment_without_an_id_gets_the_id_question():
+    r = filled(**{**ALL_CRITICAL, "incident_type": ("equipment_failure", 0.9)}, asset_or_equipment=("crane", 0.9))
+    q = next_question(r, SCHEMA, T)
+    assert (q.field, q.reason, q.text) == ("asset_or_equipment", "missing_id", "crane ka ID ya number kya hai?")
+    r["asset_or_equipment"]["value"] = "crane C-7"
+    assert next_question(r, SCHEMA, T).reason == "readback"
 
 
 def test_emergency_skips_all_questions():
@@ -246,16 +292,55 @@ def test_missing_beats_low_confidence():
     assert top_missing_field(r, SCHEMA) == ("incident_type", "missing")
 
 
-def test_low_confidence_asked_once_nothing_is_missing():
+def test_low_confidence_number_is_confirmed():
     vals = {**ALL_CRITICAL, "urgency": ("high", 0.4)}
     q = next_question(filled(**vals), SCHEMA, T)
     assert (q.field, q.reason) == ("urgency", "low_confidence")
     assert q.text == "Ek baar confirm kijiye: urgency high hai, sahi?"
 
 
-def test_complete_only_when_every_required_field_is_filled():
+def test_complete_report_gets_a_readback_not_an_announcement():
     q = next_question(filled(**ALL_CRITICAL), SCHEMA, T)
-    assert q.field is None and q.reason == "complete"
+    assert q.reason == "readback" and "taiyaar" not in q.text
+    assert q.text.startswith("Main report read-back kar raha hoon: Tower B, other, urgency high")
+
+
+def test_question_cap_then_readback():
+    from app.interpreter.dialogue import DialogueManager
+
+    dm = DialogueManager(max_questions=1, low_confidence=0.95)
+    r = filled(**ALL_CRITICAL)  # everything at 0.9 < 0.95: four confirmations pending
+    assert dm.decide(r, SCHEMA, T).reason == "low_confidence"
+    assert dm.decide(r, SCHEMA, T).reason == "readback"  # cap of 1 reached
+
+
+def test_never_the_same_line_twice_in_a_row():
+    from app.interpreter.dialogue import DialogueManager
+
+    dm = DialogueManager()
+    r = filled(location=("Tower B", 0.9))
+    first = dm.decide(r, SCHEMA, T)
+    second = dm.decide(r, SCHEMA, T, "")  # the worker said nothing usable
+    assert first.field == second.field == "incident_type"
+    assert second.text != first.text and second.reason == "repeat"
+    third = dm.decide(r, SCHEMA, T, "")  # asked twice: move on
+    assert third.text not in (first.text, second.text)
+
+
+def test_readback_yes_no_and_correction():
+    from app.interpreter.dialogue import DialogueManager
+
+    dm = DialogueManager()
+    r = filled(**ALL_CRITICAL)
+    assert dm.decide(r, SCHEMA, T).reason == "readback"
+    assert dm.decide(r, SCHEMA, T, "nahi").reason == "rejection"
+    q = dm.decide(r, SCHEMA, T, "nahi, Bay 3", changed={"location": "Bay 3"})
+    assert (q.reason, q.field, q.text) == ("reread", "location", "Theek hai, location Bay 3. Sahi hai?")
+    q = dm.decide(r, SCHEMA, T, "haan sahi hai")
+    assert q.reason == "confirmed" and dm.confirmation == "corrected_then_confirmed"
+    assert dm.decide(r, SCHEMA, T, "theek hai").silent  # nothing new after confirming: say nothing
+    q = dm.decide(r, SCHEMA, T, "aur do log bhi the", changed={"description": "two people there"})
+    assert q.reason == "reread" and dm.phase == "readback"  # new info after confirming: re-read it
 
 
 def test_location_must_name_a_place():

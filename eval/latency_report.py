@@ -81,6 +81,27 @@ def hop_ms(row: dict, a: str, b: str) -> float | None:
     return (row[b] - row[a]) * 1000 if a in row and b in row else None
 
 
+def barge_ins(events: list[dict]) -> list[dict]:
+    """User speech starting while the bot is talking -> when the bot stopped (and whether an
+    interruption was broadcast in between). One row per barge-in."""
+    out: list[dict] = []
+    speaking, pending = False, None
+    for r in events:
+        e, ts = r["event"], r["ts"]
+        if e == "bot_started":
+            speaking = True
+        elif e == "speech_start" and speaking and pending is None:
+            pending = {"speech_start": ts, "interruption": None}
+        elif e == "interruption" and pending is not None and pending["interruption"] is None:
+            pending["interruption"] = ts
+        elif e == "bot_stopped":
+            speaking = False
+            if pending is not None:
+                out.append({**pending, "bot_stopped": ts, "reaction_ms": (ts - pending["speech_start"]) * 1000})
+                pending = None
+    return out
+
+
 def _row(name: str, v: list[float]) -> str:
     if not v:
         return f"| {name} | 0 | - | - |"
@@ -95,10 +116,16 @@ def hop_table(rows: list[dict]) -> list[str]:
     return out
 
 
-def report(rows: list[dict], last: int) -> str:
+def report(rows: list[dict], last: int, barges: list[dict] | None = None) -> str:
     out: list[str] = []
     for mode in sorted({r["mode"] for r in rows}):
         out += [f"## turn mode: {mode}", ""] + hop_table([r for r in rows if r["mode"] == mode]) + [""]
+    if barges:
+        v = [b["reaction_ms"] for b in barges]
+        missed = sum(b["interruption"] is None for b in barges)
+        out += ["## Barge-in (user speech start during bot audio -> bot audio stops)", "",
+                "| n | p50 ms | p95 ms | max ms | without an interruption frame |", "|---:|---:|---:|---:|---:|",
+                f"| {len(v)} | {np.percentile(v, 50):.0f} | {np.percentile(v, 95):.0f} | {max(v):.0f} | {missed} |", ""]
     out += [f"Last {min(last, len(rows))} turns:", "",
             "| session | mode | speech_end->turn_end ms | last speech->turn_end ms | text |", "|---|---|---:|---:|---|"]
     for r in rows[-last:]:
@@ -113,8 +140,9 @@ def main() -> None:
     ap.add_argument("--last", type=int, default=10)
     args = ap.parse_args()
     paths = args.logs or sorted(LOG_DIR.glob("*.jsonl"))
-    rows = [row for p in paths for row in turns_from_events(read_events(p), p.stem)]
-    print(report(rows, args.last))
+    events = {p: read_events(p) for p in paths}
+    rows = [row for p in paths for row in turns_from_events(events[p], p.stem)]
+    print(report(rows, args.last, [b for p in paths for b in barge_ins(events[p])]))
 
 
 if __name__ == "__main__":

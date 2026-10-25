@@ -77,6 +77,16 @@ PLACEHOLDER_TEMPLATES = {
     "_conflict": "{field_label} pe do baatein suni: {values}. Kaunsa sahi hai?",
     "_emergency": "Yeh emergency hai. Main abhi supervisor ko alert kar raha hoon. Aap safe jagah pe rahiye.",
     "_generic": "{field_label} bataiye.",
+    "people_at_risk": "Kya koi aur log khatre mein hain? Kitne log?",
+    "_asset_id": "{asset} ka ID ya number kya hai?",
+    "_repeat": "Yeh detail clear nahi hui, please ek baar repeat kar do.",
+    # read-back (minimal, pulled forward from Phase 3; sending to the supervisor stays in Phase 3)
+    "_readback": "Main report read-back kar raha hoon. Sahi hai toh confirm kar do.",
+    "_readback_prompt": "Report sahi hai? Haan ya nahi boliye.",
+    "_reread": "Theek hai, {changes}. Sahi hai?",
+    "_rejection": "Theek hai, kaunsi detail galat hai? Woh bata dijiye.",
+    "_confirmed": "Theek hai, report confirm ho gayi. Dhanyavaad.",
+    "_not_given": "{field_label} nahi pata",
 }
 
 
@@ -104,9 +114,9 @@ class Schema:
 
     @property
     def critical_priority(self) -> list[str]:
-        """Critical fields in ask order (config.ASK_ORDER first, then schema order)."""
+        """Critical fields in ask order (config.ASK_FIRST + ASK_LAST order first, then schema order)."""
         crit = [f.name for f in self.fields if f.critical]
-        ordered = [n for n, _ in config.ASK_ORDER if n in crit]
+        ordered = [n for n in (*config.ASK_FIRST, *config.ASK_LAST) if n in crit]
         return ordered + [n for n in crit if n not in ordered]
 
     @property

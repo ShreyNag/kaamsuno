@@ -56,10 +56,10 @@ OURS: dict[str, dict[str, list[str]]] = {
         "hi": ["Achha, kaunsi baat galat hai? Kripya woh bataiye."],
         "en": ["Okay, which detail is wrong? Tell me and I'll fix it."],
     },
-    "_confirmed": {  # Phase 3: after the read-back is approved
-        "hinglish": ["Theek hai, report bhej diya. Dhanyavaad."],
-        "hi": ["Theek hai, report bhej di gayi hai. Dhanyavaad."],
-        "en": ["Done, the report has been sent. Thank you."],
+    "_confirmed": {  # after the read-back is approved; sending to the supervisor is Phase 3, so not "bhej diya"
+        "hinglish": ["Theek hai, report confirm ho gayi. Dhanyavaad."],
+        "hi": ["Theek hai, report pakki ho gayi. Dhanyavaad."],
+        "en": ["Okay, the report is confirmed. Thank you."],
     },
     # Keys her scripts don't cover: hi/en versions of the Hinglish placeholders (which stay the hinglish text)
     "incident_type": {"hi": ["Kya hua hai? Machine kharab hai, saamaan kam hai, ya koi khatra hai?"],
@@ -72,6 +72,14 @@ OURS: dict[str, dict[str, list[str]]] = {
                         "en": ["Just to confirm: {field_label} is {value}, right?"]},
     "_conflict": {"hi": ["{field_label} ke liye do baatein suni: {values}. Kaunsi sahi hai?"],
                   "en": ["I heard two values for {field_label}: {values}. Which one is right?"]},
+    "material": {"hi": ["Kaunsa saamaan hai?"], "en": ["Which material is it?"]},
+    "people_at_risk": {"hi": ["Kya koi aur log khatre mein hain? Kitne log?"],
+                       "en": ["Is anyone else at risk? How many people?"]},
+    "_asset_id": {"hi": ["{asset} ka ID ya number kya hai?"], "en": ["What is the {asset}'s ID or number?"]},
+    "_readback_prompt": {"hi": ["Kya report sahi hai? Haan ya nahi boliye."],
+                         "en": ["Is the report correct? Please say yes or no."]},
+    "_reread": {"hi": ["Achha, {changes}. Sahi hai?"], "en": ["Okay, {changes}. Is that right?"]},
+    "_not_given": {"hi": ["{field_label} nahi pata"], "en": ["{field_label} not given"]},
 }
 
 # Common English words, to tell English from Hinglish from (romanised) Hindi

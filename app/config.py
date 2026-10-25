@@ -84,7 +84,8 @@ LOW_CONFIDENCE = 0.6  # a critical field below this is asked about again
 # At turn end, wait this long for in-flight interpreter calls, then ask from the report as it is
 INTERPRETER_DRAIN_TIMEOUT_S = float(_env("INTERPRETER_DRAIN_TIMEOUT_S", "1.2"))
 GREETING = "Namaste. Kya hua hai? Bataiye."
-READBACK_PLACEHOLDER = "Shukriya, saari zaroori jaankari mil gayi. Report taiyaar hai."
+MAX_QUESTIONS = int(_env("MAX_QUESTIONS", "3"))  # field questions per report; then read back what we have
+MAX_ASKS_PER_FIELD = 2  # a field the worker doesn't answer is asked at most twice (the 2nd time rephrased)
 
 # Report schema (research/schema.json, Aastha's KaamSuno v1.x format; see app/interpreter/schema.py)
 SITE_NAME = _env("SITE_NAME", "Demo Site A")  # one site per demo session: recorded, never asked
@@ -94,17 +95,27 @@ NOT_ASKED_REQUIRED = ("reporter_confirmation", "site_name")
 SYSTEM_FIELDS = ("incident_id", "reported_at", "site_name", "spoken_number_raw", "missing_fields", "uncertainties",
                  "conflicts", "source_language", "transcript", "report_summary_spoken", "reporter_confirmation",
                  "status")
-# Question order after the emergency check. (field, condition): the field is only asked when
-# incident_type equals the condition (None = always). A filled field is never asked.
-ASK_ORDER: tuple[tuple[str, str | None], ...] = (
-    ("location", None),
-    ("incident_type", None),
-    ("asset_or_equipment", "equipment_failure"),
-    ("description", None),
-    ("quantity", "material_shortage"),
-    ("unit", "material_shortage"),
-    ("urgency", None),
-)
+# Question order after the emergency check: location, incident_type, then the important fields for
+# that incident type (TYPE_FIELDS), then description and urgency. A filled field is never asked.
+ASK_FIRST = ("location", "incident_type")
+ASK_LAST = ("description", "urgency")
+TYPE_FIELDS: dict[str, tuple[str, ...]] = {
+    "equipment_failure": ("asset_or_equipment",),  # and its ID: asked separately if the value has no digits
+    "material_shortage": ("material", "quantity", "unit"),
+    "safety_hazard": ("people_at_risk",),
+    "injury_or_near_miss": ("people_at_risk",),
+}
+NEEDS_ID = ("asset_or_equipment",)  # a value without any digit gets one "what's its ID?" question
+# Values that mean "not known": a field holding one of these counts as missing
+UNKNOWN_VALUES = frozenset({"unknown", "not_obtained", "pata nahi", "n/a", "na", "none", "null", "-"})
+# Urgency counts as stated only if its evidence has one of these words; otherwise the LLM guessed it
+URGENCY_CUES = frozenset("""
+urgent urgently jaldi jaldii abhi turant foran fauran immediately asap emergency critical serious priority
+khatra khatarnak danger dangerous aag fire chot injury injured hurt bleeding khoon gas leak current shock
+collapse gir gira giri girne electrocution spark sparks fatal maut
+aaj kal later baad tak hurry koi hafte normal low high
+तुरंत जल्दी अभी फौरन इमरजेंसी खतरा आग चोट खून गैस करंट गिर आज कल बाद
+""".split())
 # A different value for these is a conflict (both kept, confirm) unless the worker clearly corrects it;
 # other fields (summaries, categories) are simply replaced
 CONFLICT_FIELDS = ("location", "quantity", "unit", "asset_or_equipment", "material", "date_or_time")

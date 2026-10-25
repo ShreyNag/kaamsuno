@@ -15,6 +15,8 @@ from typing import Any
 
 from pipecat.frames.frames import (
     BotStartedSpeakingFrame,
+    BotStoppedSpeakingFrame,
+    InterruptionFrame,
     InterimTranscriptionFrame,
     MetricsFrame,
     TranscriptionFrame,
@@ -63,6 +65,7 @@ class HopObserver(BaseObserver):
     _TRACKED = (
         VADUserStartedSpeakingFrame, VADUserStoppedSpeakingFrame, UserStoppedSpeakingFrame,
         InterimTranscriptionFrame, TranscriptionFrame, TTSAudioRawFrame, BotStartedSpeakingFrame, MetricsFrame,
+        BotStoppedSpeakingFrame, InterruptionFrame,
     )
 
     def __init__(self, hops: HopLogger):
@@ -102,7 +105,13 @@ class HopObserver(BaseObserver):
         elif isinstance(f, TTSAudioRawFrame) and self._awaiting_tts:
             h.log("tts_first_byte")
             self._awaiting_tts = False
-        elif isinstance(f, BotStartedSpeakingFrame) and self._awaiting_playback:
-            h.log("playback_start")
-            self._awaiting_playback = False
-            h.next_turn()
+        elif isinstance(f, BotStartedSpeakingFrame):
+            h.log("bot_started")
+            if self._awaiting_playback:
+                h.log("playback_start")
+                self._awaiting_playback = False
+                h.next_turn()
+        elif isinstance(f, BotStoppedSpeakingFrame):
+            h.log("bot_stopped")
+        elif isinstance(f, InterruptionFrame):
+            h.log("interruption", source=type(data.source).__name__)

@@ -1,7 +1,8 @@
-"""Pipeline glue for the reporter: segments -> interpreter (silent), turn end -> one question.
+"""Pipeline glue for the reporter: segments -> interpreter (silent), turn end -> one dialogue move.
 
 Sits after the UserTurnProcessor. It never generates free text: the only thing
-it ever sends to TTS is a template question from dialogue.py (or the greeting).
+it ever sends to TTS is a template line chosen by dialogue.DialogueManager (or the greeting),
+and some turns it says nothing at all.
 
 With `reports_dir`, every update also rewrites <reports_dir>/<session_id>.json:
 each field's value, confidence, evidence and history, plus the full transcript.
@@ -28,8 +29,8 @@ from pipecat.frames.frames import (
 from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
 
 from app import config
-from app.interpreter.dialogue import Question, next_question
-from app.interpreter.interpreter import Interpreter, Report
+from app.interpreter.dialogue import DialogueManager, Question
+from app.interpreter.interpreter import Interpreter, Report, is_known
 from app.interpreter.schema import Schema
 from app.interpreter.templates import TemplateBook, detect_language
 from app.logging_utils import HopLogger
@@ -60,6 +61,8 @@ class ReportProcessor(FrameProcessor):
         self._report_path = reports_dir / f"{session_id}.json" if reports_dir else None
         self._questions: list[dict] = []
         self._turn_first_segment = 0
+        self.dialogue = DialogueManager()
+        self._known_at_last_turn: dict[str, object] = {}  # stated values when the bot last spoke
         self._last_speech_end = 0.0
         self._question: Question | None = None
         self._status = "waiting for the worker"
@@ -167,15 +170,34 @@ class ReportProcessor(FrameProcessor):
         lang = detect_language(said) if said else "hinglish"
         templates = self._templates.for_language(lang) if isinstance(self._templates, TemplateBook) \
             else self._templates
-        self._question = next_question(self._interp.report, self._schema, templates)
-        self._hops.log("question", field=self._question.field, reason=self._question.reason, text=self._question.text,
-                       language=lang)
-        self._questions.append({"field": self._question.field, "reason": self._question.reason,
-                                "text": self._question.text})
-        self._status = "bot asking" if self._question.field else "report complete"
+        changed = self._changed_fields()
+        dm = self.dialogue
+        self._question = q = dm.decide(self._interp.report, self._schema, templates, said, changed)
+        # During the read-back a different value from the worker is a correction, never a conflict
+        self._interp.assume_correction = dm.phase in ("readback", "confirmed")
+        self._set_system("reporter_confirmation", dm.confirmation)
+        self._set_system("status", {"collecting": "draft", "readback": "awaiting_confirmation",
+                                    "confirmed": "awaiting_confirmation"}[dm.phase])  # "submitted" is Phase 3
+        self._hops.log("question", field=q.field, reason=q.reason, text=q.text, language=lang, phase=dm.phase,
+                       changed=sorted(changed) or None)
+        self._questions.append({"field": q.field, "reason": q.reason, "text": q.text})
+        self._status = {"collecting": "bot asking", "readback": "read-back: waiting for yes/no",
+                        "confirmed": "report confirmed"}[dm.phase]
         self.publish()
         if self._set_context:
-            confirm = self._question.reason in ("low_confidence", "conflict")
-            self._set_context(DialogueContext(self._question.field, confirm))
-        await self.push_frame(TTSSpeakFrame(self._question.text))
+            self._set_context(DialogueContext(q.field, q.expects_yes_no))
+        if not q.silent:
+            await self.push_frame(TTSSpeakFrame(q.text))
         self._turn_task = None
+
+    def _changed_fields(self) -> dict[str, object]:
+        """Interpreter fields whose stated value is new or different since the bot last spoke."""
+        now = {f.name: self._interp.report[f.name]["value"] for f in self._schema.llm_fields
+               if is_known(self._interp.report[f.name])}
+        changed = {n: v for n, v in now.items() if self._known_at_last_turn.get(n) != v}
+        self._known_at_last_turn = now
+        return changed
+
+    def _set_system(self, name: str, value) -> None:
+        if name in self._interp.report:
+            self._interp.report[name].update(value=value, confidence=1.0, evidence="system")

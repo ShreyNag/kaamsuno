@@ -175,3 +175,29 @@ Measured on the last 10 turns in `logs/` (`python -m eval.latency_report`):
   - Ours for now: filler_pause → say nothing; rejection → "kaunsi detail galat hai?"; confirmation → "report bhej diya" (Phase 3); emergency → DIA014's pattern (safe distance, supervisor alerted, urgent report) in hi/hinglish/en.
   - `missing_location` asks for the *site* as well ("Kaunsi site aur exact area hai?"), but the site comes from config in our setup. Ask her for area-only variants.
 - Still missing from her file, so placeholders remain: confirmation templates with slots (`{digits}`, `{value} {unit}`), the yes/no answer lists, the backchannel list and the emergency trigger words.
+
+## Live test 2 (2026-10-25, fixed_timeout): "report taiyar hai" on every turn; barge-in
+
+- **What the log showed:**
+  - By turn 2 the report held location, incident_type=material_shortage, description, material and **urgency=high**, but the urgency was guessed: its evidence, "cement kam pad gaya hai", says nothing about urgency.
+  - After "dedh sau bori cement" everything asked was filled, so "complete" was correct by the old rules. With no read-back state it repeated on every later turn.
+  - The quantity question was asked twice in a row (the worker's speech in between produced no transcript).
+  - `reporter_name_or_id = "employee id"`: the label stored as the value.
+  - Prisma closed the session after 60 s without speech (`timeout_reason: idle`); the plugin reconnected on the next audio.
+- **Counts as missing: null, empty, `UNKNOWN_VALUES` ("unknown", "pata nahi"…) or `inferred`.** The interpreter now returns `stated` per value. Code also marks urgency as inferred when its evidence contains no urgency word (`config.URGENCY_CUES`). An inferred value is kept and shown, but still asked, and never overwrites a stated one. A value made only of label words ("employee id") is dropped.
+- **Dialogue manager (stateful, `dialogue.DialogueManager`):**
+  - Required fields first (location, incident_type, description, urgency), then the type table in config (`TYPE_FIELDS`): equipment_failure → asset_or_equipment, plus one ID question if the value has no digit; material_shortage → material, quantity, unit; safety_hazard / injury_or_near_miss → people_at_risk.
+  - Low-confidence values and conflicts are confirmed.
+  - `MAX_QUESTIONS` = 3 caps everything **except missing required fields**, so the cap never forces a read-back while a required field could still be asked. Each field is asked at most twice; the second time rephrased ("_repeat").
+  - **The same line is never spoken twice in a row:** rephrase or stay silent.
+- **Minimal read-back pulled forward from Phase 3** (sending stays in Phase 3):
+  - Format: her readback template split as intro + question, with the values in between, urgency last; a missing required field is read as "… nahi pata".
+  - Then: yes → "report confirm ho gayi" (not "bhej diya"), `reporter_confirmation` = confirmed / corrected_then_confirmed. No → "kaunsi detail galat hai?". A changed field → re-read only the change ("Theek hai, location Bay 3. Sahi hai?"). New information after confirming → re-read it.
+  - During the read-back a different value is always a correction (`Interpreter.assume_correction`), never a conflict.
+  - Status: draft → awaiting_confirmation. "submitted" is Phase 3.
+- **Barge-in: not broken by today's turn strategy.**
+  - Every turn start still broadcasts an `InterruptionFrame` (enable_interruptions defaults to True on the VAD start strategy, unchanged since Gate 1).
+  - The SmallWebRTC output awaits each chunk, so an interruption cuts within one chunk.
+  - `tests/test_barge_in.py`: speech during bot audio → `InterruptionFrame` at the bot's output in **228–244 ms** in all three modes (real Silero, our strategy, the reporter).
+  - Most likely what was heard: the bot *was* interrupted, but ~1.5 s later, at the end of the worker's turn, it said the same "taiyar hai" line again. That's fixed by the read-back and the no-repeat rule.
+  - The hop log now records `interruption`, `bot_started` and `bot_stopped`, and `latency_report` reports barge-in reaction time (speech start during bot audio → bot audio stops) and any barge-in without an interruption frame. The next live log will confirm it.

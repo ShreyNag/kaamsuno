@@ -14,7 +14,7 @@ You receive JSON with:
 - "new_segment": the latest segment
 
 Return ONLY a JSON object of this shape:
-{{"updates": {{"<field>": {{"value": <string or number>, "confidence": <0..1>, "evidence": "<exact words>", "correction": <true|false>}}}}}}
+{{"updates": {{"<field>": {{"value": <string or number>, "confidence": <0..1>, "evidence": "<exact words>", "correction": <true|false>, "stated": <true|false>}}}}}}
 
 Rules:
 1. Only include a field when the worker's words support it. Never guess or invent values.
@@ -23,6 +23,8 @@ Rules:
 3. "correction": true only when the worker clearly replaces an earlier value ("nahi nahi, chauthi manzil",
    "300 nahi, 250"). A different value without a clear correction is reported with "correction": false.
 4. Enum fields: use one of the allowed values exactly.
+   "stated": true only if the worker said it; false if you inferred it (e.g. urgency guessed from the problem).
+   An ID or name field needs the actual ID or name, not the words "employee ID" or "machine number".
 5. Numbers as digits ("dhai sau" -> 250). Keep units separate in "unit"; never guess a missing unit.
 6. confidence: 0.9+ when stated plainly, 0.5-0.8 when implied or the transcript looks garbled.
 7. Keep values short: "Tower B, 3rd floor", not a sentence. description may be one short sentence in English.
