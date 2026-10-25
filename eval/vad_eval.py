@@ -17,8 +17,10 @@ Two decision views, from the same confidences:
     deployed  that decision run through Pipecat's start/stop counters (VAD_START_SECS / VAD_STOP_SECS),
               i.e. what the bot's turn logic actually sees (STOPPING still counts as speech)
 
-Tuning: each VAD has one knob (custom: candidate share; Silero: confidence; WebRTC:
-aggressiveness; composite: Silero confidence x custom share). Leave-one-clip-out: for every
+Tuning: custom has five knobs (energy-gate alpha, flatness max, peak-concentration min, min votes,
+candidate share per chunk; features are computed once per mix, only the votes are redone); Silero:
+confidence; WebRTC: aggressiveness; composite: Silero confidence x custom share (custom at its
+config thresholds). Leave-one-clip-out: for every
 clip, pick the knob with the best mean raw F2 on the OTHER clips (all conditions), then score
 the held-out clip with it. Only held-out scores are reported.
 
@@ -31,7 +33,7 @@ import argparse
 import csv
 import itertools
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 import numpy as np
@@ -46,7 +48,8 @@ HOP_S = 0.01  # scoring resolution
 OUT_DIR = ROOT / "eval" / "out"
 
 GRIDS: dict[str, list] = {
-    "custom": [0.5, 1.0],  # share of 10 ms candidate frames in a 20 ms chunk
+    # (gate_alpha, flatness_max, peak_conc_min, min_votes, share of 10 ms candidate frames in a 20 ms chunk)
+    "custom": list(itertools.product([0.2, 0.3, 0.4], [0.3, 0.35, 0.45], [0.35, 0.45], [1, 2], [0.5, 1.0])),
     "silero": [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
     "webrtc": [0, 1, 2, 3],  # aggressiveness
     "composite": list(itertools.product([0.3, 0.5, 0.7], [0.34, 0.67, 1.0])),  # (silero conf, custom share)
@@ -104,11 +107,11 @@ def frame_share(cand: np.ndarray, x_len: int, chunk_s: float) -> np.ndarray:
     share, cnt = np.zeros(n_chunks), np.zeros(n_chunks)
     np.add.at(share, idx[keep], cand[keep].astype(float))
     np.add.at(cnt, idx[keep], 1)
-    out, last = np.zeros(n_chunks), 0.0
-    for i in range(n_chunks):
-        last = share[i] / cnt[i] if cnt[i] else last
-        out[i] = last
-    return out
+    have = cnt > 0
+    filled = np.where(have, np.arange(n_chunks), -1)
+    last = np.maximum.accumulate(filled)  # index of the latest chunk that completed a frame
+    val = np.where(have, share / np.maximum(cnt, 1), 0.0)
+    return np.where(last >= 0, val[np.maximum(last, 0)], 0.0)
 
 
 _silero = None
@@ -142,6 +145,7 @@ class ClipConf:
     """Everything needed to score any knob value without re-running a model."""
 
     n: int
+    custom_feats: dict
     custom_share20: np.ndarray
     custom_share32: np.ndarray
     silero: np.ndarray
@@ -150,8 +154,11 @@ class ClipConf:
 
 def confidences(x: np.ndarray) -> ClipConf:
     cand = custom_frames(x)
+    feats = custom_vad.F.compute_features(x, custom_vad.VAD)
     return ClipConf(
         n=len(x),
+        custom_feats={k: feats[k] for k in ("energy_db", "gate_floor_db", "gate_peak_db", "flatness",
+                                            "flatness_full", "peak_conc", "zcr")},
         custom_share20=frame_share(cand, len(x), CHUNK_S["custom"]),
         custom_share32=frame_share(cand, len(x), CHUNK_S["composite"]),
         silero=silero_conf(x),
@@ -159,9 +166,22 @@ def confidences(x: np.ndarray) -> ClipConf:
     )
 
 
+def custom_candidates(f: dict, gate_alpha: float, flatness_max: float, peak_conc_min: float,
+                      min_votes: int) -> np.ndarray:
+    """custom_vad.candidates() with other thresholds, from features computed once."""
+    cfg = replace(custom_vad.VAD, gate_alpha=gate_alpha, flatness_max=flatness_max, peak_conc_min=peak_conc_min,
+                  min_votes=min_votes)
+    floor, peak = f["gate_floor_db"], f["gate_peak_db"]
+    thr = floor + np.maximum(cfg.gate_alpha * (peak - floor), cfg.gate_min_margin_db)
+    gate = (f["energy_db"] > thr) & (f["energy_db"] > cfg.abs_floor_dbfs)
+    votes = sum(v.astype(int) for v in custom_vad.F.feature_votes(f, cfg).values())
+    return gate & (votes >= cfg.min_votes)
+
+
 def chunk_decisions(cc: ClipConf, vad: str, knob) -> np.ndarray:
     if vad == "custom":
-        return cc.custom_share20 >= knob
+        *thresholds, share = knob
+        return frame_share(custom_candidates(cc.custom_feats, *thresholds), cc.n, CHUNK_S["custom"]) >= share
     if vad == "silero":
         return cc.silero >= knob
     if vad == "webrtc":

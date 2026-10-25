@@ -236,3 +236,32 @@ Measured on the last 10 turns in `logs/` (`python -m eval.latency_report`):
   - **Deviation from the request:** ID read-outs ("ID chaar saat …") get their own class `id_in_progress` at 3000 ms. With 2000 ms, the required 2.5 s pause after "chaar saat" would end the turn. Quantities keep 2000 ms.
   - `NUMBER_SOUNDALIKES` ("saal", "no", …) count as digits only mid read-out.
 - **Not fixed:** two early turn ends after complete sentences (Smart Turn 0.97–0.98; the worker added "ID C twelve" after 0.6–0.9 s). They were silent: the pending question is cancelled when the worker resumes, so the bot never spoke. Nothing in the text says more is coming.
+
+## VAD comparison on real recordings (2026-10-25)
+
+- **Data:** s01–s12 (one speaker), drilling, generator and traffic (CC0). `hammering.wav`, `crowd.wav` and `LICENSES.md` were not in `data/noise/`. White, pink and 50 Hz hum are generated.
+  - `eval/prep_audio.py` checked every file and wrote 16 kHz mono 16-bit copies to `data/vad_dev/` and `data/noise_16k/`; the originals are untouched.
+  - The noise files were 48 kHz / 44.1 kHz stereo, and `traffic.wav` is an MP3 with a .wav name.
+- **Recording quality:** no clip is clipped (s12 peaks at −1.2 dBFS). None is quiet by the −40 dBFS rule; the quietest are s03 (p95 −37.8) and s01, not s06/s10.
+  - **Every clip is noise-gated:** the floor between words is digital silence (−97 dBFS), so the recorder suppressed noise.
+  - **The scripted 1.5–2 s pauses are 0.3–0.6 s of silence in the audio** (s02: a held "ummm", then about 0.3 s). Possibly the app trims silence.
+  - s09 ends mid-speech.
+  - These clips don't exercise long-pause turn-taking. Record that with the gate and noise suppression off.
+- **Labeller (`eval/auto_label.py`):**
+  - The threshold is never below `peak − 30 dB`. A floor at digital silence otherwise made clicks and breaths at −60 to −80 dBFS "speech".
+  - Padding inside a gap is capped at gap/4 per side, so every pause of 300 ms or more stays non-speech. Gaps under 300 ms are bridged.
+  - Plots are in `eval/out/plots/real/`.
+- **Custom tuning:** five knobs (gate α, flatness max, peak-concentration min, min votes, chunk share), 72 combinations, leave-one-clip-out. Features are computed once per mix and only the votes are redone; the result is identical to `custom_vad` at the config values.
+- **Result (held-out, raw view):**
+
+  | VAD | F1 | recall | false alarm |
+  |---|---:|---:|---:|
+  | Silero | 0.92 | 0.86 | 1.3 % |
+  | WebRTC | 0.90 | 0.87 | 23.6 % |
+  | custom | 0.79 | 0.67 | 11.2 % |
+  | composite | 0.69 | 0.52 | 0.1 % |
+
+  - Every fold picked the most permissive end of each grid (Silero 0.3; custom α 0.2, min votes 1, share 0.5). The F2 objective and the padded labels favour recall.
+  - Custom beats Silero on false alarms only in white noise and hum (0.000 vs 0.007–0.015). It loses on recall in every condition, and on false alarms in pink noise (40 %), generator (17–20 %), traffic (8–10 %) and drilling (4–5 %).
+  - Composite cuts false alarms to about 0, but loses a third of Silero's recall: 0.52 vs 0.86 raw, 0.55 vs 0.84 deployed.
+- **Recommendation: Silero for the live bot** (`VAD_MODE=silero`). The config default is still `composite`; not switched without asking.
