@@ -132,6 +132,12 @@ def build_system_prompt(schema: Schema, path: Path | None = None) -> str:
     )
 
 
+def _default_uncertainty_cue(text: str) -> str | None:
+    from app.turn.tail_classifier import load_fillers
+
+    return load_fillers().find(text, "uncertainty")
+
+
 def groq_complete(model: str = config.LLM_MODEL) -> Complete:
     """JSON-mode chat completion against Groq's OpenAI-compatible endpoint."""
     from openai import AsyncOpenAI
@@ -160,8 +166,11 @@ class Interpreter:
         system_prompt: str | None = None,
         on_update: Callable[[Report], Awaitable[None]] | None = None,
         log: Callable[..., None] | None = None,
+        uncertainty_cue: Callable[[str], str | None] | None = None,
     ):
         self.schema = schema
+        # "shayad", "pata nahi", "lagbhag"...: values from such a segment get confirmed (Aastha's fillers.json)
+        self._uncertainty_cue = uncertainty_cue or _default_uncertainty_cue
         self.report = empty_report(schema)
         self.segments: list[str] = []
         self._complete = complete
@@ -195,6 +204,13 @@ class Interpreter:
             logger.error(f"interpreter call {seq} failed: {e}")
             updates = {}
         self._log("interp_response", seq=seq, ms=round((time.time() - t0) * 1000), fields=sorted(updates))
+        cue = self._uncertainty_cue(text) if updates else None
+        if cue:
+            cap = config.LOW_CONFIDENCE - 0.1
+            for upd in updates.values():
+                if isinstance(upd, dict):
+                    upd["confidence"] = min(_confidence(upd.get("confidence")), cap)
+            self._log("interp_uncertain", seq=seq, cue=cue, fields=sorted(updates))
         self._results[seq] = updates
         await self._commit_in_order()
 

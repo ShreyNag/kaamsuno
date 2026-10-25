@@ -115,3 +115,38 @@ def test_fillers_json_accepts_script_sublists(tmp_path):
     assert clf.classify("phir se").tail_class == "continuation"
     assert clf.classify("kaam khatam ho gaya").tail_class == "completion"
     assert clf.classify("cement umm").tail_class == "other"  # Aastha's lists replace the placeholder
+
+
+def test_aasthas_entries_format(tmp_path):
+    def e(phrase, function, note="seed phrase; verify", ctx=""):
+        return {"phrase": phrase, "function": function, "regional_or_register_note": note, "example_context": ctx}
+
+    main = tmp_path / "fillers.json"
+    main.write_text(json.dumps({"entries": [
+        e("umm", "hesitation_or_thinking"),
+        e("uhm", "variant_or_spelling", "spelling/script variant", "Variant associated with 'umm'."),
+        e("uske baad", "continuation_signal"),
+        e("nahi nahi", "self_correction"),
+        e("bas", "possible_turn_completion"),
+        e("haan sahi hai", "confirmation_or_rejection"),
+        e("shayad", "uncertainty_or_low_confidence"),
+        e("haan pump ke baare mein", "hesitation_or_thinking", "generated candidate"),
+        e("arre bhai", "address_or_attention"),
+    ]}), encoding="utf-8")
+    extra = tmp_path / "extra.json"
+    extra.write_text(json.dumps({"entries": [e("ke", "continuation_signal", "ours")]}), encoding="utf-8")
+    f = load_fillers(main, (extra,), False)
+    assert ("uhm",) in f.hesitation  # a spelling variant takes the class of the seed it names
+    assert ("haan", "pump", "ke", "baare", "mein") not in f.hesitation  # generated: off by default
+    assert ("nahi", "nahi") in f.continuation and ("ke",) in f.continuation  # self-correction; our extra file
+    assert ("bas",) in f.completion and ("haan", "sahi", "hai") in f.confirmation
+    assert f.find("shayad 250 bori", "uncertainty") == "shayad"
+    assert all(("arre", "bhai") not in getattr(f, k) for k in ("hesitation", "continuation", "completion"))
+    assert ("haan", "pump", "ke", "baare", "mein") in load_fillers(main, (extra,), True).hesitation
+
+
+def test_haan_alone_after_a_confirmation_is_a_short_answer_even_if_listed_as_hesitation():
+    f = Fillers.from_lists({**PLACEHOLDER_FILLERS, "hesitation": PLACEHOLDER_FILLERS["hesitation"] + ["haan"]})
+    clf = TailClassifier(f)
+    assert clf.classify("haan", CONFIRM_LOC).tail_class == "short_answer"
+    assert clf.classify("haan", NONE).tail_class == "hesitation"  # no confirmation asked: don't end on "haan"

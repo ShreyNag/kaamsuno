@@ -1,0 +1,321 @@
+{
+ "version": "ours-1",
+ "purpose": "Latin tail cues missing from fillers.json v1.1, added by us. Same entry format as fillers.json; loaded on top of it. Please review.",
+ "entries": [
+  {
+   "phrase": "aa",
+   "language_or_register": "hinglish",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "aah",
+   "language_or_register": "hinglish",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "uhh",
+   "language_or_register": "hinglish",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "er",
+   "language_or_register": "hinglish",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "woh",
+   "language_or_register": "hinglish",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "wo",
+   "language_or_register": "hinglish",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "kya bolte hain",
+   "language_or_register": "hinglish",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "kya kehte hain",
+   "language_or_register": "hinglish",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "yaani",
+   "language_or_register": "hinglish",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "jaise",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "jaise ki",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "for example",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "such as",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "toh",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "kyunki",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "kyonki",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "ki",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "ke",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "ka",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "because",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "but",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "or",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "so",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "like",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "the",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "a",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "of",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "with",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "lekin",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "ya",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "ki wajah se",
+   "language_or_register": "hinglish",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "bas itna hi",
+   "language_or_register": "hinglish",
+   "function": "possible_turn_completion",
+   "turn_action": "check_audio_and_turn_policy",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "itna hi hai",
+   "language_or_register": "hinglish",
+   "function": "possible_turn_completion",
+   "turn_action": "check_audio_and_turn_policy",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "bas yahi",
+   "language_or_register": "hinglish",
+   "function": "possible_turn_completion",
+   "turn_action": "check_audio_and_turn_policy",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "bas itna",
+   "language_or_register": "hinglish",
+   "function": "possible_turn_completion",
+   "turn_action": "check_audio_and_turn_policy",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  }
+ ]
+}

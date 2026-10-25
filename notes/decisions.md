@@ -155,3 +155,13 @@ Measured on the last 10 turns in `logs/` (`python -m eval.latency_report`):
 
   After both fixes the replay passed 3/3: location question asked, fields saved to `reports/<session>.json`.
 - **Interpreter text normalisation was broken for Devanagari.** `re.sub(r"[^\w]+")` treats Devanagari vowel signs as non-word characters, so "मंजिल" → "म ज ल". Evidence matching still worked because both sides were mangled the same way, but any word-level check (place words, fillers) failed. It now strips only Unicode punctuation and symbols.
+- **Aastha's fillers.json (entries format) is mapped by `function`** (`tail_classifier.FUNCTION_TO_CLASS`), per the integration plan:
+  - hesitation / pause request → hesitation; continuation, self-correction, reformulation → continuation; possible turn completion → completion; confirmation/acknowledgement → confirmation; uncertainty → uncertainty. Everything else is ignored for turn-taking.
+  - A spelling variant takes its seed's class ("Variant associated with 'umm'").
+  - Her 776 generated candidates are off by default (`FILLERS_INCLUDE_GENERATED`).
+  - Result with her file + ours: hesitation 78, continuation 96, completion 39, confirmation 39, uncertainty 43 (`python -m app.turn.tail_classifier` prints them with examples).
+- **Two files of ours, in her format, marked for her review:**
+  - `research/fillers_extra_ours.json`: 35 Latin tail words her seeds lack ("ke", "ki", "jaise", "kyunki", "because", "the", "aa", "woh", "kya bolte hain", "yaani", "bas itna hi"…). Grammatical words that end an unfinished sentence matter most for the tail rule.
+  - `research/fillers_devanagari_extra.json`: 41 Devanagari core cues. Her file has 69 Devanagari entries, mostly regional, and `hi-IN` returns Devanagari.
+- **A whole turn of just "haan" right after a confirmation question is a short answer, even though her data lists "haan"/"achha" as hesitation.** Her rule is "don't end a turn on 'haan', 'achha'… if the utterance appears unfinished". A lone "haan" answering "…sahi?" is finished. Without a confirmation question it stays hesitation (long wait).
+- **Uncertainty cues lower confidence:** if a segment contains one ("shayad", "pata nahi", "lagbhag"…), the interpreter caps the confidence of every value from that segment below LOW_CONFIDENCE, so the dialogue confirms them. This follows her rule "when a worker is unsure about a critical number, ID, location or hazard, ask a targeted follow-up".

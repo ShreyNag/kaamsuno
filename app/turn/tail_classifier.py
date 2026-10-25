@@ -7,9 +7,12 @@
     short_answer        "haan sahi hai" after a confirmation  -> done, reply fast
     other               anything else (Smart Turn decides)
 
-Lists come from research/fillers.json (Aastha) when present, else the placeholder
-below. Matching is on normalised text, in Latin and Devanagari script (hi-IN
-returns Devanagari).
+Lists come from research/fillers.json (Aastha's entries, mapped by `function`, see
+FUNCTION_TO_CLASS) plus our additions in research/fillers_*extra*.json, else the
+placeholder below. Matching is on normalised text, in Latin and Devanagari script
+(hi-IN returns Devanagari).
+
+    .venv/Scripts/python -m app.turn.tail_classifier      # class counts and examples
 """
 
 from __future__ import annotations
@@ -84,15 +87,50 @@ def _phrases(words: list[str]) -> set[tuple[str, ...]]:
     return {tuple(tokens(w)) for w in words if tokens(w)}
 
 
+CLASSES = ("hesitation", "continuation", "completion", "confirmation", "uncertainty")
+
+# Aastha's fillers.json `function` -> our class (research_integration_prompt.md). Unlisted functions
+# (discourse/reference/regional markers, multi-marker sequences, ...) are ignored for turn-taking.
+FUNCTION_TO_CLASS = {
+    "hesitation_or_thinking": "hesitation", "pause_request": "hesitation", "hesitation_or_reference": "hesitation",
+    "continuation_signal": "continuation", "continuation": "continuation", "contrast_or_continuation": "continuation",
+    "self_correction": "continuation", "correction_or_pause": "continuation", "reformulation": "continuation",
+    "possible_turn_completion": "completion",
+    "confirmation_or_rejection": "confirmation", "possible_acknowledgement": "confirmation",
+    "possible_confirmation": "confirmation", "polite_acknowledgement": "confirmation",
+    "uncertainty_or_low_confidence": "uncertainty", "uncertainty": "uncertainty",
+}
+_VARIANT_OF = re.compile(r"[Vv]ariant associated with '([^']+)'")
+
+
 @dataclass(frozen=True)
 class Fillers:
     hesitation: frozenset[tuple[str, ...]]
     continuation: frozenset[tuple[str, ...]]
     completion: frozenset[tuple[str, ...]]
+    confirmation: frozenset[tuple[str, ...]] = frozenset()  # short answers, only after a confirmation question
+    uncertainty: frozenset[tuple[str, ...]] = frozenset()  # not a turn cue: the value being given is doubtful
 
     @classmethod
     def from_lists(cls, lists: dict[str, list[str]]) -> Fillers:
-        return cls(*(frozenset(_phrases(lists.get(k, []))) for k in ("hesitation", "continuation", "completion")))
+        return cls(**{k: frozenset(_phrases(lists.get(k, []))) for k in CLASSES})
+
+    def find(self, text: str, cls: str) -> str | None:
+        """The first phrase of class `cls` anywhere in `text` (whole tokens), else None."""
+        toks = tokens(text)
+        for phrase in sorted(getattr(self, cls), key=len, reverse=True):
+            n = len(phrase)
+            if any(tuple(toks[i : i + n]) == phrase for i in range(len(toks) - n + 1)):
+                return " ".join(phrase)
+        return None
+
+    def summary(self, examples: int = 10) -> str:
+        lines = []
+        for k in CLASSES:
+            ph = sorted(" ".join(p) for p in getattr(self, k))
+            step = max(1, len(ph) // examples)
+            lines.append(f"{k:13s} {len(ph):4d}  e.g. {ph[::step][:examples]}")
+        return "\n".join(lines)
 
 
 def _flatten(v) -> list[str]:
@@ -102,18 +140,65 @@ def _flatten(v) -> list[str]:
     return [str(w) for w in v] if isinstance(v, list) else []
 
 
-@lru_cache(maxsize=4)  # warn once, parse once
-def load_fillers(path: Path = config.FILLERS_PATH) -> Fillers:
+def _entry_kind(e: dict) -> str:
+    note = str(e.get("regional_or_register_note", "")).lower()
+    if note.startswith("generated"):
+        return "generated"
+    if note.startswith("spelling") or e.get("function") == "variant_or_spelling":
+        return "variant"
+    return "seed"  # "seed phrase", and our own additions
+
+
+def lists_from_entries(entries: list[dict], include_generated: bool = False) -> dict[str, list[str]]:
+    """Aastha's entries format -> {class: [phrases]}. A spelling variant takes the class of the seed it
+    names ("Variant associated with 'umm'"); generated candidates only when asked for."""
+    by_phrase = {normalise(e["phrase"]): FUNCTION_TO_CLASS.get(e.get("function", "")) for e in entries
+                 if _entry_kind(e) == "seed"}
+    out: dict[str, list[str]] = {k: [] for k in CLASSES}
+    for e in entries:
+        kind = _entry_kind(e)
+        if kind == "generated" and not include_generated:
+            continue
+        cls = FUNCTION_TO_CLASS.get(e.get("function", ""))
+        if kind == "variant":
+            m = _VARIANT_OF.search(str(e.get("example_context", "")))
+            cls = by_phrase.get(normalise(m.group(1))) if m else None
+        if cls:
+            out[cls].append(e["phrase"])
+    return out
+
+
+def _read_lists(path: Path, include_generated: bool) -> dict[str, list[str]]:
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    if isinstance(raw, dict) and isinstance(raw.get("entries"), list):
+        return lists_from_entries(raw["entries"], include_generated)
+    if isinstance(raw, dict) and any(k in raw for k in CLASSES):
+        return {k: _flatten(raw.get(k, [])) for k in CLASSES}
+    keys = sorted(raw) if isinstance(raw, dict) else type(raw).__name__
+    raise ValueError(f"{path}: unrecognised fillers format (keys {keys})")
+
+
+@lru_cache(maxsize=8)  # warn once, parse once
+def load_fillers(path: Path = config.FILLERS_PATH, extra: tuple[Path, ...] = config.FILLERS_EXTRA_PATHS,
+                 include_generated: bool = config.FILLERS_INCLUDE_GENERATED) -> Fillers:
+    """fillers.json (Aastha's entries format, or {class: [phrases]}) plus our extra files; the
+    placeholder lists when fillers.json is missing. A class nobody supplies falls back to the placeholder."""
     if not path.exists():
         logger.warning(f"{path} missing; using the placeholder filler lists")
         return Fillers.from_lists(PLACEHOLDER_FILLERS)
-    raw = json.loads(path.read_text(encoding="utf-8"))
-    lists = {k: _flatten(raw.get(k, [])) for k in ("hesitation", "continuation", "completion")}
-    for k, v in lists.items():
-        if not v:
-            logger.warning(f"{path}: no '{k}' list; using the placeholder for it")
+    lists = _read_lists(path, include_generated)
+    for x in extra:
+        if x.exists():
+            for k, v in _read_lists(x, include_generated).items():
+                lists.setdefault(k, []).extend(v)
+    for k in ("hesitation", "continuation", "completion"):
+        if not lists.get(k):
+            logger.warning(f"{path}: nothing maps to '{k}'; using the placeholder for it")
             lists[k] = PLACEHOLDER_FILLERS[k]
-    return Fillers.from_lists(lists)
+    fillers = Fillers.from_lists(lists)
+    logger.info(f"fillers: {path.name} + {[x.name for x in extra if x.exists()]}, generated="
+                f"{include_generated}: " + ", ".join(f"{k} {len(getattr(fillers, k))}" for k in CLASSES))
+    return fillers
 
 
 @dataclass(frozen=True)
@@ -151,13 +236,17 @@ class TailClassifier:
         if not toks:
             return TailResult("other", "")
         hit = self._ending(toks)
-        if hit and hit[0] in ("hesitation", "continuation"):
+        waiting = bool(hit) and hit[0] in ("hesitation", "continuation")
+        # Checked first: Aastha's data calls "haan"/"achha" hesitation ("don't end a turn on them if the
+        # utterance is unfinished"), but a whole turn of just "haan" right after "... sahi?" is finished.
+        if context.confirmation and (all(t in YES_NO_WORDS for t in turn) or tuple(turn) in self.fillers.confirmation
+                                     or (len(turn) == 1 and not waiting)):
+            return TailResult("short_answer", " ".join(turn[-self.max_tokens:]))
+        if waiting:
             return TailResult(hit[0], " ".join(hit[1]))
         last = toks[-1]
         if is_number(last) and self._numeric_context(turn, context):
             return TailResult("number_in_progress", last)
-        if context.confirmation and (len(turn) == 1 or all(t in YES_NO_WORDS for t in turn)):
-            return TailResult("short_answer", " ".join(turn[-self.max_tokens:]))
         if hit:
             return TailResult(hit[0], " ".join(hit[1]))
         return TailResult("other", " ".join(toks[-self.max_tokens:]))
@@ -171,3 +260,10 @@ class TailClassifier:
         while i >= 0 and is_number(turn[i]):
             i -= 1
         return i >= 0 and turn[i] in ID_CUES
+
+
+if __name__ == "__main__":
+    import sys
+
+    sys.stdout.reconfigure(encoding="utf-8")
+    print(load_fillers().summary())

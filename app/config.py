@@ -205,6 +205,10 @@ class TurnPolicyConfig:
 
 TURN_POLICY = TurnPolicyConfig()
 FILLERS_PATH = RESEARCH_DIR / "fillers.json"
+# Ours, same entry format, loaded on top of fillers.json (marked for Aastha to review)
+FILLERS_EXTRA_PATHS = (RESEARCH_DIR / "fillers_extra_ours.json", RESEARCH_DIR / "fillers_devanagari_extra.json")
+# Her 776 "generated candidate" phrases are long templated annotation prompts, not tail cues: off by default
+FILLERS_INCLUDE_GENERATED = _env("FILLERS_INCLUDE_GENERATED", "0") == "1"
 # Fields whose answers are spoken digit by digit or as a number: a numeric tail means "more is coming"
 ID_FIELDS = ("asset_or_equipment", "reporter_name_or_id")
 QUANTITY_FIELDS = ("quantity",)

@@ -1,0 +1,375 @@
+{
+ "version": "ours-1",
+ "purpose": "Devanagari tail cues missing from fillers.json v1.1, added by us. Same entry format as fillers.json; loaded on top of it. Please review.",
+ "entries": [
+  {
+   "phrase": "उम्म",
+   "language_or_register": "hi",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "उम",
+   "language_or_register": "hi",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "अं",
+   "language_or_register": "hi",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "हम्म",
+   "language_or_register": "hi",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "आ",
+   "language_or_register": "hi",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "मतलब",
+   "language_or_register": "hi",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "वो",
+   "language_or_register": "hi",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "क्या बोलते हैं",
+   "language_or_register": "hi",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "क्या कहते हैं",
+   "language_or_register": "hi",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "यानी",
+   "language_or_register": "hi",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "एक सेकंड",
+   "language_or_register": "hi",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "सोचने दो",
+   "language_or_register": "hi",
+   "function": "hesitation_or_thinking",
+   "turn_action": "wait_briefly_and_listen",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "और",
+   "language_or_register": "hi",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "फिर",
+   "language_or_register": "hi",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "उसके बाद",
+   "language_or_register": "hi",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "जैसे",
+   "language_or_register": "hi",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "जैसे कि",
+   "language_or_register": "hi",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "क्योंकि",
+   "language_or_register": "hi",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "तो",
+   "language_or_register": "hi",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "लेकिन",
+   "language_or_register": "hi",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "या",
+   "language_or_register": "hi",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "कि",
+   "language_or_register": "hi",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "की",
+   "language_or_register": "hi",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "के",
+   "language_or_register": "hi",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "का",
+   "language_or_register": "hi",
+   "function": "continuation_signal",
+   "turn_action": "keep_turn_open",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "नहीं नहीं",
+   "language_or_register": "hi",
+   "function": "self_correction",
+   "turn_action": "wait_for_corrected_content",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "मेरा मतलब",
+   "language_or_register": "hi",
+   "function": "self_correction",
+   "turn_action": "wait_for_corrected_content",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "बस",
+   "language_or_register": "hi",
+   "function": "possible_turn_completion",
+   "turn_action": "check_audio_and_turn_policy",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "हो गया",
+   "language_or_register": "hi",
+   "function": "possible_turn_completion",
+   "turn_action": "check_audio_and_turn_policy",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "इतना ही",
+   "language_or_register": "hi",
+   "function": "possible_turn_completion",
+   "turn_action": "check_audio_and_turn_policy",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "बस इतना ही",
+   "language_or_register": "hi",
+   "function": "possible_turn_completion",
+   "turn_action": "check_audio_and_turn_policy",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "खत्म",
+   "language_or_register": "hi",
+   "function": "possible_turn_completion",
+   "turn_action": "check_audio_and_turn_policy",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "और कुछ नहीं",
+   "language_or_register": "hi",
+   "function": "possible_turn_completion",
+   "turn_action": "check_audio_and_turn_policy",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "बात खत्म",
+   "language_or_register": "hi",
+   "function": "possible_turn_completion",
+   "turn_action": "check_audio_and_turn_policy",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "हाँ सही है",
+   "language_or_register": "hi",
+   "function": "confirmation_or_rejection",
+   "turn_action": "apply_only_to_current_readback_state",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "जी हाँ",
+   "language_or_register": "hi",
+   "function": "confirmation_or_rejection",
+   "turn_action": "apply_only_to_current_readback_state",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "बिल्कुल",
+   "language_or_register": "hi",
+   "function": "confirmation_or_rejection",
+   "turn_action": "apply_only_to_current_readback_state",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "पक्का",
+   "language_or_register": "hi",
+   "function": "confirmation_or_rejection",
+   "turn_action": "apply_only_to_current_readback_state",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "ठीक है",
+   "language_or_register": "hi",
+   "function": "confirmation_or_rejection",
+   "turn_action": "apply_only_to_current_readback_state",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "शायद",
+   "language_or_register": "hi",
+   "function": "uncertainty_or_low_confidence",
+   "turn_action": "ask_or_mark_uncertain_if_critical",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  },
+  {
+   "phrase": "पक्का नहीं",
+   "language_or_register": "hi",
+   "function": "uncertainty_or_low_confidence",
+   "turn_action": "ask_or_mark_uncertain_if_critical",
+   "example_context": "core tail cue",
+   "regional_or_register_note": "ours (2026-10-25): added for turn-taking; for Aastha to check",
+   "review_status": "review"
+  }
+ ]
+}

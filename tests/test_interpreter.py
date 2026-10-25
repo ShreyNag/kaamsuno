@@ -267,3 +267,18 @@ def test_location_must_name_a_place():
     assert r["location"]["value"] == "Gate 2"
     r = merge_update(empty_report(SCHEMA), {"location": upd("3rd floor", "तीसरी मंजिल")}, "तीसरी मंजिल पे", SCHEMA)
     assert r["location"]["value"] == "3rd floor"
+
+
+def test_uncertain_words_lower_confidence_so_the_value_is_confirmed():
+    async def complete(messages):
+        return json.dumps({"updates": {"quantity": upd(250, "250", 0.95)}})
+
+    async def main():
+        it = Interpreter(SCHEMA, complete, system_prompt="",
+                         uncertainty_cue=lambda t: "shayad" if "shayad" in t else None)
+        it.submit("shayad 250 bori")
+        await it.drain(2.0)
+        return it.report
+
+    r = asyncio.run(main())
+    assert r["quantity"]["value"] == 250 and r["quantity"]["confidence"] < config.LOW_CONFIDENCE
