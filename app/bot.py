@@ -79,6 +79,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments) -> Non
     hops = HopLogger()
     logger.info(f"hop log: {hops.path}")
     logger.info(f"live report: http://localhost:7860/report/{hops.session_id}  (or /report/latest)")
+    logger.info(f"saved report: {config.REPORTS_DIR / (hops.session_id + '.json')}")
 
     headers = prisma_headers()
     vad, strategies = build_vad(), build_turn_strategies(log=hops.log)
@@ -90,6 +91,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments) -> Non
         session_id=hops.session_id, schema=schema, templates=templates,
         interpreter=build_interpreter(schema, hops), stt=stt, hops=hops,
         set_dialogue_context=turn_strategy(strategies).set_dialogue_context,
+        reports_dir=config.REPORTS_DIR,
     )
     turns = UserTurnProcessor(user_turn_strategies=strategies, user_turn_stop_timeout=config.USER_TURN_STOP_TIMEOUT_S)
 

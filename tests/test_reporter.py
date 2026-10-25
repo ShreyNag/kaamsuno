@@ -107,3 +107,42 @@ def test_resuming_speech_cancels_the_pending_question(tmp_path):
     asyncio.run(main())
     hops.close()
     assert spoken.said == []
+
+
+async def correcting_llm(messages):
+    seg = json.loads(messages[1]["content"])["new_segment"]
+    floor = {"teesri manzil": "3rd floor", "paanchvi manzil": "5th floor"}
+    hit = next((k for k in floor if k in seg), None)
+    return json.dumps({"updates": {"location": {"value": floor[hit], "confidence": 0.9, "evidence": hit}}} if hit
+                      else {"updates": {}})
+
+
+def test_report_saved_to_disk_with_history_and_transcript(tmp_path):
+    hops = HopLogger("t3", log_dir=tmp_path)
+    reporter = ReportProcessor(session_id="t3", schema=SCHEMA, templates=PLACEHOLDER_TEMPLATES,
+                               interpreter=Interpreter(SCHEMA, correcting_llm, system_prompt=""), stt=None,
+                               hops=hops, hub=ReportHub(), reports_dir=tmp_path / "reports")
+    task = PipelineTask(Pipeline([reporter, Spoken()]), params=PipelineParams())
+
+    async def feed():
+        await asyncio.sleep(0.3)
+        await task.queue_frame(UserStartedSpeakingFrame())
+        await task.queue_frame(TranscriptionFrame("teesri manzil pe", "u", "now"))
+        await task.queue_frame(TranscriptionFrame("nahi nahi paanchvi manzil", "u", "now"))
+        await task.queue_frame(UserStoppedSpeakingFrame())
+        await asyncio.sleep(0.5)
+        await task.queue_frame(EndFrame())
+
+    async def main():
+        await asyncio.gather(PipelineRunner(handle_sigint=False).run(task), feed())
+
+    asyncio.run(main())
+    hops.close()
+    doc = json.loads((tmp_path / "reports" / "t3.json").read_text(encoding="utf-8"))
+    loc = doc["report"]["location"]
+    assert loc["value"] == "5th floor" and loc["evidence"] == "paanchvi manzil"
+    assert [h["value"] for h in loc["history"]] == ["3rd floor"]
+    assert set(loc) == {"critical", "value", "confidence", "evidence", "history"}
+    assert doc["transcript"] == ["teesri manzil pe", "nahi nahi paanchvi manzil"]
+    assert doc["questions"] and doc["questions"][-1]["field"] == "incident_type"
+    assert not list((tmp_path / "reports").glob("*.tmp"))

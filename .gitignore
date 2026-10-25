@@ -16,3 +16,4 @@ data/**
 !data/vad_dev/vad_labels.csv
 eval/out/
 logs/
+reports/
