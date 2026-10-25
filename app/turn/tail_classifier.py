@@ -3,7 +3,8 @@
     hesitation          "umm", "matlab", "kya bolte hain"      -> they're thinking, wait
     continuation        "aur", "jaise", "because", "ke"        -> the sentence isn't finished, wait
     completion          "bas", "itna hi", "that's it"          -> done, reply fast
-    number_in_progress  "employee ID chaar saat..."            -> digits still coming, wait
+    id_in_progress      "employee ID chaar saat..."            -> digits still coming, wait long
+    number_in_progress  "dhai sau" after "kitna?"              -> a quantity still coming, wait
     short_answer        "haan sahi hai" after a confirmation  -> done, reply fast
     other               anything else (Smart Turn decides)
 
@@ -28,7 +29,8 @@ from loguru import logger
 
 from app import config
 
-TAIL_CLASSES = ("hesitation", "continuation", "completion", "number_in_progress", "short_answer", "other")
+TAIL_CLASSES = ("hesitation", "continuation", "completion", "id_in_progress", "number_in_progress", "short_answer",
+                "other")
 
 # Placeholder until research/fillers.json arrives. Single words and short phrases.
 PLACEHOLDER_FILLERS: dict[str, list[str]] = {
@@ -245,21 +247,35 @@ class TailClassifier:
         if waiting:
             return TailResult(hit[0], " ".join(hit[1]))
         last = toks[-1]
-        if is_number(last) and self._numeric_context(turn, context):
-            return TailResult("number_in_progress", last)
+        number = self._number_tail(last, turn, context)
+        if number:
+            return TailResult(number, last)
         if hit:
             return TailResult(hit[0], " ".join(hit[1]))
         return TailResult("other", " ".join(toks[-self.max_tokens:]))
 
     @staticmethod
-    def _numeric_context(turn: list[str], context: DialogueContext) -> bool:
-        if context.asked_field in config.ID_FIELDS + config.QUANTITY_FIELDS:
-            return True
+    def _numeric_context(turn: list[str], context: DialogueContext) -> str | None:
+        """"id_in_progress" | "number_in_progress" | None: is a number being read out here?"""
+        if context.asked_field in config.ID_FIELDS:
+            return "id_in_progress"
+        if context.asked_field in config.QUANTITY_FIELDS:
+            return "number_in_progress"
         # "employee ID chaar saat": an ID cue followed only by numbers up to the pause
         i = len(turn) - 1
         while i >= 0 and is_number(turn[i]):
             i -= 1
-        return i >= 0 and turn[i] in ID_CUES
+        return "id_in_progress" if i >= 0 and turn[i] in ID_CUES else None
+
+    def _number_tail(self, last: str, turn: list[str], context: DialogueContext) -> str | None:
+        """A number mid read-out, or a soundalike Prisma wrote for one ("machine number chaar saal")."""
+        if is_number(last):
+            return self._numeric_context(turn, context)
+        if last not in config.NUMBER_SOUNDALIKES:
+            return None
+        if context.asked_field in config.ID_FIELDS + config.QUANTITY_FIELDS:
+            return self._numeric_context(turn, context)
+        return self._numeric_context(turn[:-1], context) if len(turn) >= 2 and is_number(turn[-2]) else None
 
 
 if __name__ == "__main__":

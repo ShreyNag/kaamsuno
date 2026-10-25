@@ -70,21 +70,23 @@ def is_known(entry: dict) -> bool:
     return not (isinstance(v, str) and v.strip().lower() in config.UNKNOWN_VALUES)
 
 
-def _inferred(name: str, upd: dict, evidence: str) -> bool:
-    """The LLM says it guessed ("stated": false), or urgency whose evidence has no urgency word."""
+def _inferred(name: str, upd: dict, evidence: str, asked_field: str | None = None) -> bool:
+    """The LLM says it guessed ("stated": false), or urgency whose evidence has no urgency word
+    (unless it answers "how urgent is it?": then any answer is stated)."""
     if upd.get("stated") is False:
         return True
-    return name == "urgency" and not set(_norm(evidence).split()) & config.URGENCY_CUES
+    return name == "urgency" and asked_field != "urgency" and not set(_norm(evidence).split()) & config.URGENCY_CUES
 
 
 def merge_update(report: Report, updates: dict[str, Any], transcript: str, schema: Schema,
-                 assume_correction: bool = False) -> Report:
+                 assume_correction: bool = False, asked_field: str | None = None) -> Report:
     """Apply LLM `updates` ({field: {value, confidence, evidence, correction?, stated?}}) to a copy of `report`.
     The rules live here, not in the prompt, so they hold whatever the LLM says:
 
     - unknown fields, system fields, null values and values outside a field's `allowed` are ignored
     - evidence must occur in the transcript, else the update is dropped (no invented values)
-    - a location's evidence must contain a place word (config.LOCATION_CUES): "crane pipe" is not a location
+    - a location's evidence must contain a place word (config.LOCATION_CUES): "crane pipe" is not a location,
+      unless the bot just asked for the location (`asked_field`): then "bhed do mein" is the answer
     - urgency is never downgraded from "emergency"
     - CONFLICT_FIELDS (location, quantity, unit, asset...): a different value replaces the old one
       (old -> `history`) only if the LLM marks it a correction or it refines the old value
@@ -111,7 +113,7 @@ def merge_update(report: Report, updates: dict[str, Any], transcript: str, schem
         if isinstance(value, str) and set(_norm(value).split()) <= LABEL_WORDS:
             logger.info(f"interpreter: dropped {name}={value!r}, a label, not a value")
             continue
-        if name == "location" and not set(_norm(evidence).split()) & config.LOCATION_CUES:
+        if name == "location" and asked_field != "location" and not set(_norm(evidence).split()) & config.LOCATION_CUES:
             logger.info(f"interpreter: dropped location={value!r}, evidence {evidence!r} names no place")
             continue
         allowed = schema.allowed(name)
@@ -125,7 +127,7 @@ def merge_update(report: Report, updates: dict[str, Any], transcript: str, schem
             logger.info(f"interpreter: kept urgency=emergency, refused downgrade to {value!r}")
             continue
         new = {"value": value, "confidence": _confidence(upd.get("confidence")), "evidence": evidence,
-               "inferred": _inferred(name, upd, evidence)}
+               "inferred": _inferred(name, upd, evidence, asked_field)}
         if new["inferred"] and is_known(cur):
             continue  # a guess never overwrites a stated value
         old_v = cur["value"]
@@ -150,6 +152,12 @@ def values_only(report: Report) -> dict[str, Any]:
     return {k: v["value"] for k, v in report.items()}
 
 
+def stated_values(report: Report) -> dict[str, Any]:
+    """What the LLM sees as the current report: guessed or "unknown" values are null. (Live test 3:
+    a guessed urgency "high" shown as set made the LLM ignore "abhi turant" and "urgency urgent hai".)"""
+    return {k: v["value"] if is_known(v) else None for k, v in report.items()}
+
+
 def build_system_prompt(schema: Schema, path: Path | None = None) -> str:
     """The prompt template with the schema's LLM-fillable fields, allowed values and validation rules."""
     path = path or (PROMPT_V1_PATH if PROMPT_V1_PATH.exists() else PROMPT_PATH)
@@ -169,11 +177,12 @@ def _default_uncertainty_cue(text: str) -> str | None:
     return load_fillers().find(text, "uncertainty")
 
 
-def groq_complete(model: str = config.LLM_MODEL) -> Complete:
+def groq_complete(model: str = config.LLM_MODEL, max_retries: int = 2) -> Complete:
     """JSON-mode chat completion against Groq's OpenAI-compatible endpoint."""
     from openai import AsyncOpenAI
 
-    client = AsyncOpenAI(api_key=config.GROQ_API_KEY, base_url=config.GROQ_BASE_URL, timeout=config.LLM_TIMEOUT_S)
+    client = AsyncOpenAI(api_key=config.GROQ_API_KEY, base_url=config.GROQ_BASE_URL, timeout=config.LLM_TIMEOUT_S,
+                         max_retries=max_retries)
 
     async def complete(messages: list[dict[str, str]]) -> str:
         r = await client.chat.completions.create(
@@ -210,23 +219,29 @@ class Interpreter:
         self._log = log or (lambda event, **kw: None)
         self._results: dict[int, dict[str, Any]] = {}
         self.assume_correction = False  # set by the dialogue during the read-back
+        # The bot's last move, {field, reason, question}: a short answer ("dedh sau bori") fills that field
+        self.asked: dict[str, Any] | None = None
+        self.touched: set[str] = set()  # fields updated (even to the same value) since take_touched()
         self._next_commit = 0
+        self._asked_for: dict[int, dict[str, Any] | None] = {}  # seq -> the bot's move when it was said
         self._tasks: set[asyncio.Task] = set()
 
     def submit(self, text: str) -> int:
         """Queue one final segment; returns its sequence number. Never blocks."""
         seq = len(self.segments)
         self.segments.append(text)
-        task = asyncio.create_task(self._run(seq, values_only(self.report), self.segments[:seq], text))
+        self._asked_for[seq] = asked = self.asked
+        task = asyncio.create_task(self._run(seq, stated_values(self.report), self.segments[:seq], text, asked))
         self._tasks.add(task)
         task.add_done_callback(self._tasks.discard)
         return seq
 
-    async def _run(self, seq: int, current: dict[str, Any], earlier: list[str], text: str) -> None:
-        user = json.dumps({"current_report": current, "earlier_segments": earlier, "new_segment": text},
-                          ensure_ascii=False)
+    async def _run(self, seq: int, current: dict[str, Any], earlier: list[str], text: str,
+                   asked: dict[str, Any] | None = None) -> None:
+        user = json.dumps({"current_report": current, "earlier_segments": earlier, "bot_just_asked": asked,
+                           "new_segment": text}, ensure_ascii=False)
         self._log("interp_request", seq=seq)
-        t0 = time.time()
+        t0, error = time.time(), None
         try:
             raw = await self._complete([{"role": "system", "content": self._system}, {"role": "user", "content": user}])
             updates = json.loads(raw).get("updates", {})
@@ -234,8 +249,9 @@ class Interpreter:
                 raise ValueError(f"'updates' is {type(updates).__name__}, not an object")
         except Exception as e:  # a failed call must not stall later segments
             logger.error(f"interpreter call {seq} failed: {e}")
-            updates = {}
-        self._log("interp_response", seq=seq, ms=round((time.time() - t0) * 1000), fields=sorted(updates))
+            updates, error = {}, str(e)[:160]
+        self._log("interp_response", seq=seq, ms=round((time.time() - t0) * 1000), fields=sorted(updates),
+                  **({"error": error} if error else {}))
         cue = self._uncertainty_cue(text) if updates else None
         if cue:
             cap = config.LOW_CONFIDENCE - 0.1
@@ -250,12 +266,20 @@ class Interpreter:
         changed = False
         while self._next_commit in self._results:
             updates = self._results.pop(self._next_commit)
+            asked = self._asked_for.pop(self._next_commit, None)
             transcript = " ".join(self.segments[: self._next_commit + 1])
-            self.report = merge_update(self.report, updates, transcript, self.schema, self.assume_correction)
+            before = self.report
+            self.report = merge_update(self.report, updates, transcript, self.schema, self.assume_correction,
+                                       asked_field=asked and asked.get("field"))
+            self.touched |= {n for n in updates if n in before and self.report[n] != before[n]}
             self._next_commit += 1
             changed = True
         if changed and self.on_update:
             await self.on_update(self.report)
+
+    def take_touched(self) -> set[str]:
+        touched, self.touched = self.touched, set()
+        return touched
 
     async def drain(self, timeout: float = config.INTERPRETER_DRAIN_TIMEOUT_S) -> bool:
         """Wait for in-flight calls; False if some were still running at the timeout."""

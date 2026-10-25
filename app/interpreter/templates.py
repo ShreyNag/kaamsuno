@@ -80,6 +80,8 @@ OURS: dict[str, dict[str, list[str]]] = {
                          "en": ["Is the report correct? Please say yes or no."]},
     "_reread": {"hi": ["Achha, {changes}. Sahi hai?"], "en": ["Okay, {changes}. Is that right?"]},
     "_not_given": {"hi": ["{field_label} nahi pata"], "en": ["{field_label} not given"]},
+    "_reask": {"hi": ["Bas {field_label} bataiye."], "en": ["Just tell me the {field_label}, please."]},
+    "_which_value": {"hi": ["Achha, sahi {field_label} kya hai?"], "en": ["Okay, what is the correct {field_label}?"]},
 }
 
 # Common English words, to tell English from Hinglish from (romanised) Hindi

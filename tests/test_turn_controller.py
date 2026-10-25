@@ -37,7 +37,7 @@ def test_spec_example_hesitation_holds_the_turn_in_fillers_mode_only():
     fillers, log = ctl("smart_turn_fillers")
     assert run_timeline(fillers, events) == []
     assert fillers.state == State.USER_SPEAKING
-    assert log[0]["outcome"] == "resumed" and log[0]["tail_class"] == "hesitation" and log[0]["wait_ms"] == 2000
+    assert log[0]["outcome"] == "resumed" and log[0]["tail_class"] == "hesitation" and log[0]["wait_ms"] == 3000
 
     fixed, _ = ctl("fixed_timeout")
     assert run_timeline(fixed, events) == [pytest.approx(2.8)]
@@ -64,16 +64,56 @@ def test_completion_without_delay_when_segment_is_early():
 def test_segment_from_before_the_last_speech_is_not_the_tail():
     c, log = ctl("smart_turn_fillers")
     ends = run_timeline(c, [(0.2, "vad_start"), (1.0, "segment", "bas"), (2.3, "vad_stop", 0.2, None)])
-    assert log[-1]["tail_class"] is None and log[-1]["rule"] == "other+no_smart_turn"
-    assert ends == [pytest.approx(2.9)]  # 2.1 + 800
+    assert log[-1]["tail_class"] is None and log[-1]["rule"] == "no_text"
+    assert ends == [pytest.approx(2.1 + 3.5)]  # no text of its own: wait to the cap
 
 
-def test_no_segment_within_budget_falls_back_to_smart_turn():
+def test_no_text_within_budget_does_not_trust_smart_turn_alone():
+    # live test 3: "pump band ho gaya hai... umm" - Prisma sent nothing for "umm", Smart Turn said 0.005
+    # and the old 1200 ms wait cut the worker off before "Bay do mein"
     c, log = ctl("smart_turn_fillers")
     ends = run_timeline(c, [(0.2, "vad_start"), (2.3, "vad_stop", 0.2, ST_DONE)])
-    budget = POLICY.segment_budget_ms / 1000
-    assert ends == [pytest.approx(2.3 + budget)]  # 400 ms after the speech has passed by then
-    assert log[-1]["rule"] == "other+smart_turn_complete" and log[-1]["tail_text"] is None
+    assert ends == [pytest.approx(2.1 + 3.5)]
+    assert log[-1]["rule"] == "no_text" and log[-1]["tail_text"] is None and log[-1]["tail_source"] is None
+
+
+def test_partial_stands_in_for_a_late_final():
+    c, log = ctl("smart_turn_fillers")
+    events = [(0.2, "vad_start"), (1.8, "partial", "teesri manzil pe cement pada hai"),
+              (2.3, "vad_stop", 0.2, ST_DONE)]
+    assert run_timeline(c, events) == [pytest.approx(2.3 + 0.4)]  # decided at the budget from the partial
+    assert log[-1]["tail_source"] == "partial" and log[-1]["rule"] == "other+smart_turn_complete"
+    assert log[-1]["partial_text"] == "teesri manzil pe cement pada hai"
+
+
+def test_partial_after_the_decision_re_decides():
+    c, log = ctl("smart_turn_fillers")
+    events = [(0.2, "vad_start"), (2.3, "vad_stop", 0.2, ST_DONE), (2.9, "partial", "bas itna hi")]
+    assert run_timeline(c, events) == [pytest.approx(2.9)]  # no_text at 2.7, then "bas" ends it
+    assert log[-1]["tail_source"] == "partial" and log[-1]["rule"] == "completion" and log[-1]["revisions"] == 1
+
+
+def test_final_replaces_the_partial():
+    c, log = ctl("smart_turn_fillers")
+    events = [(0.2, "vad_start"), (2.0, "partial", "pump band ho gaya"), (2.3, "vad_stop", 0.2, ST_DONE),
+              (2.5, "segment", "pump band ho gaya hai umm")]
+    assert run_timeline(c, events) == [pytest.approx(2.1 + 3.0)]
+    assert log[-1]["tail_source"] == "final" and log[-1]["tail_class"] == "hesitation"
+
+
+@pytest.mark.parametrize("before", ["pump band ho gaya hai umm", "machine ID chaar saat", "machine number chaar saal"])
+def test_2_5_s_pause_does_not_end_the_turn(before):
+    events = [(0.2, "vad_start"), (2.3, "vad_stop", 0.2, ST_DONE), (2.8, "segment", before),
+              (2.1 + 2.5, "vad_start")]
+    c, log = ctl("smart_turn_fillers", policy=config.TURN_POLICY)
+    assert run_timeline(c, events) == [], log
+    assert c.state == State.USER_SPEAKING and log[-1]["outcome"] == "resumed"
+
+
+def test_2_5_s_pause_after_umm_with_no_text_at_all_does_not_end_the_turn():
+    events = [(0.2, "vad_start"), (2.3, "vad_stop", 0.2, SmartTurnVerdict(False, 0.005)), (2.1 + 2.5, "vad_start")]
+    c, log = ctl("smart_turn_fillers", policy=config.TURN_POLICY)
+    assert run_timeline(c, events) == []
 
 
 def test_late_segment_shortens_the_wait():
@@ -86,7 +126,7 @@ def test_late_segment_shortens_the_wait():
 def test_late_segment_extends_the_wait():
     c, log = ctl("smart_turn_fillers")
     events = [(0.2, "vad_start"), (2.3, "vad_stop", 0.2, None), (2.8, "segment", "cement umm")]
-    assert run_timeline(c, events) == [pytest.approx(2.1 + 2.0)]  # 800 ms became 2000 ms
+    assert run_timeline(c, events) == [pytest.approx(2.1 + 3.0)]  # no_text, then hesitation
     assert log[-1]["revisions"] == 1 and log[-1]["rule"] == "hesitation"
 
 
@@ -97,9 +137,9 @@ def test_slow_id_is_not_cut_off():
         (4.3, "vad_stop", 0.2, ST_DONE), (4.6, "segment", "ek nau"),
     ]
     c, log = ctl("smart_turn_fillers")
-    # second pause: "ek nau" still numeric with an ID cue in the turn -> 1500 ms
-    assert run_timeline(c, events) == [pytest.approx(4.1 + 1.5)]
-    assert [r["tail_class"] for r in log] == ["number_in_progress", "number_in_progress"]
+    # second pause: "ek nau" still an ID read-out (ID cue earlier in the turn) -> 3000 ms
+    assert run_timeline(c, events) == [pytest.approx(4.1 + 3.0)]
+    assert [r["tail_class"] for r in log] == ["id_in_progress", "id_in_progress"]
     fixed, _ = ctl("fixed_timeout")
     assert run_timeline(fixed, events)[0] == pytest.approx(2.8)
 
@@ -123,7 +163,7 @@ def test_smart_turn_mode_incomplete_waits_for_the_silence_fallback():
 def test_hard_cap():
     c, log = ctl("smart_turn_fillers", policy=replace(POLICY, wait_hesitation_ms=9000))
     ends = run_timeline(c, [(0.2, "vad_start"), (2.3, "vad_stop", 0.2, None), (2.4, "segment", "umm")])
-    assert ends == [pytest.approx(2.1 + 2.5)]
+    assert ends == [pytest.approx(2.1 + 3.5)]
     assert log[-1]["capped"]
 
 

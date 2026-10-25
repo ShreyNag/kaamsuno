@@ -2,12 +2,15 @@
 
     tail class                          wait (ms after the last speech)
     completion / short_answer           300
-    hesitation / continuation           2000, whatever Smart Turn says
-    number_in_progress                  1500
+    hesitation / continuation           3000, whatever Smart Turn says
+    number_in_progress                  2000 (a quantity)
+    id_in_progress                      3000 (an ID read out digit by digit)
     other + Smart Turn complete (>=0.7) 400
     other + Smart Turn incomplete       1200
     other + no Smart Turn verdict       800
-    hard cap                            2500
+    no text for the pause yet           3500 (no final or partial: Smart Turn alone isn't trusted;
+                                              text arriving later re-decides)
+    hard cap                            3500
 """
 
 from __future__ import annotations
@@ -31,17 +34,21 @@ class Wait:
     capped: bool = False
 
 
-def choose_wait(tail_class: str | None, st: SmartTurnVerdict | None, p: config.TurnPolicyConfig = config.TURN_POLICY) -> Wait:
-    """`tail_class` None = no segment arrived within the budget (treated as "other")."""
+def choose_wait(tail_class: str | None, st: SmartTurnVerdict | None, p: config.TurnPolicyConfig = config.TURN_POLICY,
+                have_text: bool = True) -> Wait:
+    """`tail_class` None = treated as "other". `have_text` False = no final or partial for the pause."""
     by_class = {
         "completion": p.wait_completion_ms,
         "short_answer": p.wait_short_answer_ms,
         "hesitation": p.wait_hesitation_ms,
         "continuation": p.wait_continuation_ms,
         "number_in_progress": p.wait_number_ms,
+        "id_in_progress": p.wait_id_ms,
     }
     if tail_class in by_class:
         ms, rule = by_class[tail_class], tail_class
+    elif not have_text:
+        ms, rule = p.wait_no_text_ms, "no_text"
     elif st is None:
         ms, rule = p.wait_no_signal_ms, "other+no_smart_turn"
     elif st.probability >= p.st_complete_prob:

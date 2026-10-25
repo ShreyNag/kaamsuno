@@ -85,7 +85,20 @@ LOW_CONFIDENCE = 0.6  # a critical field below this is asked about again
 INTERPRETER_DRAIN_TIMEOUT_S = float(_env("INTERPRETER_DRAIN_TIMEOUT_S", "1.2"))
 GREETING = "Namaste. Kya hua hai? Bataiye."
 MAX_QUESTIONS = int(_env("MAX_QUESTIONS", "3"))  # field questions per report; then read back what we have
-MAX_ASKS_PER_FIELD = 2  # a field the worker doesn't answer is asked at most twice (the 2nd time rephrased)
+# A field is asked at most this often: the question, then once more ("_reask", or "_repeat" when nothing
+# usable was heard). Then the dialogue moves on and the field is listed as unconfirmed.
+MAX_ASKS_PER_FIELD = 2
+# Words that name a field, so "location galat hai" at the read-back asks for the right location
+FIELD_WORDS: dict[str, tuple[str, ...]] = {
+    "location": ("location", "jagah", "jagaah", "area", "floor", "manzil", "bay", "tower", "block", "जगह", "मंजिल"),
+    "urgency": ("urgency", "urgent", "jaldi", "zaroori", "जल्दी"),
+    "quantity": ("quantity", "matra", "kitna", "kitni", "count", "मात्रा"),
+    "unit": ("unit",),
+    "material": ("material", "saamaan", "saman", "maal", "सामान"),
+    "asset_or_equipment": ("machine", "equipment", "asset", "id", "मशीन"),
+    "incident_type": ("type", "problem", "dikkat", "samasya"),
+    "people_at_risk": ("log", "people", "aadmi", "लोग"),
+}
 
 # Report schema (research/schema.json, Aastha's KaamSuno v1.x format; see app/interpreter/schema.py)
 SITE_NAME = _env("SITE_NAME", "Demo Site A")  # one site per demo session: recorded, never asked
@@ -121,7 +134,7 @@ aaj kal later baad tak hurry koi hafte normal low high
 CONFLICT_FIELDS = ("location", "quantity", "unit", "asset_or_equipment", "material", "date_or_time")
 # "Never invent a location" in code: a location update's evidence must contain one of these place words
 LOCATION_CUES = frozenset("""
-manzil manjil floor mala mail level storey storey basement terrace chhat roof tower block wing building gate bay area
+location jagah jagaah manzil manjil floor mala mail level storey storey basement terrace chhat roof tower block wing building gate bay area
 zone sector site road gali side paas pass near room shed yard godown store store-room lift staircase seedhi pillar
 column grid plot phase unit hall gaddi entrance exit parking corridor platform scaffold scaffolding pit tank station
 line section plant shop warehouse office canteen
@@ -203,14 +216,18 @@ class TurnPolicyConfig:
     segment_budget_ms: int = int(_env("SEGMENT_BUDGET_MS", "680"))
     wait_completion_ms: int = 300
     wait_short_answer_ms: int = 300
-    wait_hesitation_ms: int = 2000  # regardless of Smart Turn
-    wait_continuation_ms: int = 2000  # regardless of Smart Turn
-    wait_number_ms: int = 1500
+    wait_hesitation_ms: int = 3000  # regardless of Smart Turn (live test 3: 2 s pauses after "umm")
+    wait_continuation_ms: int = 3000  # regardless of Smart Turn
+    wait_number_ms: int = 2000  # a quantity being said ("dhai sau ..."); 1500 cut in live
+    wait_id_ms: int = 3000  # an ID being read out ("machine ID chaar saat [2.5 s] ek nau")
     wait_st_complete_ms: int = 400  # tail "other" and Smart Turn P(complete) >= st_complete_prob
     wait_st_incomplete_ms: int = 1200
     wait_no_signal_ms: int = 800  # tail "other" and no Smart Turn verdict
     st_complete_prob: float = 0.7
-    max_wait_ms: int = 2500  # hard cap after the last speech
+    max_wait_ms: int = 3500  # hard cap after the last speech
+    # No final and no partial for the pause by the segment budget (Prisma sends nothing for a lone
+    # "umm"): Smart Turn alone isn't trusted; wait up to the cap, re-deciding if text arrives
+    wait_no_text_ms: int = 3500
     tail_tokens: int = 3  # the classifier looks at the last 1..tail_tokens tokens
 
 
@@ -222,6 +239,9 @@ FILLERS_EXTRA_PATHS = (RESEARCH_DIR / "fillers_extra_ours.json", RESEARCH_DIR / 
 FILLERS_INCLUDE_GENERATED = _env("FILLERS_INCLUDE_GENERATED", "0") == "1"
 # Fields whose answers are spoken digit by digit or as a number: a numeric tail means "more is coming"
 ID_FIELDS = ("asset_or_equipment", "reporter_name_or_id")
+# Prisma's spellings of digits it misheard ("saat" -> "saal", "nau" -> "no"): count as numbers, but only
+# while a number is being read out (after a number in an ID read-out, or when an ID/quantity was asked)
+NUMBER_SOUNDALIKES = frozenset("saal sat saath sath no nao now naw tin aat panj".split())
 QUANTITY_FIELDS = ("quantity",)
 
 # Experiment: blank non-speech audio before sending to Prisma (off in v0)

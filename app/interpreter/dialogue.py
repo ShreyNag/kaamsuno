@@ -7,11 +7,12 @@ DialogueManager keeps the conversation state; one `decide()` per turn end:
         nothing captured yet                -> opening question
         next pending field                  -> ask it (order below)
         nothing pending, or the cap reached -> read-back                         (phase "readback")
-    readback:
-        the worker changed something        -> re-read only the changed fields  ("nahi, Bay 3")
+    readback (every reply goes through the interpreter first, as a possible correction):
+        a field changed, or was re-stated   -> re-read only those fields         ("nahi, Bay 3")
         yes                                 -> confirmed line                    (phase "confirmed")
+        names a field                       -> "what is the right location?"     ("location galat hai")
         no                                  -> "which detail is wrong?"
-        neither                             -> short "is it right? haan ya nahi"
+        no yes/no and no field content      -> short "is it right? haan ya nahi"
     confirmed:
         the worker changed something        -> re-read the changes (back to "readback")
         otherwise                           -> say nothing
@@ -19,9 +20,13 @@ DialogueManager keeps the conversation state; one `decide()` per turn end:
 Pending fields, in order: the required ones (config.ASK_FIRST, then ASK_LAST), then the important
 fields for the incident type (config.TYPE_FIELDS), then any other critical field (guard). Within
 that order: missing (null, "unknown" or inferred) -> an ID for config.NEEDS_ID fields -> conflict ->
-low confidence. A field is asked at most MAX_ASKS_PER_FIELD times. MAX_QUESTIONS caps everything
-except missing required fields (the guard: never read back as done while a required field could
-still be asked). The same line is never spoken twice in a row: it is rephrased ("_repeat") or skipped.
+low confidence. MAX_QUESTIONS caps everything except missing required fields (the guard: never read
+back as done while a required field could still be asked).
+
+A field is asked at most MAX_ASKS_PER_FIELD (2) times: the question, then once more if the answer
+didn't fill it: "_repeat" ("not clear, say again") only when nothing usable was heard, otherwise
+"_reask" ("just tell me the location"). Then the dialogue moves on and the field is `unconfirmed`
+(listed in uncertainties, read back as "not given"). The same line is never spoken twice in a row.
 """
 
 from __future__ import annotations
@@ -33,18 +38,19 @@ from dataclasses import dataclass, field
 from app import config
 from app.interpreter.interpreter import Report, is_known
 from app.interpreter.schema import Schema
+from app.turn.tail_classifier import load_fillers, tokens
 
 YES_WORDS = frozenset("""haan han haa ha ji sahi theek thik correct yes yeah yep ok okay bilkul right pakka confirm
 हाँ हां हा जी सही ठीक बिल्कुल""".split())
 NO_WORDS = frozenset("nahi nahin nai nhi na galat no nope wrong नहीं नही ना गलत".split())
-CONFIRM_REASONS = ("low_confidence", "conflict", "readback", "reread", "readback_prompt", "missing_id")
+CONFIRM_REASONS = ("low_confidence", "conflict", "readback", "reread", "readback_prompt")
 
 
 @dataclass(frozen=True)
 class Question:
     field: str | None  # the field asked about; None for opening / emergency / read-back moves
-    reason: str  # emergency|opening|missing|missing_id|conflict|low_confidence|repeat|readback|reread|
-    #               readback_prompt|rejection|confirmed|silent
+    reason: str  # emergency|opening|missing|missing_id|conflict|low_confidence|repeat|reask|readback|
+    #               reread|readback_prompt|which_value|rejection|confirmed|silent
     text: str  # "" when silent
 
     @property
@@ -66,6 +72,18 @@ def is_no(text: str) -> bool:
 
 def is_yes(text: str) -> bool:
     return bool(_words(text) & YES_WORDS) and not is_no(text)
+
+
+def usable(text: str) -> bool:
+    """Anything heard besides fillers ("umm", "matlab")? Only an empty answer earns "please repeat"."""
+    hesitation = {p[0] for p in load_fillers().hesitation if len(p) == 1}
+    return any(t not in hesitation for t in tokens(text))
+
+
+def named_fields(text: str) -> list[str]:
+    """Fields the worker names ("location galat hai" -> ["location"]), in config.FIELD_WORDS order."""
+    words = _words(text)
+    return [name for name, cues in config.FIELD_WORDS.items() if words & set(cues)]
 
 
 def _label(name: str) -> str:
@@ -102,13 +120,16 @@ class DialogueManager:
     confirmation: str = "not_obtained"  # her reporter_confirmation enum
     asked: Counter = field(default_factory=Counter)  # (field, reason) -> times asked
     questions: int = 0  # field questions asked (the cap counts these)
+    unconfirmed: set = field(default_factory=set)  # asked the maximum times and still not filled
     last_text: str = ""
     emergency_announced: bool = False
     _corrected: bool = False
 
     def decide(self, report: Report, schema: Schema, templates, turn_text: str = "",
-               changed: dict[str, object] | None = None) -> Question:
-        q = self._decide(report, schema, templates, turn_text, changed or {})
+               changed: dict[str, object] | None = None, touched: set[str] | None = None) -> Question:
+        """`changed`: fields whose stated value is new since the bot last spoke. `touched`: fields the
+        worker's words updated this turn, even to the same value (a re-statement)."""
+        q = self._decide(report, schema, templates, turn_text, changed or {}, touched or set())
         if q.text and q.text == self.last_text:  # never the same line twice in a row
             q = Question(None, "silent", "")
         if q.text:
@@ -116,34 +137,37 @@ class DialogueManager:
         return q
 
     # --- the decision ---------------------------------------------------------------
-    def _decide(self, report, schema, t, turn_text, changed) -> Question:
+    def _decide(self, report, schema, t, turn_text, changed, touched) -> Question:
         urgency = report.get("urgency", {})
         if is_known(urgency) and urgency["value"] == "emergency" and not self.emergency_announced:
             self.emergency_announced = True
             return Question(None, "emergency", t["_emergency"])
         if self.phase in ("readback", "confirmed"):
-            return self._after_readback(report, schema, t, turn_text, changed)
+            return self._after_readback(report, schema, t, turn_text, changed, touched)
         if not captured_anything(report, schema):
             return Question(None, "opening", t["_opening"])
         if not self.emergency_announced:
-            q = self._next_field_question(report, schema, t)
+            q = self._next_field_question(report, schema, t, turn_text)
             if q:
                 return q
         return self._readback(report, schema, t)
 
-    def _next_field_question(self, report, schema, t) -> Question | None:
+    def _next_field_question(self, report, schema, t, turn_text: str) -> Question | None:
         critical = set(schema.critical_priority)
         for name, reason in pending(report, schema, self.low_confidence):
             if self.asked[(name, reason)] >= config.MAX_ASKS_PER_FIELD:
+                if reason in ("missing", "missing_id"):
+                    self.unconfirmed.add(name)
                 continue
             if self.questions >= self.max_questions and not (reason == "missing" and name in critical):
                 continue
-            text = self._render(name, reason, report, t)
-            if self.asked[(name, reason)] and text == self.last_text:  # same field again: rephrase
-                text, reason = t["_repeat"], "repeat"
-            self.asked[(name, "missing" if reason == "repeat" else reason)] += 1
+            text, ask = self._render(name, reason, report, t), reason
+            if self.asked[(name, reason)]:  # the answer didn't fill it: once more, worded for what we heard
+                ask = "reask" if usable(turn_text) else "repeat"
+                text = t["_reask"].format(field_label=_label(name)) if ask == "reask" else t["_repeat"]
+            self.asked[(name, reason)] += 1
             self.questions += 1
-            return Question(name, reason, text)
+            return Question(name, ask, text)
         return None
 
     def _render(self, name: str, reason: str, report: Report, t) -> str:
@@ -174,7 +198,7 @@ class DialogueManager:
             if name in ("description", "unit"):
                 continue  # description is a free-text paraphrase; unit goes with the quantity
             if not is_known(e):
-                if name in schema.critical_priority:
+                if name in schema.critical_priority or name in self.unconfirmed:
                     parts.append(t["_not_given"].format(field_label=_label(name)))
                 continue
             v = str(e["value"])
@@ -189,20 +213,29 @@ class DialogueManager:
             parts.append(v)
         return parts
 
-    def _after_readback(self, report, schema, t, turn_text, changed) -> Question:
+    def _after_readback(self, report, schema, t, turn_text, changed, touched) -> Question:
         if changed:
             self.phase, self._corrected = "readback", True
-            items = ", ".join(f"{_label(n)} {v}" for n, v in changed.items())
-            return Question(next(iter(changed)), "reread", t["_reread"].format(changes=items))
+            return self._reread(changed, t)
         if self.phase == "confirmed":
             return Question(None, "silent", "")
-        if is_no(turn_text):
-            return Question(None, "rejection", t["_rejection"])
         if is_yes(turn_text):
             self.phase = "confirmed"
             self.confirmation = "corrected_then_confirmed" if self._corrected else "confirmed"
             return Question(None, "confirmed", t["_confirmed"])
+        restated = {n: report[n]["value"] for n in sorted(touched) if n in report and is_known(report[n])}
+        if restated:  # "location Bay 2 hai": the same value, said again
+            return self._reread(restated, t)
+        named = [n for n in named_fields(turn_text) if schema.has(n)]
+        if named:  # "location galat hai": ask for the right value; the answer comes back as a change
+            return Question(named[0], "which_value", t["_which_value"].format(field_label=_label(named[0])))
+        if is_no(turn_text):
+            return Question(None, "rejection", t["_rejection"])
         return Question(None, "readback_prompt", t["_readback_prompt"])
+
+    def _reread(self, fields: dict[str, object], t) -> Question:
+        items = ", ".join(f"{_label(n)} {v}" for n, v in fields.items())
+        return Question(next(iter(fields)), "reread", t["_reread"].format(changes=items))
 
 
 def next_question(report: Report, schema: Schema, templates, low_confidence: float = config.LOW_CONFIDENCE) -> Question:

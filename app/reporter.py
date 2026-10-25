@@ -74,11 +74,17 @@ class ReportProcessor(FrameProcessor):
         self.publish()
 
     def report_with_system_fields(self) -> Report:
-        """The interpreter's report plus the fields only code fills: transcript, missing_fields, conflicts."""
+        """The interpreter's report plus the fields only code fills: transcript, missing_fields,
+        uncertainties (asked twice and still not answered; low confidence), conflicts."""
         r = {k: dict(v) for k, v in self._interp.report.items()}
+        unanswered = [{"field": n, "reason": "not_answered"} for n in sorted(self.dialogue.unconfirmed)
+                      if n in r and not is_known(r[n])]
+        doubtful = [{"field": n, "reason": "low_confidence", "value": r[n]["value"], "confidence": r[n]["confidence"]}
+                    for n in self._schema.critical_priority if is_known(r[n]) and r[n]["confidence"] < config.LOW_CONFIDENCE]
         derived = {
             "transcript": " ".join(self._interp.segments) or None,
-            "missing_fields": [n for n in self._schema.critical_priority if r[n]["value"] is None] or None,
+            "missing_fields": [n for n in self._schema.critical_priority if not is_known(r[n])] or None,
+            "uncertainties": unanswered + doubtful or None,
             "conflicts": [{"field": n, "values": [r[n]["value"], *(c["value"] for c in r[n]["conflicts"])]}
                           for n in r if r[n].get("conflicts")] or None,
         }
@@ -172,7 +178,10 @@ class ReportProcessor(FrameProcessor):
             else self._templates
         changed = self._changed_fields()
         dm = self.dialogue
-        self._question = q = dm.decide(self._interp.report, self._schema, templates, said, changed)
+        self._question = q = dm.decide(self._interp.report, self._schema, templates, said, changed,
+                                       self._interp.take_touched())
+        if not q.silent:  # the next answer is read against this question ("dedh sau bori" -> quantity)
+            self._interp.asked = {"field": q.field, "reason": q.reason, "question": q.text}
         # During the read-back a different value from the worker is a correction, never a conflict
         self._interp.assume_correction = dm.phase in ("readback", "confirmed")
         self._set_system("reporter_confirmation", dm.confirmation)

@@ -18,6 +18,7 @@ from pipecat.frames.frames import (
     BotStoppedSpeakingFrame,
     Frame,
     InputAudioRawFrame,
+    InterimTranscriptionFrame,
     MetricsFrame,
     StartFrame,
     TranscriptionFrame,
@@ -71,6 +72,8 @@ class PolicyTurnStopStrategy(BaseUserTurnStopStrategy):
             over = c.user_stopped(frame.timestamp, frame.stop_secs, verdict)
         elif isinstance(frame, TranscriptionFrame):
             over = c.segment(time.time(), frame.text)
+        elif isinstance(frame, InterimTranscriptionFrame):
+            over = c.partial(time.time(), frame.text)
         elif isinstance(frame, BotStartedSpeakingFrame):
             c.bot_started(time.time())
         elif isinstance(frame, BotStoppedSpeakingFrame):

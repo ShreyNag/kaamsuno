@@ -65,11 +65,14 @@ def test_normalise(raw, expected):
     ("बस इतना ही", NONE, "completion"),
     ("हो गया", NONE, "completion"),
     # number in progress
-    ("employee ID chaar saat", NONE, "number_in_progress"),
-    ("employee ID 4 7", NONE, "number_in_progress"),
-    ("मेरा आईडी चार सात", NONE, "number_in_progress"),
-    ("chaar saat", ASK_ID, "number_in_progress"),
+    ("employee ID chaar saat", NONE, "id_in_progress"),
+    ("employee ID 4 7", NONE, "id_in_progress"),
+    ("मेरा आईडी चार सात", NONE, "id_in_progress"),
+    ("chaar saat", ASK_ID, "id_in_progress"),
     ("dhai sau", ASK_QTY, "number_in_progress"),
+    ("machine number chaar saal", NONE, "id_in_progress"),  # live: Prisma wrote "saat" as "saal"
+    ("das saal", NONE, "other"),  # "saal" (year) with no read-out going on
+    ("pichle saal", NONE, "other"),
     ("mujhe dedh sau", NONE, "other"),  # a number with no ID/quantity context is not "in progress"
     # short answer after a confirmation question
     ("haan sahi hai", CONFIRM_LOC, "short_answer"),
@@ -94,7 +97,7 @@ def test_classify(segment, context, expected):
 def test_turn_text_gives_id_context_across_segments():
     # The ID cue was in an earlier segment of the same turn
     res = CLF.classify("chaar saat", NONE, turn_text="mera employee ID chaar saat")
-    assert res.tail_class == "number_in_progress"
+    assert res.tail_class == "id_in_progress"
 
 
 def test_short_answer_needs_the_whole_turn_to_be_short():

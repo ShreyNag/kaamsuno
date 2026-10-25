@@ -201,3 +201,38 @@ Measured on the last 10 turns in `logs/` (`python -m eval.latency_report`):
   - `tests/test_barge_in.py`: speech during bot audio → `InterruptionFrame` at the bot's output in **228–244 ms** in all three modes (real Silero, our strategy, the reporter).
   - Most likely what was heard: the bot *was* interrupted, but ~1.5 s later, at the end of the worker's turn, it said the same "taiyar hai" line again. That's fixed by the read-back and the no-repeat rule.
   - The hop log now records `interruption`, `bot_started` and `bot_stopped`, and `latency_report` reports barge-in reaction time (speech start during bot audio → bot audio stops) and any barge-in without an interruption frame. The next live log will confirm it.
+
+## Live test 3 (2026-10-25, smart_turn_fillers): "clear nahi hai" loop, read-back corrections, cut-ins
+
+- **"Clear nahi hai, phir batao" on most turns (root cause: short answers had no question context).**
+  - Replayed the live short answers through Groq with the old prompt:
+    - "abhi turant" → `{}`
+    - "bhed do mein" → date_or_time "in two hours"
+    - "location hai day teen" → location kept by the LLM, then dropped by our place-word rule ("location" wasn't a place word)
+    - "dedh sau bori" → 150 bags, which worked
+  - A second cause: the LLM saw the *guessed* urgency "high" as already set, so "abhi turant" and "urgency urgent hai" changed nothing, and the guess was never confirmed.
+  - The old second ask of any field was "_repeat", whatever the worker had said.
+  - Prisma also writes "Bay" as "be", "ve", "b", "bhed" or "day".
+- **Fixes:**
+  - The interpreter now gets `bot_just_asked` ({field, reason, question}) with every segment.
+  - The LLM sees only stated values; guessed ones are sent as null.
+  - When location was the question asked, the place-word rule is waived; the same goes for the urgency-cue rule. "location" and "jagah" are place words.
+  - Prompt rules 10–11: short answers, read-back corrections, and Prisma's usual mishearings.
+  - A field is asked at most twice. The second ask is "_repeat" only when nothing but fillers was heard, otherwise "_reask" ("Bas location bata dijiye"). After that the dialogue moves on: the field goes into `dialogue.unconfirmed` and `uncertainties`, and is read back as "… nahi pata".
+- **Read-back:** every reply goes through the interpreter.
+  - A field changed or re-stated → re-read only that field.
+  - Yes → confirmed.
+  - The reply names a field ("location galat hai", `config.FIELD_WORDS`) → "sahi location kya hai?", and the answer comes back as a change.
+  - No → "kaunsi detail galat hai?".
+  - "haan ya nahi" only when the reply has none of these.
+- **Cut-ins:** `eval/replay_pauses.py` replays a log's pauses through the current controller. There were 3 audible cut-ins:
+  - After "umm": Prisma sent no text at all, Smart Turn said 0.005, and the old 1200 ms wait cut in.
+  - After "saat": a number with ID context, and the old 1500 ms wait cut in at a 1.9 s pause.
+  - After "saal" (Prisma's spelling of "saat"): classed "other" and cut in at 1200 ms.
+- **Turn fixes:**
+  - No text by the segment budget means wait up to the cap (`no_text`); text arriving later re-decides.
+  - Partial transcripts stand in for a late final, and a partial after the decision re-decides.
+  - Waits are now: hesitation and continuation 3000 ms, number 2000 ms, cap 3500 ms.
+  - **Deviation from the request:** ID read-outs ("ID chaar saat …") get their own class `id_in_progress` at 3000 ms. With 2000 ms, the required 2.5 s pause after "chaar saat" would end the turn. Quantities keep 2000 ms.
+  - `NUMBER_SOUNDALIKES` ("saal", "no", …) count as digits only mid read-out.
+- **Not fixed:** two early turn ends after complete sentences (Smart Turn 0.97–0.98; the worker added "ID C twelve" after 0.6–0.9 s). They were silent: the pending question is cancelled when the worker resumes, so the bot never spoke. Nothing in the text says more is coming.

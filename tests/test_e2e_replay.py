@@ -100,3 +100,53 @@ def test_missing_location_gets_a_where_question_and_the_report_is_saved(tmp_path
     assert filled, "nothing the worker said reached reports/<session>.json"
     assert all(q[1] != "complete" for q in questions)
     assert config.SITE_NAME == doc["report"]["site_name"]["value"]
+
+
+@pytest.mark.skipif(not SCHEMA_PATH.exists(), reason="needs Aastha's research/schema.json")
+def test_live_short_answers_fill_the_asked_field_and_a_readback_correction_lands():
+    """Live test 3's failures, with the real Groq interpreter: short answers to the bot's questions,
+    then "nahi, chauthi manzil" at the read-back. Text only (no audio), ~6 Groq calls."""
+    from app.bot import build_interpreter
+    from app.interpreter.dialogue import DialogueManager
+    from app.interpreter.interpreter import is_known
+
+    schema, book = load_schema(), load_template_book()
+    hops = HopLogger(log_dir=Path(os.getenv("TEMP", ".")))
+    interp, dm, known = build_interpreter(schema, hops), DialogueManager(), {}
+    moves = []
+
+    async def turn(text):
+        nonlocal known
+        interp.submit(text)
+        await interp.drain(timeout=30)
+        now = {f.name: interp.report[f.name]["value"] for f in schema.llm_fields if is_known(interp.report[f.name])}
+        changed = {n: v for n, v in now.items() if known.get(n) != v}
+        known = now
+        q = dm.decide(interp.report, schema, book.for_language("hinglish"), text, changed, interp.take_touched())
+        interp.assume_correction = dm.phase in ("readback", "confirmed")
+        interp.asked = {"field": q.field, "reason": q.reason, "question": q.text}
+        moves.append((q.field, q.reason))
+        return q
+
+    async def main():
+        q = await turn("teesri manzil pe cement kam pad gaya hai")
+        answers = {"urgency": "abhi turant", "quantity": "dedh sau bori", "unit": "bori",
+                   "material": "cement", "description": "cement khatam ho gaya"}
+        for _ in range(4):
+            if q.reason == "readback":
+                break
+            q = await turn(answers.get(q.field, "pata nahi"))
+        assert q.reason == "readback", moves
+        q = await turn("nahi, chauthi manzil")
+        assert (q.field, q.reason) == ("location", "reread"), moves
+        q = await turn("haan")
+        assert q.reason == "confirmed", moves
+
+    asyncio.run(main())
+    hops.close()
+    r = interp.report
+    print(moves, {n: r[n]["value"] for n in ("location", "urgency", "quantity", "unit")})
+    assert all(reason not in ("repeat", "reask") for _, reason in moves), moves
+    assert str(r["quantity"]["value"]) == "150" and "bag" in str(r["unit"]["value"]).lower()
+    assert r["urgency"]["value"] in ("high", "emergency") and is_known(r["urgency"])
+    assert "4" in str(r["location"]["value"]) or "chauthi" in str(r["location"]["value"]).lower()

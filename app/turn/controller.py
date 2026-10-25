@@ -12,7 +12,10 @@ What happens in PAUSED depends on the mode:
     fixed_timeout       turn over FIXED_TIMEOUT_MS after the last speech
     smart_turn          over at the VAD stop if Smart Turn says complete, else after its silence fallback
     smart_turn_fillers  wait for the pause's Prisma segment (up to a budget), classify its tail,
-                        then wait as turn_policy says. A segment arriving later re-decides.
+                        then wait as turn_policy says. Without a final by the budget, the open
+                        utterance's latest partial transcript stands in for it; with neither, wait
+                        up to the hard cap (Smart Turn alone is not trusted). Text arriving later
+                        (a partial, then the final) re-decides.
 
 Each pause is logged once, when it resolves (`resumed` or `turn_over`): the
 turn-taking evaluation data.
@@ -48,6 +51,9 @@ class Pause:
     smart_turn: SmartTurnVerdict | None
     segment: str | None = None
     segment_ts: float | None = None
+    partial: str | None = None  # the open utterance's latest partial transcript (no final yet)
+    partial_ts: float | None = None
+    tail_source: str | None = None  # what the tail class was read from: "final" | "partial" | None
     segment_deadline: float | None = None  # fillers mode: decide without the segment after this
     tail_class: str | None = None
     tail: str | None = None
@@ -64,6 +70,7 @@ class Pause:
             "mode": mode, "outcome": outcome,
             "last_speech": r(self.last_speech), "vad_stop": r(self.vad_stop), "outcome_ts": r(now),
             "silence_ms": ms(now), "segment_lag_ms": ms(self.segment_ts), "decided_ms": ms(self.decided_at),
+            "partial_text": self.partial, "partial_lag_ms": ms(self.partial_ts), "tail_source": self.tail_source,
             "tail_text": self.segment, "tail": self.tail, "tail_class": self.tail_class,
             "smart_turn": st and {"complete": st.complete, "p": round(st.probability, 3)},
             "wait_ms": self.wait and self.wait.ms, "rule": self.wait and self.wait.rule,
@@ -85,6 +92,7 @@ class TurnController:
     pause: Pause | None = None
     turn_segments: list[str] = field(default_factory=list)
     _last_segment: tuple[float, str] | None = None
+    _partial: tuple[float, str] | None = None  # latest partial since the last final
 
     def __post_init__(self):
         if self.mode not in TURN_MODES:
@@ -109,6 +117,8 @@ class TurnController:
         if self._last_segment and self._last_segment[0] >= p.last_speech:
             # Prisma closed the segment before our VAD did: it already holds the words before the pause
             p.segment_ts, p.segment = self._last_segment
+        elif self._partial:
+            p.partial_ts, p.partial = self._partial
         if self.mode == "smart_turn_fillers" and p.segment is None:
             p.segment_deadline = now + self.policy.segment_budget_ms / 1000
             return False
@@ -118,7 +128,7 @@ class TurnController:
         text = text.strip()
         if not text:
             return False
-        self._last_segment = (now, text)
+        self._last_segment, self._partial = (now, text), None
         if self.state in (State.USER_SPEAKING, State.PAUSED):
             self.turn_segments.append(text)
         if self.state != State.PAUSED:
@@ -130,6 +140,22 @@ class TurnController:
             return False
         if p.decided_at is not None:
             p.revisions += 1
+        return self._decide(now)
+
+    def partial(self, now: float, text: str) -> bool:
+        """A partial transcript of the utterance Prisma has open: earlier than the final, but it may
+        lag the last word, so it only stands in while the pause has no final."""
+        text = text.strip()
+        if not text:
+            return False
+        self._partial = (now, text)
+        if self.state != State.PAUSED or self.mode != "smart_turn_fillers" or self.pause.segment is not None:
+            return False
+        p = self.pause
+        p.partial, p.partial_ts = text, now
+        if p.decided_at is None:
+            return False  # within the segment budget the final may still come; the partial is used at the budget
+        p.revisions += 1
         return self._decide(now)
 
     def tick(self, now: float) -> bool:
@@ -165,9 +191,12 @@ class TurnController:
 
     # --- decision -----------------------------------------------------------------
     def _classify_for_log(self) -> None:
-        if self.classifier and self.pause.segment is not None:
-            res = self.classifier.classify(self.pause.segment, self.context, " ".join(self.turn_segments))
-            self.pause.tail_class, self.pause.tail = res.tail_class, res.tail
+        p = self.pause
+        text, source = (p.segment, "final") if p.segment is not None else (p.partial, "partial")
+        if self.classifier and text is not None:
+            turn = self.turn_segments + ([text] if source == "partial" else [])
+            res = self.classifier.classify(text, self.context, " ".join(turn))
+            p.tail_class, p.tail, p.tail_source = res.tail_class, res.tail, source
 
     def _decide(self, now: float) -> bool:
         p = self.pause
@@ -180,7 +209,7 @@ class TurnController:
             else:
                 wait = Wait(round(self.smart_turn_stop_secs * 1000), "smart_turn_silence_fallback")
         else:
-            wait = choose_wait(p.tail_class, p.smart_turn, self.policy)
+            wait = choose_wait(p.tail_class, p.smart_turn, self.policy, have_text=p.tail_source is not None)
         p.wait, p.decided_at = wait, now
         p.deadline = p.last_speech + wait.ms / 1000
         return self.tick(now)
@@ -200,7 +229,7 @@ class TurnController:
 def run_timeline(ctl: TurnController, events: list[tuple]) -> list[float]:
     """Drive `ctl` through a simulated timeline; returns the turn-end times.
 
-    events: (t, "vad_start") | (t, "vad_stop", stop_secs[, SmartTurnVerdict]) | (t, "segment", text)
+    events: (t, "vad_start") | (t, "vad_stop", stop_secs[, SmartTurnVerdict]) | (t, "segment", text) | (t, "partial", text)
             | (t, "bot_start") | (t, "bot_stop") | (t, "context", DialogueContext), in time order.
     Deadlines falling between events fire at their own time, as the live timer would.
     """
@@ -221,6 +250,8 @@ def run_timeline(ctl: TurnController, events: list[tuple]) -> list[float]:
             over = ctl.user_stopped(t, args[0], args[1] if len(args) > 1 else None)
         elif kind == "segment":
             over = ctl.segment(t, args[0])
+        elif kind == "partial":
+            over = ctl.partial(t, args[0])
         elif kind == "bot_start":
             ctl.bot_started(t)
         elif kind == "bot_stop":

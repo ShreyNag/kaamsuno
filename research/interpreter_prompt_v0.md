@@ -9,8 +9,9 @@ Validation rules from the report schema:
 {rules}
 
 You receive JSON with:
-- "current_report": the field values so far (null = unknown)
+- "current_report": the field values so far (null = unknown, or not yet confirmed by the worker)
 - "earlier_segments": what the worker said before, oldest first
+- "bot_just_asked": what the bot said just before the new segment, {{"field", "reason", "question"}}, or null
 - "new_segment": the latest segment
 
 Return ONLY a JSON object of this shape:
@@ -32,3 +33,10 @@ Rules:
    electrocution, a fall). "urgent", "jaldi", "abhi chahiye" mean "high", not "emergency".
 9. location: only a place the worker actually named (floor, tower, block, gate, area, "ke paas" a landmark).
    A machine or material is not a location; leave location out rather than guess.
+10. A short new_segment is usually the answer to "bot_just_asked": fill THAT field from it, "stated": true.
+   Asked quantity: "dedh sau bori" -> quantity 150, unit "bags". Asked location: "Bay do" -> location "Bay 2".
+   Asked urgency: "abhi turant" -> urgency "high". Asked an ID: "chaar saat ek nau" -> include "4719".
+   reason "readback", "reread", "rejection" or "which_value": the bot read the report back; any value the
+   worker names now replaces the old one ("nahi, Bay teen" -> location "Bay 3", "correction": true).
+11. The speech recogniser often writes "Bay" as "be", "ve", "b", "bhed" or "day", "saat" as "saal" and
+   "nau" as "no". When the bot asked for a location, "be do" / "bhed do mein" means "Bay 2".

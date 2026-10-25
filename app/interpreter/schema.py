@@ -53,6 +53,8 @@ PLACEHOLDER_SCHEMA = {
         {"name": "urgency", "type": "enum", "required": True, "allowed": ["emergency", "high", "normal", "low", "unknown"],
          "description": "never downgrade an apparent emergency"},
         {"name": "missing_fields", "type": "array[string]", "required": False, "description": "still unknown"},
+        {"name": "uncertainties", "type": "array[object]", "required": False,
+         "description": "asked and not answered, or low confidence"},
         {"name": "conflicts", "type": "array[object]", "required": False, "description": "both values kept"},
         {"name": "transcript", "type": "string", "required": False, "description": "what was said"},
         {"name": "reporter_confirmation", "type": "enum", "required": True,
@@ -79,7 +81,9 @@ PLACEHOLDER_TEMPLATES = {
     "_generic": "{field_label} bataiye.",
     "people_at_risk": "Kya koi aur log khatre mein hain? Kitne log?",
     "_asset_id": "{asset} ka ID ya number kya hai?",
-    "_repeat": "Yeh detail clear nahi hui, please ek baar repeat kar do.",
+    "_repeat": "Yeh detail clear nahi hui, please ek baar repeat kar do.",  # only when nothing usable was heard
+    "_reask": "Bas {field_label} bata dijiye.",  # 2nd ask of a field the worker's answer didn't fill
+    "_which_value": "Theek hai, sahi {field_label} kya hai?",  # read-back: "location galat hai"
     # read-back (minimal, pulled forward from Phase 3; sending to the supervisor stays in Phase 3)
     "_readback": "Main report read-back kar raha hoon. Sahi hai toh confirm kar do.",
     "_readback_prompt": "Report sahi hai? Haan ya nahi boliye.",

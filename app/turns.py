@@ -96,7 +96,8 @@ def describe(vad: VADAnalyzer, mode: str, strategies: UserTurnStrategies, prisma
         lines.append(
             f"rule:       segment budget {pol.segment_budget_ms} ms after VAD stop; waits completion/short "
             f"{pol.wait_completion_ms}/{pol.wait_short_answer_ms}, hesitation/continuation "
-            f"{pol.wait_hesitation_ms}/{pol.wait_continuation_ms}, number {pol.wait_number_ms}, other: "
+            f"{pol.wait_hesitation_ms}/{pol.wait_continuation_ms}, number/ID {pol.wait_number_ms}/{pol.wait_id_ms}, "
+            f"no text {pol.wait_no_text_ms}, other: "
             f"ST>={pol.st_complete_prob} {pol.wait_st_complete_ms} / ST incomplete {pol.wait_st_incomplete_ms} / "
             f"no ST {pol.wait_no_signal_ms}; cap {pol.max_wait_ms} ms"
         )
