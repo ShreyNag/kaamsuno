@@ -132,3 +132,26 @@ Measured on the last 10 turns in `logs/` (`python -m eval.latency_report`):
 - **Fix: `PrismaSTTService` replaces the plugin's receive loop and reads both protocols.** `transcript`/`final_transcript` → `TranscriptionFrame`; `partial_transcript` → `InterimTranscriptionFrame` (a separate class, so the reporter and turn controller ignore partials until Day 2 uses them). Unknown types are logged (`stt_unknown_type`); errors are logged in full with close codes. "Prisma still owes words" is now tracked as utterances with a `speech_start` but no final.
 - **Partials stay on.** They arrive 1–2 s before the final, which Day 2 (interpreter on partials) and the turn controller's tail wait both want. Every header can be switched off on its own: `PRISMA_SEND_MIN_SILENCE`, `_MIN_SPEECH`, `_VAD_THRESHOLD`, `_PARTIALS`, `_BIAS` = 0.
 - **Startup self-test (`PRISMA_SELF_TEST`, on by default).** Before serving, the bot streams 2.5 s of `matlab_pause.wav` to Prisma with its exact headers, then silence, and exits with a clear error if no final transcript arrives within 5 s. It costs ~4.3 s at boot. The silence matters: Prisma only closes a segment on silence it receives, so the first version (which stopped sending after the clip) failed without headers, where Prisma's default min-silence is longer.
+- **Second root cause: Aastha's schema loaded silently as "27 fields, 0 critical".** Her KaamSuno v1.1 format marks required fields in a top-level `required_before_submission` list, not per field. Our loader read `critical` per field, found none, and `next_question` returned "complete" on every turn. That's the repeated "Shukriya, saari jaankari mil gayi" line.
+  - `parse_schema` now recognises her format (and our legacy one) and raises `SchemaFormatError` for anything else, at boot (`app/bot.py` loads the schema before serving).
+  - Also an error: a required field that doesn't exist, an enum without `allowed`, or no critical fields after parsing.
+- **Critical = `required_before_submission` minus `config.NOT_ASKED_REQUIRED`.** That removes `reporter_confirmation` (read-back) and `site_name` (from `SITE_NAME` in config: one site per demo), leaving location, incident_type, description and urgency.
+  - Ask order is `config.ASK_ORDER`: location, incident_type, asset_or_equipment (equipment_failure only), description, quantity + unit (material_shortage only), urgency. A filled field is never asked, so urgency isn't asked when the words already made it clear.
+- **Guard: the bot never says "complete" while a required field is empty.** The order is: emergency → opening question if nothing is captured yet → missing (ask order, then any other critical field) → conflict → low confidence → complete. A final check refuses "complete" if a critical field is empty. Tested per field, and with an ask order that forgets fields.
+- **System fields are filled by code, never by the LLM (`config.SYSTEM_FIELDS`):**
+  - at session start: incident_id = session id, reported_at, site_name, status=draft, reporter_confirmation=not_obtained
+  - on every save: transcript, missing_fields, conflicts
+- **Her validation rules, as far as code can check them:**
+  - enums are checked against `allowed`
+  - emergency is never downgraded
+  - a quantity whose evidence isn't just digits keeps the phrase in `spoken_number_raw`
+  - CONFLICT_FIELDS (location, quantity, unit, asset, material, date/time): a different value without a clear correction (the LLM's new `correction` flag) or refinement keeps both, and the dialogue asks which is right; "a correction replaces a value only after the worker's intent is clear"
+  - a location's evidence must contain a place word (`config.LOCATION_CUES`, Latin and Devanagari)
+
+  All her rules are also in the interpreter prompt.
+- **Found by the live end-to-end replay (`tests/test_e2e_replay.py`, RUN_LIVE=1):**
+  - (a) the LLM set `location = "crane hydraulic pipe area"` with evidence "crane hydraulic pipe". The evidence check passed because those words were said. This is why the place-word check exists.
+  - (b) "it is urgent" → urgency `emergency`. Fixed in the prompt ("urgent/jaldi" = high; emergency = someone hurt or in immediate danger), not by downgrading in code: a missed injury costs more than a false alert.
+
+  After both fixes the replay passed 3/3: location question asked, fields saved to `reports/<session>.json`.
+- **Interpreter text normalisation was broken for Devanagari.** `re.sub(r"[^\w]+")` treats Devanagari vowel signs as non-word characters, so "मंजिल" → "म ज ल". Evidence matching still worked because both sides were mangled the same way, but any word-level check (place words, fillers) failed. It now strips only Unicode punctuation and symbols.

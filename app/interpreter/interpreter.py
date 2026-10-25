@@ -12,6 +12,7 @@ import copy
 import json
 import re
 import time
+import unicodedata
 from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any
@@ -22,17 +23,27 @@ from app import config
 from app.interpreter.schema import Schema
 
 PROMPT_PATH = config.RESEARCH_DIR / "interpreter_prompt_v0.md"
+PROMPT_V1_PATH = config.RESEARCH_DIR / "interpreter_prompt_v1.md"  # Aastha's, used when present
 
 Report = dict[str, dict[str, Any]]
 Complete = Callable[[list[dict[str, str]]], Awaitable[str]]  # chat messages -> JSON text
 
 
 def empty_report(schema: Schema) -> Report:
-    return {n: {"value": None, "confidence": 0.0, "evidence": None, "history": []} for n in schema.names}
+    """Every schema field, empty; the system fields we know at session start are filled."""
+    r = {n: {"value": None, "confidence": 0.0, "evidence": None, "history": [], "conflicts": []} for n in schema.names}
+    known = {"site_name": config.SITE_NAME, "status": "draft", "reporter_confirmation": "not_obtained"}
+    for name, value in known.items():
+        if name in r:
+            r[name].update(value=value, confidence=1.0, evidence="system")
+    return r
 
 
 def _norm(text: str) -> str:
-    return re.sub(r"[^\w]+", " ", text.lower()).strip()
+    """Lowercase; punctuation and symbols to spaces. Not a regex word class: Python's "word
+    characters" exclude Devanagari vowel signs (matras), which turned "मंजिल" into "म ज ल"."""
+    t = "".join(" " if unicodedata.category(c)[0] in "PSZ" else c for c in text.lower())
+    return " ".join(t.split())
 
 
 def _confidence(x: Any) -> float:
@@ -42,17 +53,30 @@ def _confidence(x: Any) -> float:
         return 0.5
 
 
-def merge_update(report: Report, updates: dict[str, Any], transcript: str, schema: Schema) -> Report:
-    """Apply LLM `updates` ({field: {value, confidence, evidence}}) to a copy of `report`.
+def _enum_value(value: Any) -> str:
+    return re.sub(r"[\s-]+", "_", str(value).strip().lower())
 
-    - unknown fields, null values and values outside a field's enum are ignored (null stays null)
+
+
+def merge_update(report: Report, updates: dict[str, Any], transcript: str, schema: Schema) -> Report:
+    """Apply LLM `updates` ({field: {value, confidence, evidence, correction?}}) to a copy of `report`.
+    The rules live here, not in the prompt, so they hold whatever the LLM says:
+
+    - unknown fields, system fields, null values and values outside a field's `allowed` are ignored
     - evidence must occur in the transcript, else the update is dropped (no invented values)
-    - a different value for a filled field is a correction: the old entry moves to `history`
+    - a location's evidence must contain a place word (config.LOCATION_CUES): "crane pipe" is not a location
+    - urgency is never downgraded from "emergency"
+    - CONFLICT_FIELDS (location, quantity, unit, asset...): a different value replaces the old one
+      (old -> `history`) only if the LLM marks it a correction or it refines the old value
+      ("tower B" -> "tower B 3rd floor"); otherwise both are kept: the new one goes to `conflicts`
+      and the dialogue asks which is right. Re-stating the current value clears its conflicts.
+    - other fields: a different value replaces the old one (old -> `history`)
+    - a quantity whose evidence isn't just the digits keeps the spoken phrase in spoken_number_raw
     """
     out = copy.deepcopy(report)
     said = f" {_norm(transcript)} "
     for name, upd in (updates or {}).items():
-        if name not in out or not isinstance(upd, dict):
+        if name not in out or name in config.SYSTEM_FIELDS or not isinstance(upd, dict):
             continue
         value, evidence = upd.get("value"), str(upd.get("evidence") or "")
         if value is None or (isinstance(value, str) and not value.strip()):
@@ -60,16 +84,34 @@ def merge_update(report: Report, updates: dict[str, Any], transcript: str, schem
         if not _norm(evidence) or f" {_norm(evidence)} " not in said:
             logger.debug(f"interpreter: dropped {name}={value!r}, evidence {evidence!r} not in transcript")
             continue
+        if name == "location" and not set(_norm(evidence).split()) & config.LOCATION_CUES:
+            logger.info(f"interpreter: dropped location={value!r}, evidence {evidence!r} names no place")
+            continue
         allowed = schema.allowed(name)
         if allowed:
-            value = str(value).strip().lower()
+            value = _enum_value(value)
             if value not in allowed:
                 logger.debug(f"interpreter: dropped {name}={value!r}, not in {allowed}")
                 continue
         cur = out[name]
-        if cur["value"] is not None and str(cur["value"]).lower() != str(value).lower():
+        if name == "urgency" and cur["value"] == "emergency" and value != "emergency":
+            logger.info(f"interpreter: kept urgency=emergency, refused downgrade to {value!r}")
+            continue
+        new = {"value": value, "confidence": _confidence(upd.get("confidence")), "evidence": evidence}
+        old_v = cur["value"]
+        if old_v is None or _norm(str(old_v)) == _norm(str(value)):
+            cur.update(new)
+            cur["conflicts"] = []
+        elif name in config.CONFLICT_FIELDS and not upd.get("correction") and _norm(str(old_v)) not in _norm(str(value)):
+            if all(_norm(str(c["value"])) != _norm(str(value)) for c in cur["conflicts"]):
+                cur["conflicts"].append(new)
+            continue
+        else:
             cur["history"].append({k: cur[k] for k in ("value", "confidence", "evidence")})
-        cur.update(value=value, confidence=_confidence(upd.get("confidence")), evidence=evidence)
+            cur.update(new)
+            cur["conflicts"] = []
+        if name == "quantity" and "spoken_number_raw" in out and _norm(evidence) != _norm(str(value)):
+            out["spoken_number_raw"].update(value=evidence, confidence=1.0, evidence=evidence)
     return out
 
 
@@ -77,11 +119,17 @@ def values_only(report: Report) -> dict[str, Any]:
     return {k: v["value"] for k, v in report.items()}
 
 
-def build_system_prompt(schema: Schema, path: Path = PROMPT_PATH) -> str:
-    fields = "\n".join(
-        f"- {f.name}{' (critical)' if f.critical else ''}: {f.description}" for f in schema.fields
+def build_system_prompt(schema: Schema, path: Path | None = None) -> str:
+    """The prompt template with the schema's LLM-fillable fields, allowed values and validation rules."""
+    path = path or (PROMPT_V1_PATH if PROMPT_V1_PATH.exists() else PROMPT_PATH)
+    lines = []
+    for f in schema.llm_fields:
+        allowed = f" Allowed: {', '.join(f.enum)}." if f.enum else ""
+        lines.append(f"- {f.name}{' (required)' if f.critical else ''}: {f.description}{allowed}")
+    rules = "\n".join(f"- {r}" for r in schema.rules) or "- Never invent values."
+    return path.read_text(encoding="utf-8").format(
+        fields="\n".join(lines), incident_types=", ".join(schema.incident_types), rules=rules
     )
-    return path.read_text(encoding="utf-8").format(fields=fields, incident_types=", ".join(schema.incident_types))
 
 
 def groq_complete(model: str = config.LLM_MODEL) -> Complete:

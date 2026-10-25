@@ -43,7 +43,7 @@ async def fake_llm(messages):
     await asyncio.sleep(0.2)
     if "manzil" in seg:
         return json.dumps({"updates": {"location": {"value": "3rd floor", "confidence": 0.9, "evidence": "teesri manzil"}}})
-    return json.dumps({"updates": {"incident_type": {"value": "material_issue", "confidence": 0.9,
+    return json.dumps({"updates": {"incident_type": {"value": "material_shortage", "confidence": 0.9,
                                                       "evidence": "cement kam hai"}}})
 
 
@@ -71,10 +71,10 @@ def test_segments_are_silent_and_turn_end_asks_top_missing_field(tmp_path):
 
     asyncio.run(main())
     hops.close()
-    # incident_type and location came from the segments, so the next critical field is asked
-    assert [t for t, _ in spoken.said] == [PLACEHOLDER_TEMPLATES["equipment_or_material"]]
+    # location and incident_type came from the segments, so the next field in the ask order is asked
+    assert [t for t, _ in spoken.said] == [PLACEHOLDER_TEMPLATES["description"]]
     snap = hub.snapshots["t"]
-    assert snap["question"]["field"] == "equipment_or_material"
+    assert snap["question"]["field"] == "description"
     assert snap["segments"] == ["dedh sau bori cement kam hai", "teesri manzil pe"]
     assert {f["name"]: f["value"] for f in snap["fields"]}["location"] == "3rd floor"
 
@@ -113,8 +113,8 @@ async def correcting_llm(messages):
     seg = json.loads(messages[1]["content"])["new_segment"]
     floor = {"teesri manzil": "3rd floor", "paanchvi manzil": "5th floor"}
     hit = next((k for k in floor if k in seg), None)
-    return json.dumps({"updates": {"location": {"value": floor[hit], "confidence": 0.9, "evidence": hit}}} if hit
-                      else {"updates": {}})
+    upd = {"value": floor[hit], "confidence": 0.9, "evidence": hit, "correction": "nahi" in seg} if hit else None
+    return json.dumps({"updates": {"location": upd}} if hit else {"updates": {}})
 
 
 def test_report_saved_to_disk_with_history_and_transcript(tmp_path):
@@ -129,6 +129,7 @@ def test_report_saved_to_disk_with_history_and_transcript(tmp_path):
         await task.queue_frame(UserStartedSpeakingFrame())
         await task.queue_frame(TranscriptionFrame("teesri manzil pe", "u", "now"))
         await task.queue_frame(TranscriptionFrame("nahi nahi paanchvi manzil", "u", "now"))
+        await asyncio.sleep(0.1)  # a SystemFrame would overtake the queued segments (no Prisma tail wait here)
         await task.queue_frame(UserStoppedSpeakingFrame())
         await asyncio.sleep(0.5)
         await task.queue_frame(EndFrame())
@@ -142,7 +143,10 @@ def test_report_saved_to_disk_with_history_and_transcript(tmp_path):
     loc = doc["report"]["location"]
     assert loc["value"] == "5th floor" and loc["evidence"] == "paanchvi manzil"
     assert [h["value"] for h in loc["history"]] == ["3rd floor"]
-    assert set(loc) == {"critical", "value", "confidence", "evidence", "history"}
+    assert set(loc) == {"critical", "value", "confidence", "evidence", "history", "conflicts"}
+    assert doc["report"]["incident_id"]["value"] == "t3" and doc["report"]["site_name"]["value"]
+    assert doc["report"]["transcript"]["value"] == "teesri manzil pe nahi nahi paanchvi manzil"
+    assert doc["report"]["missing_fields"]["value"] == ["incident_type", "description", "urgency"]
     assert doc["transcript"] == ["teesri manzil pe", "nahi nahi paanchvi manzil"]
     assert doc["questions"] and doc["questions"][-1]["field"] == "incident_type"
     assert not list((tmp_path / "reports").glob("*.tmp"))

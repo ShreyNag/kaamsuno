@@ -17,7 +17,7 @@ from app.turn.tail_classifier import (
 
 CLF = TailClassifier(Fillers.from_lists(PLACEHOLDER_FILLERS))
 NONE = DialogueContext()
-ASK_ID = DialogueContext(asked_field="employee_id")
+ASK_ID = DialogueContext(asked_field="asset_or_equipment")  # asset IDs are read out digit by digit
 ASK_QTY = DialogueContext(asked_field="quantity")
 CONFIRM = DialogueContext(asked_field="quantity", confirmation=True)
 CONFIRM_LOC = DialogueContext(asked_field="location", confirmation=True)

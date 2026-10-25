@@ -63,10 +63,28 @@ class ReportProcessor(FrameProcessor):
         self._status = "waiting for the worker"
         self._turn_task: asyncio.Task | None = None
         interpreter.on_update = self._on_report_update
+        for name, value in (("incident_id", session_id), ("reported_at", time.strftime("%Y-%m-%dT%H:%M:%S%z"))):
+            if name in interpreter.report:
+                interpreter.report[name].update(value=value, confidence=1.0, evidence="system")
         self.publish()
 
+    def report_with_system_fields(self) -> Report:
+        """The interpreter's report plus the fields only code fills: transcript, missing_fields, conflicts."""
+        r = {k: dict(v) for k, v in self._interp.report.items()}
+        derived = {
+            "transcript": " ".join(self._interp.segments) or None,
+            "missing_fields": [n for n in self._schema.critical_priority if r[n]["value"] is None] or None,
+            "conflicts": [{"field": n, "values": [r[n]["value"], *(c["value"] for c in r[n]["conflicts"])]}
+                          for n in r if r[n].get("conflicts")] or None,
+        }
+        for name, value in derived.items():
+            if name in r:
+                r[name].update(value=value, confidence=1.0 if value is not None else 0.0,
+                               evidence="system" if value is not None else None)
+        return r
+
     def snapshot(self) -> dict:
-        r = self._interp.report
+        r = self.report_with_system_fields()
         return {
             "session": self._sid,
             "status": self._status,
@@ -89,7 +107,8 @@ class ReportProcessor(FrameProcessor):
             "session": self._sid,
             "updated": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
             "status": snap["status"],
-            "report": {f["name"]: {k: f[k] for k in ("critical", "value", "confidence", "evidence", "history")}
+            "report": {f["name"]: {k: f.get(k) for k in ("critical", "value", "confidence", "evidence", "history",
+                                                         "conflicts")}
                        for f in snap["fields"]},
             "transcript": snap["segments"],
             "questions": self._questions,
@@ -147,6 +166,7 @@ class ReportProcessor(FrameProcessor):
         self._status = "bot asking" if self._question.field else "report complete"
         self.publish()
         if self._set_context:
-            self._set_context(DialogueContext(self._question.field, self._question.reason == "low_confidence"))
+            confirm = self._question.reason in ("low_confidence", "conflict")
+            self._set_context(DialogueContext(self._question.field, confirm))
         await self.push_frame(TTSSpeakFrame(self._question.text))
         self._turn_task = None

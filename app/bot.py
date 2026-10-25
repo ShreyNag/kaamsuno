@@ -26,7 +26,7 @@ from pipecat_gnani import GnaniTTSService
 
 from app import config
 from app.interpreter.interpreter import Interpreter, groq_complete
-from app.interpreter.schema import load_schema, load_templates
+from app.interpreter.schema import SchemaFormatError, load_schema, load_templates
 from app.logging_utils import HopLogger, HopObserver
 from app.reporter import ReportProcessor
 from app.stt import PrismaSTTService, prisma_headers
@@ -137,6 +137,11 @@ if __name__ == "__main__":
     # The runner's banner uses box-drawing chars; Windows consoles default to cp1252.
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
+    # Fail at boot, not on the first call, if a research file is in a format we don't understand
+    try:
+        load_schema()
+    except SchemaFormatError as e:
+        raise SystemExit(f"\nSTARTUP FAILED: {e}") from e
     if config.PRISMA.self_test:
         import asyncio
 

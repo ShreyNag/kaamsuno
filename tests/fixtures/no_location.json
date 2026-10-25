@@ -1,0 +1,21 @@
+{
+ "speech": [
+  [
+   0.6,
+   2.833
+  ],
+  [
+   4.333,
+   5.856
+  ]
+ ],
+ "pause": [
+  2.833,
+  4.333
+ ],
+ "duration": 9.856,
+ "text": [
+  "the crane hydraulic pipe is leaking oil",
+  "it is urgent, that's it"
+ ]
+}

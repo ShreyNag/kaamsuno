@@ -86,6 +86,37 @@ INTERPRETER_DRAIN_TIMEOUT_S = float(_env("INTERPRETER_DRAIN_TIMEOUT_S", "1.2"))
 GREETING = "Namaste. Kya hua hai? Bataiye."
 READBACK_PLACEHOLDER = "Shukriya, saari zaroori jaankari mil gayi. Report taiyaar hai."
 
+# Report schema (research/schema.json, Aastha's KaamSuno v1.x format; see app/interpreter/schema.py)
+SITE_NAME = _env("SITE_NAME", "Demo Site A")  # one site per demo session: recorded, never asked
+# Required fields that are not asked as questions: collected at read-back, or filled from config
+NOT_ASKED_REQUIRED = ("reporter_confirmation", "site_name")
+# Filled by code, never by the interpreter LLM
+SYSTEM_FIELDS = ("incident_id", "reported_at", "site_name", "spoken_number_raw", "missing_fields", "uncertainties",
+                 "conflicts", "source_language", "transcript", "report_summary_spoken", "reporter_confirmation",
+                 "status")
+# Question order after the emergency check. (field, condition): the field is only asked when
+# incident_type equals the condition (None = always). A filled field is never asked.
+ASK_ORDER: tuple[tuple[str, str | None], ...] = (
+    ("location", None),
+    ("incident_type", None),
+    ("asset_or_equipment", "equipment_failure"),
+    ("description", None),
+    ("quantity", "material_shortage"),
+    ("unit", "material_shortage"),
+    ("urgency", None),
+)
+# A different value for these is a conflict (both kept, confirm) unless the worker clearly corrects it;
+# other fields (summaries, categories) are simply replaced
+CONFLICT_FIELDS = ("location", "quantity", "unit", "asset_or_equipment", "material", "date_or_time")
+# "Never invent a location" in code: a location update's evidence must contain one of these place words
+LOCATION_CUES = frozenset("""
+manzil manjil floor mala mail level storey storey basement terrace chhat roof tower block wing building gate bay area
+zone sector site road gali side paas pass near room shed yard godown store store-room lift staircase seedhi pillar
+column grid plot phase unit hall gaddi entrance exit parking corridor platform scaffold scaffolding pit tank station
+line section plant shop warehouse office canteen
+मंजिल मंज़िल फ्लोर माला टावर ब्लॉक विंग गेट एरिया साइड पास रोड गली कमरा छत बेसमेंट सीढ़ी लिफ्ट गोदाम प्लांट
+""".split())
+
 
 # --- Custom VAD --------------------------------------------------------------
 @dataclass(frozen=True)
@@ -175,8 +206,8 @@ class TurnPolicyConfig:
 TURN_POLICY = TurnPolicyConfig()
 FILLERS_PATH = RESEARCH_DIR / "fillers.json"
 # Fields whose answers are spoken digit by digit or as a number: a numeric tail means "more is coming"
-ID_FIELDS = ("employee_id",)
-QUANTITY_FIELDS = ("quantity", "people_affected")
+ID_FIELDS = ("asset_or_equipment", "reporter_name_or_id")
+QUANTITY_FIELDS = ("quantity",)
 
 # Experiment: blank non-speech audio before sending to Prisma (off in v0)
 BLANK_NONSPEECH_TO_STT = _env("BLANK_NONSPEECH_TO_STT", "0") == "1"

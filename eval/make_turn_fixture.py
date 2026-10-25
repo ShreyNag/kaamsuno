@@ -2,6 +2,7 @@
 
     mid_sentence_pause.wav  "mujhe dedh sau bori cement" <1.5 s> "chahiye teesri manzil pe"
     matlab_pause.wav        "teesri manzil pe cement matlab" <1.5 s> "kam pad gaya hai bas"
+    no_location.wav         "the crane hydraulic pipe is leaking oil" <1.5 s> "it is urgent, that's it"
 
 Speech timings and the two phrase texts go in <name>.json next to each. Windows only (SAPI TTS);
 the WAV is committed, so tests don't need to regenerate it.
@@ -24,6 +25,8 @@ LEAD_S, PAUSE_S, TAIL_S = 0.6, 1.5, 4.0  # tail > Smart Turn's 3 s silence fallb
 FIXTURES = {
     "mid_sentence_pause": ("mujhe dedh sau bori cement", "chahiye teesri manzil pe"),
     "matlab_pause": ("teesri manzil pe cement matlab", "kam pad gaya hai bas"),
+    # end-to-end replay: no location anywhere, so the bot must ask where
+    "no_location": ("the crane hydraulic pipe is leaking oil", "it is urgent, that's it"),
 }
 
 
