@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import time
 from typing import Any
 
 import numpy as np
@@ -26,6 +27,20 @@ class ThresholdSmartTurn(LocalSmartTurnAnalyzerV3):
     def __init__(self, *, threshold: float = config.SMART_TURN_THRESHOLD, **kwargs):
         super().__init__(**kwargs)
         self.threshold = threshold
+
+    def append_audio(self, buffer: bytes, is_speech: bool) -> EndOfTurnState:
+        state = super().append_audio(buffer, is_speech)
+        # Upstream only trims between turns, and we no longer clear on COMPLETE: keep what the
+        # model can use (max_duration_secs, plus the pre-speech margin) so a long turn stays cheap.
+        keep_s = self._params.max_duration_secs + self._params.pre_speech_ms / 1000 + self._vad_start_secs
+        oldest = time.monotonic() - keep_s
+        buf = self._audio_buffer
+        i = 0
+        while i < len(buf) and buf[i][0] < oldest:
+            i += 1
+        if i:
+            del buf[:i]
+        return state
 
     def _predict_endpoint(self, audio_array: np.ndarray) -> dict[str, Any]:
         result = super()._predict_endpoint(audio_array)

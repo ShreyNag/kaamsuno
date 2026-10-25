@@ -77,3 +77,34 @@ Measured on the last 10 turns in `logs/` (`python -m eval.latency_report`):
   - New events: `speech_end.stop_secs`, `turn_verdict` (Smart Turn p_complete), `interp_request/response`, `stt_tail_done`, `question`, `report_update`.
 - **VAD_MODE=composite is still Silero.** The custom/composite Pipecat wrappers (Day 3) aren't built yet; startup warns about it.
 - **Interpreter latency on Groq gpt-oss-20b (reasoning_effort=low): 1.0–4.5 s per call (3 calls).** It runs during speech, so most of that is hidden. But a call still in flight at turn end can hit the 3 s drain cap and the question goes out without it. Watch `interp_response.ms` in the logs.
+
+## Phase 2 Day 1: turn controller (2026-10-25)
+
+- **One stop strategy for all three modes.** Pipecat 1.7 ends turns through `BaseUserTurnStopStrategy`s inside the `UserTurnProcessor`. The processor hands every frame, in both directions, to its strategies. So a strategy sees VAD start/stop, input audio, Prisma segments and `BotStarted/StoppedSpeaking`, which is every input the controller needs. `app/turn/strategy.py` (`PolicyTurnStopStrategy`) is that strategy. It's a thin adapter around a pure state machine (`app/turn/controller.py`) that has no Pipecat and no clock, so simulated timelines can test it. `fixed_timeout` and `smart_turn` run through the same controller rather than Pipecat's built-in strategies, so every mode writes the same per-pause log and the modes can be compared on the same data. Rejected alternatives: a custom `BaseTurnAnalyzer` (it never sees transcripts or the dialogue context), and a processor that holds back `UserStoppedSpeakingFrame` (it fights the aggregator's own turn state).
+- **Default `TURN_MODE=smart_turn_fillers`** (agreed with Shrey). `fixed_timeout` and `smart_turn` stay fully working for the evaluation.
+- **Smart Turn's buffer is no longer cleared on COMPLETE, and it's trimmed to ~8.5 s instead.** Upstream `analyze_end_of_turn` clears the buffer when it says COMPLETE. We may keep waiting after a COMPLETE (a filler), and if the worker resumes, the next prediction should still see the whole turn. The buffer is cleared at the real turn end. Upstream only trims between turns, so `ThresholdSmartTurn.append_audio` keeps the last `max_duration_secs` (8 s) plus the pre-speech margin, which is all the model reads anyway.
+- **Smart Turn says COMPLETE on the "matlab" fixture too (p=0.98 at the 1.5 s pause).** This is the same failure as Gate 1, and why hesitation/continuation waits ignore Smart Turn.
+- **The Prisma segment budget counts from the VAD stop, not from the last speech** (agreed with Shrey). The default is **680 ms** = p90 of last speech → segment arrival (**883 ms**; p50 800 ms; n=92; all old logs) minus the VAD stop delay (200 ms).
+  - Those logs ran with Prisma's default 500 ms min-silence, because our 250 ms header wasn't being sent before Gate 1. With 250 ms the lag should be ~250 ms shorter, so 680 is conservative.
+  - Every `pause` record now has `segment_lag_ms`. Re-derive the p90 from the new live logs and lower the budget.
+  - A budget from the last speech of 400 ms would almost always expire before the words arrive. Then Smart Turn's 0.98 would end the turn on "matlab".
+- **A segment arriving after the decision re-decides** (`revisions` in the pause log). "bas" can still shorten the wait, and "umm" can still extend it, within the 2500 ms cap.
+- **A segment that arrives before the VAD stop, but after the last speech, is the pause's tail.** Prisma's own VAD can close the segment before ours reports the stop.
+- **VAD stop delay is already short.** Silero `stop_secs` = 0.2 s (`VAD_STOP_SECS`). The custom VAD's offline hangover (300 ms) isn't used live (see the VAD wrapper entry). The long waits belong to the turn policy now.
+- **Lower caps at turn end, configurable:**
+  - Prisma tail wait 1.5 s → **0.8 s** (`PRISMA_TAIL_TIMEOUT_MS`). In `smart_turn_fillers` the controller already waited for the segment before ending the turn, so this rarely runs.
+  - Interpreter drain 3 s → **1.2 s** (`INTERPRETER_DRAIN_TIMEOUT_S`). After it, the question is asked from the report as it stands. A late result still merges and shows on the page; it just doesn't change the question already asked.
+- **Worst-case last speech → question (before TTS), by mode:**
+
+  | mode | turn wait | Prisma tail | interpreter | before (old caps) | now |
+  |---|---|---|---|---|---|
+  | smart_turn_fillers | 2.5 s cap | 0.8 s | 1.2 s | 7.0 s | 4.5 s |
+  | smart_turn | 3.0 s silence fallback | 0.8 s | 1.2 s | 7.5 s | 5.0 s |
+  | fixed_timeout | 0.7 s | 0.8 s | 1.2 s | 5.2 s | 2.7 s |
+
+  Timbre's first byte comes on top.
+- **Prisma partials: none have reached the pipeline.** Zero `stt_partial` events in all logs. The plugin turns `transcript` with `is_final: false` into an interim frame, and none came. But it silently drops any message *type* it doesn't know. `PrismaSTTService` now logs the first message of every type with its keys (`stt_msg_type`) and the counts at session end (`stt_msg_counts`). The next live session answers whether Prisma sends partials under another type. Until then, Day 2 interprets per final segment.
+- **TTS latency: the old "turn_end → tts_first_byte ≈ 1.3 s" was not Timbre.** Those pre-Gate-1 sessions had the Groq chat LLM between turn end and TTS.
+  - Transport is the plugin's persistent WebSocket (`GnaniTTSService`).
+  - A `TTSSpeakFrame` goes to Timbre as one request; our questions are 1–2 short sentences.
+  - New hops measure Timbre alone: `question → tts_first_byte`, and Pipecat's own TTS TTFB metric (`tts_ttfb` event). `latency_report.py` reports both, per turn mode.

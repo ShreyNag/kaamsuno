@@ -4,6 +4,10 @@ pipecat-gnani 0.5.12 builds its connection headers inline in `_connect` and only
 sends language / format / ITN. `PrismaSTTService._connect` is a copy of the
 upstream method with our Prisma settings added (see notes/decisions.md).
 
+Every message type seen on the wire is logged once (`stt_msg_type`), with its
+keys: the plugin silently drops types it doesn't know, so this is how we find
+out whether Prisma sends partials at all (see notes/decisions.md).
+
 It also counts Prisma's segment lifecycle: the server sends `processing` when
 its VAD closes a segment and `transcript` when the text is ready. The dialogue
 layer waits on `wait_idle` so it never asks a question before the last
@@ -15,6 +19,8 @@ from __future__ import annotations
 import asyncio
 import json
 import time
+from collections import Counter
+from collections.abc import Callable
 from pathlib import Path
 
 from loguru import logger
@@ -74,9 +80,11 @@ class _SegmentCountingSocket:
 
 
 class PrismaSTTService(GnaniSTTService):
-    def __init__(self, *, extra_headers: dict[str, str], **kwargs):
+    def __init__(self, *, extra_headers: dict[str, str], log: Callable[..., None] | None = None, **kwargs):
         super().__init__(**kwargs)
         self.extra_headers = extra_headers
+        self._log = log or (lambda event, **kw: None)
+        self.msg_types: Counter[str] = Counter()
         self.pending_segments = 0  # `processing` seen, `transcript` not yet
         self.last_message_ts = 0.0
         self._idle = asyncio.Event()
@@ -90,10 +98,17 @@ class PrismaSTTService(GnaniSTTService):
 
     def _on_message(self, raw: str) -> None:
         try:
-            kind = json.loads(raw).get("type", "")
-        except ValueError:
+            data = json.loads(raw)
+            kind = data.get("type", "")
+        except (ValueError, AttributeError):
             return
         self.last_message_ts = time.time()
+        if kind not in self.msg_types:
+            logger.info(f"[STT WS] first '{kind}' message: keys={sorted(data)}")
+            self._log("stt_msg_type", type=kind, keys=sorted(data), is_final=data.get("is_final"))
+        self.msg_types[kind] += 1
+        if kind == "transcript" and data.get("is_final") is False:
+            self._log("stt_msg_type", type="transcript_not_final", text=data.get("text", "")[:80])
         if kind == "processing":
             self.pending_segments += 1
             self._idle.clear()

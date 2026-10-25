@@ -42,8 +42,9 @@ class PrismaSettings:
     output_format: str = "transcribe"  # spoken numbers -> digits
     bias_score: float = 2.0  # one of 0.0, 0.5, 1.0, 1.5, 2.0
     partials: bool = True  # x-partials: under-documented, see notes/decisions.md
-    # After our turn ends, how long to wait for Prisma's last segment of the turn
-    tail_timeout_ms: int = 1500
+    # After our turn ends, how long to wait for Prisma's last segment of the turn.
+    # smart_turn_fillers already waited for it before ending the turn, so this rarely runs out.
+    tail_timeout_ms: int = int(_env("PRISMA_TAIL_TIMEOUT_MS", "800"))
     tail_grace_ms: int = 150  # extra wait past min_silence_ms for Prisma's "processing" message
 
 
@@ -68,7 +69,8 @@ LLM_TIMEOUT_S = float(_env("LLM_TIMEOUT_S", "8"))
 
 # --- Interpreter / dialogue ----------------------------------------------------
 LOW_CONFIDENCE = 0.6  # a critical field below this is asked about again
-INTERPRETER_DRAIN_TIMEOUT_S = 3.0  # at turn end, wait this long for in-flight interpreter calls
+# At turn end, wait this long for in-flight interpreter calls, then ask from the report as it is
+INTERPRETER_DRAIN_TIMEOUT_S = float(_env("INTERPRETER_DRAIN_TIMEOUT_S", "1.2"))
 GREETING = "Namaste. Kya hua hai? Bataiye."
 READBACK_PLACEHOLDER = "Shukriya, saari zaroori jaankari mil gayi. Report taiyaar hai."
 
@@ -139,7 +141,8 @@ class TurnPolicyConfig:
 
     # Wait for Prisma's segment for this pause, counted from the VAD stop (which is
     # already VAD_STOP_SECS after the last speech). Decide without it after this.
-    segment_budget_ms: int = int(_env("SEGMENT_BUDGET_MS", "400"))
+    # 680 = p90 of last speech -> segment (883 ms, n=92, old logs) - VAD stop 200 ms. See decisions.md.
+    segment_budget_ms: int = int(_env("SEGMENT_BUDGET_MS", "680"))
     wait_completion_ms: int = 300
     wait_short_answer_ms: int = 300
     wait_hesitation_ms: int = 2000  # regardless of Smart Turn

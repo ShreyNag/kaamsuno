@@ -17,10 +17,13 @@ from app.turn.turn_policy import SmartTurnVerdict
 CLF = TailClassifier(Fillers.from_lists(PLACEHOLDER_FILLERS))
 ST_DONE = SmartTurnVerdict(True, 0.98)  # what Smart Turn really said on a Hinglish mid-sentence pause
 ST_NOT = SmartTurnVerdict(False, 0.1)
+# Pinned, so these timelines test the mechanism rather than the tuned budget in config
+POLICY = replace(config.TURN_POLICY, segment_budget_ms=400)
 
 
 def ctl(mode: str, **kw) -> tuple[TurnController, list[dict]]:
     log: list[dict] = []
+    kw.setdefault("policy", POLICY)
     c = TurnController(mode=mode, classifier=CLF, log=lambda event, **f: log.append({"event": event, **f}), **kw)
     return c, log
 
@@ -68,7 +71,7 @@ def test_segment_from_before_the_last_speech_is_not_the_tail():
 def test_no_segment_within_budget_falls_back_to_smart_turn():
     c, log = ctl("smart_turn_fillers")
     ends = run_timeline(c, [(0.2, "vad_start"), (2.3, "vad_stop", 0.2, ST_DONE)])
-    budget = config.TURN_POLICY.segment_budget_ms / 1000
+    budget = POLICY.segment_budget_ms / 1000
     assert ends == [pytest.approx(2.3 + budget)]  # 400 ms after the speech has passed by then
     assert log[-1]["rule"] == "other+smart_turn_complete" and log[-1]["tail_text"] is None
 
@@ -118,7 +121,7 @@ def test_smart_turn_mode_incomplete_waits_for_the_silence_fallback():
 
 
 def test_hard_cap():
-    c, log = ctl("smart_turn_fillers", policy=replace(config.TURN_POLICY, wait_hesitation_ms=9000))
+    c, log = ctl("smart_turn_fillers", policy=replace(POLICY, wait_hesitation_ms=9000))
     ends = run_timeline(c, [(0.2, "vad_start"), (2.3, "vad_stop", 0.2, None), (2.4, "segment", "umm")])
     assert ends == [pytest.approx(2.1 + 2.5)]
     assert log[-1]["capped"]

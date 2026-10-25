@@ -23,7 +23,7 @@ from pipecat.frames.frames import (
     VADUserStartedSpeakingFrame,
     VADUserStoppedSpeakingFrame,
 )
-from pipecat.metrics.metrics import TurnMetricsData
+from pipecat.metrics.metrics import TTFBMetricsData, TurnMetricsData
 from pipecat.observers.base_observer import BaseObserver, FramePushed
 
 from app.config import LOG_DIR
@@ -89,6 +89,9 @@ class HopObserver(BaseObserver):
                 if isinstance(m, TurnMetricsData):
                     h.log("turn_verdict", complete=m.is_complete, p_complete=round(m.probability, 3),
                           infer_ms=round(m.e2e_processing_time_ms, 1))
+                elif isinstance(m, TTFBMetricsData) and "TTS" in m.processor:
+                    # Pipecat's own TTS TTFB: request sent -> first audio chunk, measured inside the service
+                    h.log("tts_ttfb", ms=round(m.value * 1000), processor=m.processor)
         elif isinstance(f, UserStoppedSpeakingFrame):
             h.log("turn_end")
             self._awaiting_tts = self._awaiting_playback = True

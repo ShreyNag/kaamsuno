@@ -43,11 +43,12 @@ def _require(name: str, value: str) -> str:
     return value
 
 
-def build_stt(extra_headers: dict[str, str]) -> PrismaSTTService:
+def build_stt(extra_headers: dict[str, str], hops: HopLogger) -> PrismaSTTService:
     return PrismaSTTService(
         api_key=_require("GNANI_API_KEY", config.GNANI_API_KEY),
         sample_rate=config.SAMPLE_RATE,
         extra_headers=extra_headers,
+        log=hops.log,
         settings=PrismaSTTService.Settings(
             language=Language(config.LANGUAGE_CODE),
             format=config.PRISMA.output_format,
@@ -84,7 +85,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments) -> Non
     logger.info("\n" + describe(vad, config.TURN_MODE, strategies, headers))
 
     schema, templates = load_schema(), load_templates()
-    stt = build_stt(headers)
+    stt = build_stt(headers, hops)
     reporter = ReportProcessor(
         session_id=hops.session_id, schema=schema, templates=templates,
         interpreter=build_interpreter(schema, hops), stt=stt, hops=hops,
@@ -115,6 +116,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments) -> Non
     try:
         await PipelineRunner(handle_sigint=runner_args.handle_sigint).run(task)
     finally:
+        hops.log("stt_msg_counts", counts=dict(stt.msg_types))
         hops.close()
 
 
