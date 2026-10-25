@@ -31,6 +31,7 @@ from app import config
 from app.interpreter.dialogue import Question, next_question
 from app.interpreter.interpreter import Interpreter, Report
 from app.interpreter.schema import Schema
+from app.interpreter.templates import TemplateBook, detect_language
 from app.logging_utils import HopLogger
 from app.report_server import HUB, ReportHub
 from app.stt import PrismaSTTService
@@ -43,7 +44,7 @@ class ReportProcessor(FrameProcessor):
         *,
         session_id: str,
         schema: Schema,
-        templates: dict[str, str],
+        templates: dict[str, str] | TemplateBook,
         interpreter: Interpreter,
         stt: PrismaSTTService | None,
         hops: HopLogger,
@@ -58,6 +59,7 @@ class ReportProcessor(FrameProcessor):
         self._set_context = set_dialogue_context  # tells the turn controller what we just asked
         self._report_path = reports_dir / f"{session_id}.json" if reports_dir else None
         self._questions: list[dict] = []
+        self._turn_first_segment = 0
         self._last_speech_end = 0.0
         self._question: Question | None = None
         self._status = "waiting for the worker"
@@ -159,8 +161,15 @@ class ReportProcessor(FrameProcessor):
         self._hops.log("stt_tail_done")
         if not await self._interp.drain():
             logger.warning("turn end: interpreter calls still running at drain timeout; asking anyway")
-        self._question = next_question(self._interp.report, self._schema, self._templates)
-        self._hops.log("question", field=self._question.field, reason=self._question.reason, text=self._question.text)
+        # reply in the worker's style: the language of what they said since the last question
+        said = " ".join(self._interp.segments[self._turn_first_segment:])
+        self._turn_first_segment = len(self._interp.segments)
+        lang = detect_language(said) if said else "hinglish"
+        templates = self._templates.for_language(lang) if isinstance(self._templates, TemplateBook) \
+            else self._templates
+        self._question = next_question(self._interp.report, self._schema, templates)
+        self._hops.log("question", field=self._question.field, reason=self._question.reason, text=self._question.text,
+                       language=lang)
         self._questions.append({"field": self._question.field, "reason": self._question.reason,
                                 "text": self._question.text})
         self._status = "bot asking" if self._question.field else "report complete"

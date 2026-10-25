@@ -26,7 +26,8 @@ from pipecat.turns.user_turn_processor import UserTurnProcessor
 
 from app import config
 from app.audio_io import load_wav
-from app.interpreter.schema import SCHEMA_PATH, load_schema, load_templates
+from app.interpreter.schema import SCHEMA_PATH, load_schema
+from app.interpreter.templates import load_template_book
 from app.logging_utils import HopLogger
 from app.reporter import ReportProcessor
 from app.stt import prisma_headers
@@ -53,7 +54,7 @@ class Spoken(FrameProcessor):
 def test_missing_location_gets_a_where_question_and_the_report_is_saved(tmp_path):
     from app.bot import build_interpreter, build_stt
 
-    schema, templates = load_schema(), load_templates()
+    schema, templates = load_schema(), load_template_book()
     assert schema.version.startswith("1.")  # Aastha's file, not the placeholder
     hops = HopLogger(log_dir=tmp_path)
     strategies = build_turn_strategies("smart_turn_fillers", log=hops.log)
@@ -95,7 +96,7 @@ def test_missing_location_gets_a_where_question_and_the_report_is_saved(tmp_path
     assert segments, "Prisma transcripts never reached the pipeline"
     assert questions, "no turn ended"
     assert questions[-1][:2] == ("location", "missing"), questions  # the "where" question
-    assert spoken.said[-1] == templates["location"]
+    assert spoken.said[-1] == templates.get("location", "en")  # English speech gets the English question
     assert filled, "nothing the worker said reached reports/<session>.json"
     assert all(q[1] != "complete" for q in questions)
     assert config.SITE_NAME == doc["report"]["site_name"]["value"]

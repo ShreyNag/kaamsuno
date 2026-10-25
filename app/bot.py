@@ -26,7 +26,8 @@ from pipecat_gnani import GnaniTTSService
 
 from app import config
 from app.interpreter.interpreter import Interpreter, groq_complete
-from app.interpreter.schema import SchemaFormatError, load_schema, load_templates
+from app.interpreter.schema import SchemaFormatError, load_schema
+from app.interpreter.templates import load_template_book
 from app.logging_utils import HopLogger, HopObserver
 from app.reporter import ReportProcessor
 from app.stt import PrismaSTTService, prisma_headers
@@ -85,7 +86,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments) -> Non
     vad, strategies = build_vad(), build_turn_strategies(log=hops.log)
     logger.info("\n" + describe(vad, config.TURN_MODE, strategies, headers))
 
-    schema, templates = load_schema(), load_templates()
+    schema, templates = load_schema(), load_template_book()
     stt = build_stt(headers, hops)
     reporter = ReportProcessor(
         session_id=hops.session_id, schema=schema, templates=templates,
