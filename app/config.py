@@ -42,11 +42,22 @@ class PrismaSettings:
     vad_threshold: float = 0.5
     output_format: str = "transcribe"  # spoken numbers -> digits
     bias_score: float = 2.0  # one of 0.0, 0.5, 1.0, 1.5, 2.0
-    partials: bool = True  # x-partials: under-documented, see notes/decisions.md
+    # x-partials=true switches Prisma to partial_transcript/final_transcript messages
+    # (eval/prisma_probe.py); app/stt.py reads both protocols. See notes/decisions.md.
+    partials: bool = True
+    # Each extra header can be switched off on its own (PRISMA_SEND_<NAME>=0), e.g. to bisect a live problem
+    send_min_silence: bool = _env("PRISMA_SEND_MIN_SILENCE", "1") == "1"
+    send_min_speech: bool = _env("PRISMA_SEND_MIN_SPEECH", "1") == "1"
+    send_vad_threshold: bool = _env("PRISMA_SEND_VAD_THRESHOLD", "1") == "1"
+    send_partials: bool = _env("PRISMA_SEND_PARTIALS", "1") == "1"
+    send_bias: bool = _env("PRISMA_SEND_BIAS", "1") == "1"
+    # Startup self-test: stream a fixture to Prisma and refuse to start if no transcript comes back
+    self_test: bool = _env("PRISMA_SELF_TEST", "1") == "1"
+    self_test_timeout_s: float = 5.0
     # After our turn ends, how long to wait for Prisma's last segment of the turn.
     # smart_turn_fillers already waited for it before ending the turn, so this rarely runs out.
     tail_timeout_ms: int = int(_env("PRISMA_TAIL_TIMEOUT_MS", "800"))
-    tail_grace_ms: int = 150  # extra wait past min_silence_ms for Prisma's "processing" message
+    tail_grace_ms: int = 150  # extra wait past min_silence_ms before checking for an open utterance
 
 
 PRISMA = PrismaSettings()

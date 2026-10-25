@@ -121,3 +121,14 @@ Measured on the last 10 turns in `logs/` (`python -m eval.latency_report`):
   - One knob per VAD, tuned leave-one-clip-out on F2 (recall weighted 2×); only held-out clips are scored.
   - Two views from the same confidences: **raw** (per-chunk decision) and **deployed** (through Pipecat's start/stop counters, i.e. what the turn logic sees). The offline replay equals the live Pipecat analyzers frame for frame (custom and composite, tested). That needed the live chunking rule: a 10 ms frame counts in the chunk where its last sample arrives.
   - `--clips` / `--noise` are arguments, so Aastha's labelled real clips rerun with one command. `eval/out/` is gitignored: results stay local.
+
+## Live test 1 failure (2026-10-25): the bot heard nothing
+
+- **Root cause: `x-partials: true` switches Prisma to a different message protocol, and pipecat-gnani 0.5.12 drops it.** `eval/prisma_probe.py` streamed the fixtures straight to Prisma with each header combination:
+  - none, `x-min-silence-ms`, or + bias list: `speech_start` + `transcript`.
+  - + `x-partials`: `speech_start` + `partial_transcript` (~every 450 ms) + `final_transcript`.
+
+  The transcription text is identical either way. The plugin only reads `type == "transcript"`, so all 25 finals in the three live sessions were dropped: no captions, no segments, no interpreter calls, empty report. The headers came in with the Gate 1 commit and were never tested live, which is our miss. Prisma's `processing` message (our old "segment in flight" signal) doesn't exist in either protocol.
+- **Fix: `PrismaSTTService` replaces the plugin's receive loop and reads both protocols.** `transcript`/`final_transcript` → `TranscriptionFrame`; `partial_transcript` → `InterimTranscriptionFrame` (a separate class, so the reporter and turn controller ignore partials until Day 2 uses them). Unknown types are logged (`stt_unknown_type`); errors are logged in full with close codes. "Prisma still owes words" is now tracked as utterances with a `speech_start` but no final.
+- **Partials stay on.** They arrive 1–2 s before the final, which Day 2 (interpreter on partials) and the turn controller's tail wait both want. Every header can be switched off on its own: `PRISMA_SEND_MIN_SILENCE`, `_MIN_SPEECH`, `_VAD_THRESHOLD`, `_PARTIALS`, `_BIAS` = 0.
+- **Startup self-test (`PRISMA_SELF_TEST`, on by default).** Before serving, the bot streams 2.5 s of `matlab_pause.wav` to Prisma with its exact headers, then silence, and exits with a clear error if no final transcript arrives within 5 s. It costs ~4.3 s at boot. The silence matters: Prisma only closes a segment on silence it receives, so the first version (which stopped sending after the clip) failed without headers, where Prisma's default min-silence is longer.

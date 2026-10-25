@@ -137,5 +137,16 @@ if __name__ == "__main__":
     # The runner's banner uses box-drawing chars; Windows consoles default to cp1252.
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
+    if config.PRISMA.self_test:
+        import asyncio
+
+        from app.stt import self_test
+
+        _require("GNANI_API_KEY", config.GNANI_API_KEY)
+        try:
+            heard = asyncio.run(self_test(prisma_headers()))
+        except Exception as e:  # noqa: BLE001 - any failure here means the bot would be deaf
+            raise SystemExit(f"\nSTARTUP FAILED: {e}\n(skip with PRISMA_SELF_TEST=0)") from e
+        logger.info(f"Prisma self-test OK: heard {heard!r}")
     register_routes(app)
     main()
