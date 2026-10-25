@@ -126,11 +126,38 @@ VAD_START_SECS = float(_env("VAD_START_SECS", "0.2"))
 VAD_STOP_SECS = float(_env("VAD_STOP_SECS", "0.2"))
 
 # --- Turn taking -------------------------------------------------------------
-TURN_MODE = _env("TURN_MODE", "smart_turn")  # fixed_timeout | smart_turn
+TURN_MODE = _env("TURN_MODE", "smart_turn_fillers")  # fixed_timeout | smart_turn | smart_turn_fillers
 FIXED_TIMEOUT_MS = int(_env("FIXED_TIMEOUT_MS", "700"))  # silence after the last speech
-SMART_TURN_THRESHOLD = float(_env("SMART_TURN_THRESHOLD", "0.5"))  # P(complete) above this ends the turn
-SMART_TURN_STOP_SECS = float(_env("SMART_TURN_STOP_SECS", "3.0"))  # silence that ends the turn regardless
+SMART_TURN_THRESHOLD = float(_env("SMART_TURN_THRESHOLD", "0.5"))  # smart_turn mode: P(complete) above this ends the turn
+SMART_TURN_STOP_SECS = float(_env("SMART_TURN_STOP_SECS", "3.0"))  # smart_turn mode: silence that ends the turn regardless
 USER_TURN_STOP_TIMEOUT_S = 5.0  # Pipecat's last-resort turn end if no strategy fires
+
+
+@dataclass(frozen=True)
+class TurnPolicyConfig:
+    """smart_turn_fillers: how long to wait after the last speech, by tail class (app/turn/turn_policy.py)."""
+
+    # Wait for Prisma's segment for this pause, counted from the VAD stop (which is
+    # already VAD_STOP_SECS after the last speech). Decide without it after this.
+    segment_budget_ms: int = int(_env("SEGMENT_BUDGET_MS", "400"))
+    wait_completion_ms: int = 300
+    wait_short_answer_ms: int = 300
+    wait_hesitation_ms: int = 2000  # regardless of Smart Turn
+    wait_continuation_ms: int = 2000  # regardless of Smart Turn
+    wait_number_ms: int = 1500
+    wait_st_complete_ms: int = 400  # tail "other" and Smart Turn P(complete) >= st_complete_prob
+    wait_st_incomplete_ms: int = 1200
+    wait_no_signal_ms: int = 800  # tail "other" and no Smart Turn verdict
+    st_complete_prob: float = 0.7
+    max_wait_ms: int = 2500  # hard cap after the last speech
+    tail_tokens: int = 3  # the classifier looks at the last 1..tail_tokens tokens
+
+
+TURN_POLICY = TurnPolicyConfig()
+FILLERS_PATH = RESEARCH_DIR / "fillers.json"
+# Fields whose answers are spoken digit by digit or as a number: a numeric tail means "more is coming"
+ID_FIELDS = ("employee_id",)
+QUANTITY_FIELDS = ("quantity", "people_affected")
 
 # Experiment: blank non-speech audio before sending to Prisma (off in v0)
 BLANK_NONSPEECH_TO_STT = _env("BLANK_NONSPEECH_TO_STT", "0") == "1"

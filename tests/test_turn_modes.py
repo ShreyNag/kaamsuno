@@ -1,8 +1,10 @@
 """Where does the turn end on a sentence with a 1.5 s mid-sentence pause?
 
-Streams tests/fixtures/mid_sentence_pause.wav in real time through the same
-VAD + UserTurnProcessor the bot uses, and records when UserStoppedSpeakingFrame
-comes out. Real time because Pipecat's turn timers are asyncio sleeps. ~10 s per case.
+Streams a fixture WAV in real time through the same VAD + UserTurnProcessor
+(+ our TurnController strategy) the bot uses, and records when
+UserStoppedSpeakingFrame comes out. Prisma isn't called: where a test needs
+segments it injects TranscriptionFrames at the time Prisma would send them.
+Real time because the turn timers are asyncio sleeps. ~10 s per case.
 """
 
 from __future__ import annotations
@@ -19,6 +21,7 @@ from pipecat.frames.frames import (
     EndFrame,
     InputAudioRawFrame,
     MetricsFrame,
+    TranscriptionFrame,
     UserStoppedSpeakingFrame,
     VADUserStoppedSpeakingFrame,
 )
@@ -61,9 +64,12 @@ class Recorder(FrameProcessor):
         await self.push_frame(frame, direction)
 
 
-def run_wav(strategies, t0: list[float] | None = None) -> Recorder:
-    """t0[0] is set to the monotonic time of the WAV's first sample."""
-    pcm = (np.clip(load_wav(FIX / "mid_sentence_pause.wav"), -1, 1) * 32767).astype(np.int16).tobytes()
+def run_wav(strategies, t0: list[float] | None = None, wav: str = "mid_sentence_pause",
+            segments: list[tuple[float, str]] = ()) -> Recorder:
+    """t0[0] is set to the monotonic time of the WAV's first sample. `segments`
+    are (t, text) TranscriptionFrames injected at WAV time t, standing in for Prisma."""
+    pcm = (np.clip(load_wav(FIX / f"{wav}.wav"), -1, 1) * 32767).astype(np.int16).tobytes()
+    pending = sorted(segments)
     t0 = t0 if t0 is not None else [0.0]
     rec = Recorder(t0)
     task = PipelineTask(
@@ -76,6 +82,8 @@ def run_wav(strategies, t0: list[float] | None = None) -> Recorder:
         t0[0] = time.monotonic()
         for i, off in enumerate(range(0, len(pcm), CHUNK * 2)):
             await asyncio.sleep(max(0.0, t0[0] + i * CHUNK / SR - time.monotonic()))
+            while pending and pending[0][0] <= i * CHUNK / SR:
+                await task.queue_frame(TranscriptionFrame(text=pending.pop(0)[1], user_id="", timestamp=""))
             await task.queue_frame(InputAudioRawFrame(audio=pcm[off : off + CHUNK * 2], sample_rate=SR, num_channels=1))
         await task.queue_frame(EndFrame())
 
@@ -138,3 +146,46 @@ def test_smart_turn_real_model_turn_end_matches_a_complete_verdict():
         on_verdict = any(abs(t - c) < 0.1 for c in complete_at)
         on_fallback = any(t - s >= 3.0 - TOL for s in rec.vad_stops if s < t)
         assert on_verdict or on_fallback, (t, rec.verdicts, rec.vad_stops)
+
+
+# --- the filler rule on a real WAV: 1.5 s pause after "matlab" ------------------------------------
+MATLAB = json.loads((FIX / "matlab_pause.json").read_text())
+M_PAUSE_START, M_PAUSE_END = MATLAB["pause"]
+M_SPEECH_END = MATLAB["speech"][-1][1]
+PRISMA_LAG = 0.45  # last speech -> segment: 250 ms min silence + processing
+M_SEGMENTS = [(M_PAUSE_START + PRISMA_LAG, MATLAB["text"][0]), (M_SPEECH_END + PRISMA_LAG, MATLAB["text"][1])]
+
+
+def _matlab(mode: str, analyzer=None) -> Recorder:
+    t0 = [0.0]
+    if isinstance(analyzer, type):
+        analyzer = analyzer(t0, params=SmartTurnParams(stop_secs=3.0))
+    rec = run_wav(build_turn_strategies(mode, turn_analyzer=analyzer), t0, wav="matlab_pause", segments=M_SEGMENTS)
+    print(mode, "verdicts:", [(round(t, 2), c, round(p, 3)) for t, c, p in rec.verdicts],
+          "turn ends:", [round(t, 2) for t in rec.turn_ends])
+    return rec
+
+
+class AlwaysCompleteSmartTurn(ScriptedSmartTurn):
+    """The worst case seen live: Smart Turn says complete (0.98) at a mid-sentence pause."""
+
+    def _predict_endpoint(self, audio_array):
+        return {"prediction": 1, "probability": 0.98}
+
+
+def test_matlab_fixed_timeout_cuts_in():
+    rec = _matlab("fixed_timeout")
+    assert rec.turn_ends[0] == pytest.approx(M_PAUSE_START + 0.7, abs=TOL)
+
+
+def test_matlab_smart_turn_alone_cuts_in_when_it_says_complete():
+    rec = _matlab("smart_turn", AlwaysCompleteSmartTurn)
+    assert rec.turn_ends[0] < M_PAUSE_END
+
+
+@pytest.mark.parametrize("analyzer", [AlwaysCompleteSmartTurn, None], ids=["st_says_complete", "real_smart_turn"])
+def test_matlab_fillers_waits_through_the_pause_and_replies_fast_after_bas(analyzer):
+    rec = _matlab("smart_turn_fillers", analyzer)
+    assert len(rec.turn_ends) == 1, rec.turn_ends  # no cut-in after "matlab"
+    # "...bas": completion -> turn over as soon as the segment arrives
+    assert rec.turn_ends[0] == pytest.approx(M_SPEECH_END + PRISMA_LAG, abs=TOL)

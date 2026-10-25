@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import time
+from collections.abc import Callable
 
 from loguru import logger
 from pipecat.frames.frames import (
@@ -27,6 +28,7 @@ from app.interpreter.schema import Schema
 from app.logging_utils import HopLogger
 from app.report_server import HUB, ReportHub
 from app.stt import PrismaSTTService
+from app.turn.tail_classifier import DialogueContext
 
 
 class ReportProcessor(FrameProcessor):
@@ -40,11 +42,13 @@ class ReportProcessor(FrameProcessor):
         stt: PrismaSTTService | None,
         hops: HopLogger,
         hub: ReportHub = HUB,
+        set_dialogue_context: Callable[[DialogueContext], None] | None = None,
         **kwargs,
     ):
         super().__init__(**kwargs)
         self._sid, self._schema, self._templates = session_id, schema, templates
         self._interp, self._stt, self._hops, self._hub = interpreter, stt, hops, hub
+        self._set_context = set_dialogue_context  # tells the turn controller what we just asked
         self._last_speech_end = 0.0
         self._question: Question | None = None
         self._status = "waiting for the worker"
@@ -109,5 +113,7 @@ class ReportProcessor(FrameProcessor):
         self._hops.log("question", field=self._question.field, reason=self._question.reason, text=self._question.text)
         self._status = "bot asking" if self._question.field else "report complete"
         self.publish()
+        if self._set_context:
+            self._set_context(DialogueContext(self._question.field, self._question.reason == "low_confidence"))
         await self.push_frame(TTSSpeakFrame(self._question.text))
         self._turn_task = None

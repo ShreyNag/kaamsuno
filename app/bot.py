@@ -3,7 +3,7 @@
     .venv/Scripts/python -m app.bot -t webrtc      then open http://localhost:7860/client
                                                     and the report at http://localhost:7860/report/latest
 
-Pipeline: mic -> VAD -> Prisma STT -> turn detection -> reporter -> Timbre TTS -> speaker.
+Pipeline: mic -> VAD -> Prisma STT -> turn controller (app/turn/) -> reporter -> Timbre TTS -> speaker.
 There is no chat LLM in the loop: every Prisma segment only updates the report
 (via the interpreter LLM, JSON out), and at turn end the reporter speaks one
 template question from dialogue.py.
@@ -30,7 +30,7 @@ from app.interpreter.schema import load_schema, load_templates
 from app.logging_utils import HopLogger, HopObserver
 from app.reporter import ReportProcessor
 from app.stt import PrismaSTTService, prisma_headers
-from app.turns import build_turn_strategies, build_vad, describe
+from app.turns import build_turn_strategies, build_vad, describe, turn_strategy
 
 transport_params = {
     "webrtc": lambda: TransportParams(audio_in_enabled=True, audio_out_enabled=True),
@@ -80,7 +80,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments) -> Non
     logger.info(f"live report: http://localhost:7860/report/{hops.session_id}  (or /report/latest)")
 
     headers = prisma_headers()
-    vad, strategies = build_vad(), build_turn_strategies()
+    vad, strategies = build_vad(), build_turn_strategies(log=hops.log)
     logger.info("\n" + describe(vad, config.TURN_MODE, strategies, headers))
 
     schema, templates = load_schema(), load_templates()
@@ -88,6 +88,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments) -> Non
     reporter = ReportProcessor(
         session_id=hops.session_id, schema=schema, templates=templates,
         interpreter=build_interpreter(schema, hops), stt=stt, hops=hops,
+        set_dialogue_context=turn_strategy(strategies).set_dialogue_context,
     )
     turns = UserTurnProcessor(user_turn_strategies=strategies, user_turn_stop_timeout=config.USER_TURN_STOP_TIMEOUT_S)
 
