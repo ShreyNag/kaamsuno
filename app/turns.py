@@ -16,7 +16,6 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from loguru import logger
 from pipecat.audio.turn.smart_turn.base_smart_turn import SmartTurnParams
 from pipecat.audio.vad.silero import SileroVADAnalyzer
 from pipecat.audio.vad.vad_analyzer import VADAnalyzer, VADParams
@@ -28,21 +27,30 @@ from app.turn.controller import TURN_MODES, TurnController
 from app.turn.smart_turn import ThresholdSmartTurn
 from app.turn.strategy import PolicyTurnStopStrategy
 from app.turn.tail_classifier import TailClassifier
+from app.vad.pipecat_vad import CompositeVADAnalyzer, CustomVADAnalyzer
 
-__all__ = ["TURN_MODES", "ThresholdSmartTurn", "build_turn_strategies", "build_vad", "describe", "turn_strategy"]
+__all__ = ["TURN_MODES", "VAD_MODES", "ThresholdSmartTurn", "build_turn_strategies", "build_vad", "describe", "turn_strategy"]
 
 
-def vad_params() -> VADParams:
+VAD_MODES = ("silero", "custom", "composite")
+
+
+def vad_params(mode: str = config.VAD_MODE) -> VADParams:
+    if mode == "custom":
+        return VADParams(confidence=config.CUSTOM_VAD_CONFIDENCE, start_secs=config.VAD_START_SECS,
+                         stop_secs=config.VAD_STOP_SECS, min_volume=config.CUSTOM_VAD_MIN_VOLUME)
     return VADParams(confidence=config.VAD_CONFIDENCE, start_secs=config.VAD_START_SECS, stop_secs=config.VAD_STOP_SECS)
 
 
-def build_vad() -> VADAnalyzer:
-    if config.VAD_MODE != "silero":
-        logger.warning(
-            f"VAD_MODE={config.VAD_MODE!r} requested, but the custom/composite Pipecat wrappers "
-            "(app/vad/pipecat_vad.py, Day 3) are not built yet. Using Silero."
-        )
-    return SileroVADAnalyzer(params=vad_params())
+def build_vad(mode: str = config.VAD_MODE) -> VADAnalyzer:
+    """silero | custom (our DSP VAD) | composite (Silero AND ours). See app/vad/pipecat_vad.py."""
+    if mode == "silero":
+        return SileroVADAnalyzer(params=vad_params(mode))
+    if mode == "custom":
+        return CustomVADAnalyzer(params=vad_params(mode))
+    if mode == "composite":
+        return CompositeVADAnalyzer(params=vad_params(mode))
+    raise ValueError(f"VAD_MODE must be one of {VAD_MODES}, got {mode!r}")
 
 
 def build_turn_strategies(

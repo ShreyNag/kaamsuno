@@ -131,7 +131,7 @@ class StreamingVAD:
         cfg = self.cfg
         e_db = F.frame_energy_db(frames)
         hist = np.concatenate([self._energy_hist, e_db])
-        thr = F.adaptive_threshold_db(hist, cfg)[0][-n:]
+        thr = F.adaptive_threshold_last_db(hist, n, cfg)
         self._energy_hist = hist[-(cfg.gate_window_frames - 1) :]
         power = F.power_spectrum(frames, cfg.n_fft)
         feats = {

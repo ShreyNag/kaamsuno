@@ -108,3 +108,10 @@ Measured on the last 10 turns in `logs/` (`python -m eval.latency_report`):
   - Transport is the plugin's persistent WebSocket (`GnaniTTSService`).
   - A `TTSSpeakFrame` goes to Timbre as one request; our questions are 1–2 short sentences.
   - New hops measure Timbre alone: `question → tts_first_byte`, and Pipecat's own TTS TTFB metric (`tts_ttfb` event). `latency_report.py` reports both, per turn mode.
+- **The custom VAD runs live as a Pipecat `VADAnalyzer` (`app/vad/pipecat_vad.py`); `VAD_MODE=silero|custom|composite` all work.**
+  - `voice_confidence` returns the share of the chunk's 10 ms frames that are speech candidates (gate AND ≥2 of 3 votes). Threshold `CUSTOM_VAD_CONFIDENCE`=0.5; chunks are 20 ms.
+  - Pipecat's start/stop counters (`VAD_START_SECS`/`VAD_STOP_SECS` = 0.2 s) replace our offline `Hysteresis` (enter 30 ms / hangover 300 ms). The `stop_secs` on `VADUserStoppedSpeakingFrame` is then the true stop delay, which the turn controller subtracts to find the last speech.
+  - Checked on the turn fixture: one stop per phrase, implying a last speech within 20 ms of the label. No mid-word stops, so no need for 0.3 s.
+  - `min_volume=0` for custom. Our adaptive gate handles level, and Pipecat's volume floor would cut soft speakers.
+  - **composite** = Silero's confidence, zeroed unless our VAD calls ≥50% of the chunk speech (Silero AND ours), on Silero's 512-sample chunks.
+- **Streaming VAD was 1.8× slower than real time (36.7 ms per 20 ms chunk); fixed to 1.3 ms.** `StreamingVAD.push` recomputed the rolling gate percentiles over the whole 3 s history every chunk and kept the last two. `features.adaptive_threshold_last_db` computes only the new frames. It's the same math (expanding window = percentile of the values present), checked against the full version, and the streaming-equals-offline tests still pass. Composite costs 2.5 ms per 32 ms chunk.

@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parent.parent
 RESEARCH_DIR = ROOT / "research"
 DATA_DIR = ROOT / "data"
 LOG_DIR = ROOT / "logs"
+REPORTS_DIR = ROOT / "reports"  # reports/<session_id>.json, rewritten on every update
 
 
 def _env(name: str, default: str) -> str:
@@ -126,6 +127,10 @@ VAD_MODE = _env("VAD_MODE", "composite")
 VAD_CONFIDENCE = float(_env("VAD_CONFIDENCE", "0.7"))
 VAD_START_SECS = float(_env("VAD_START_SECS", "0.2"))
 VAD_STOP_SECS = float(_env("VAD_STOP_SECS", "0.2"))
+# custom VAD (app/vad/pipecat_vad.py): confidence = share of 10 ms frames that are speech candidates.
+# min_volume 0: our adaptive gate already handles level, and Pipecat's volume floor would cut soft speakers.
+CUSTOM_VAD_CONFIDENCE = float(_env("CUSTOM_VAD_CONFIDENCE", "0.5"))
+CUSTOM_VAD_MIN_VOLUME = float(_env("CUSTOM_VAD_MIN_VOLUME", "0.0"))
 
 # --- Turn taking -------------------------------------------------------------
 TURN_MODE = _env("TURN_MODE", "smart_turn_fillers")  # fixed_timeout | smart_turn | smart_turn_fillers

@@ -71,6 +71,18 @@ def adaptive_threshold_db(energy_db: np.ndarray, cfg: VADConfig = VAD) -> tuple[
     return thr, floor, peak
 
 
+def adaptive_threshold_last_db(energy_db: np.ndarray, n: int, cfg: VADConfig = VAD) -> np.ndarray:
+    """`adaptive_threshold_db(energy_db)[0][-n:]`, computed for the last n frames only.
+    Streaming calls this every chunk; the full rolling version costs ~30 ms per call."""
+    w, total = cfg.gate_window_frames, len(energy_db)
+    out = np.empty(n)
+    for k, i in enumerate(range(total - n, total)):
+        win = energy_db[max(0, i - w + 1) : i + 1]
+        floor, peak = np.percentile(win, (cfg.gate_floor_pct, cfg.gate_peak_pct))
+        out[k] = floor + max(cfg.gate_alpha * (peak - floor), cfg.gate_min_margin_db)
+    return out
+
+
 def energy_gate(energy_db: np.ndarray, cfg: VADConfig = VAD) -> np.ndarray:
     """Hard gate: above the adaptive threshold AND above the absolute silence floor."""
     thr, _, _ = adaptive_threshold_db(energy_db, cfg)

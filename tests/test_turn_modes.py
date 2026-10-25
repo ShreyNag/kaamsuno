@@ -73,7 +73,7 @@ def run_wav(strategies, t0: list[float] | None = None, wav: str = "mid_sentence_
     t0 = t0 if t0 is not None else [0.0]
     rec = Recorder(t0)
     task = PipelineTask(
-        Pipeline([VADProcessor(vad_analyzer=build_vad()), UserTurnProcessor(user_turn_strategies=strategies), rec]),
+        Pipeline([VADProcessor(vad_analyzer=build_vad("silero")), UserTurnProcessor(user_turn_strategies=strategies), rec]),
         params=PipelineParams(audio_in_sample_rate=SR),
     )
 
