@@ -288,3 +288,25 @@ Measured on the last 10 turns in `logs/` (`python -m eval.latency_report`):
 - **Batch evals (`eval/llm_compare.py`):** DIA001–020 + 50 holdout (not all 200). Calls go one at a time, paced by the same `GroqPacer`; 429s wait retry-after (`LLM_EVAL_MAX_TRIES` = 8). The cache is written after every call, so an interrupted run resumes. Limit events go to `eval/out/llm_compare_limits.jsonl`.
 - **First throttled eval run (gpt-oss-20b, new small payload):** 69 calls in 7.6 min, 65 pacer waits (380 s in all), six 429s (each retried after Groq's retry-after of 1–2 s), **0 errors** (was 5 unrecovered errors before). Next action 60/68 (was 56/68), field checks 24/56 (was 27/56), p50 843 ms. The six 429s came with ~1,900 tokens still "remaining" for ~1,600-token calls: Groq reserves room for the completion, so the pacer now holds until remaining ≥ last call × `LLM_TOKEN_MARGIN` (1.3).
 - prisma_probe (variant e) and the live e2e replay (`RUN_LIVE=1`, 2/2) pass after the change.
+
+## VAD rerun with the new noises; pause clips still missing (2026-10-31)
+
+- **The re-recorded pause clips are not here.** `data/vad_dev_tmp/clean/s02, s03, s05, s07, s09, s12` are byte-identical to the 2026-10-25 copies in `data/vad_dev/` (same MD5). All six still fail both checks:
+  - floor −96 to −97 dBFS (digital silence; the rule is above about −90)
+  - longest labelled pause 0.19–0.63 s (planned 1.5–2 s): s02 0.19, s03 0.63, s05 0.39, s07 0.52, s09 0.38, s12 0.41
+  - `audios.zip` is an empty 22-byte zip; no newer recordings anywhere under Desktop/Downloads/Documents/Music. Likely lost in the restart before they were copied in.
+  - **Not used.** The turn-taking test (pause clips through the turn controller) is blocked on them.
+- **Noises:** `hammering.wav` (44.1 kHz stereo, 12 clipped samples) and `crowd.wav` (48 kHz mono) arrived with `LICENSES.md`; 16 kHz mono copies are in `data/noise_16k/`. hammering and traffic are CC BY-NC: eval only, not in the demo video.
+- **Interim rerun:** the 6 non-pause clips (s01, s04, s06, s08, s10, s11; `data/vad_dev_nopause/`), all 5 real noises + white/pink/hum, 10 and 5 dB, held-out only. Results in `eval/out/vad_nopause/`; `eval/out/vad_results.md` still holds the 12-clip run until the pause clips arrive.
+
+  | VAD (raw, held-out) | F1 | recall | false alarm | before (12 clips, 3 real noises) |
+  |---|---:|---:|---:|---|
+  | Silero | 0.94 | 0.90 | 2.7 % | 0.92 / 0.86 / 1.3 % |
+  | WebRTC | 0.92 | 0.89 | 25.5 % | 0.90 / 0.87 / 23.6 % |
+  | custom | 0.82 | 0.72 | 20.0 % | 0.79 / 0.67 / 11.2 % |
+  | composite | 0.72 | 0.56 | 0.8 % | 0.69 / 0.52 / 0.1 % |
+
+  - The ranking is unchanged; Silero is still best on F1 and recall in every condition.
+  - Silero's false alarms rose because of the new noises: crowd 12.5 % (10 dB) / 19.3 % (5 dB) and hammering 8.4 % at 5 dB; 0–1.6 % elsewhere. Crowd is babble (real voices), so part of that is the VAD hearing speech, as LICENSES.md says; report it apart.
+  - Custom does worst on hammering at 5 dB (69 % false alarms): impulsive hits pass its gate.
+  - Tuning again picked Silero 0.3 in every fold; the live value stays 0.5 (see the VAD decision).
