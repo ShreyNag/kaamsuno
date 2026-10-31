@@ -189,3 +189,29 @@ def test_matlab_fillers_waits_through_the_pause_and_replies_fast_after_bas(analy
     assert len(rec.turn_ends) == 1, rec.turn_ends  # no cut-in after "matlab"
     # "...bas": completion -> turn over as soon as the segment arrives
     assert rec.turn_ends[0] == pytest.approx(M_SPEECH_END + PRISMA_LAG, abs=TOL)
+
+
+# --- the new policy on the same recording: tone AND words before a fast reply ----------------------
+@pytest.mark.parametrize("before", ["teesri manzil pe cement aur", "pump ke paas", "teesri manzil pe umm",
+                                    "machine ID chaar saat", "cement teesri manzil pe"])
+def test_matlab_audio_mid_sentence_tails_hold_the_turn(before):
+    """The 1.5 s pause in matlab_pause.wav with each incomplete tail as Prisma's text, Smart Turn forced to
+    0.98 (the worst case seen live): no turn end in the pause."""
+    t0 = [0.0]
+    segs = [(M_PAUSE_START + PRISMA_LAG, before), (M_SPEECH_END + PRISMA_LAG, MATLAB["text"][1])]
+    rec = run_wav(build_turn_strategies("smart_turn_fillers", turn_analyzer=AlwaysCompleteSmartTurn(
+        t0, params=SmartTurnParams(stop_secs=3.0))), t0, wav="matlab_pause", segments=segs)
+    assert len(rec.turn_ends) == 1 and rec.turn_ends[0] > M_PAUSE_END, rec.turn_ends
+
+
+@pytest.mark.parametrize("last, analyzer", [("mixer kharab hai", AlwaysCompleteSmartTurn), ("bas itna hi", None)],
+                         ids=["mixer_kharab_hai_st_complete", "bas_itna_hi_real_smart_turn"])
+def test_matlab_audio_finished_sentence_ends_within_half_a_second(last, analyzer):
+    """After the second phrase: "mixer kharab hai" (tone complete + words fine) and "bas itna hi" (completion
+    words) end the turn ~0.5 s after the speech ends (the segment arrives at +0.45 s)."""
+    t0 = [0.0]
+    an = analyzer(t0, params=SmartTurnParams(stop_secs=3.0)) if analyzer else None
+    segs = [(M_PAUSE_START + PRISMA_LAG, MATLAB["text"][0]), (M_SPEECH_END + PRISMA_LAG, last)]
+    rec = run_wav(build_turn_strategies("smart_turn_fillers", turn_analyzer=an), t0, wav="matlab_pause", segments=segs)
+    assert len(rec.turn_ends) == 1, rec.turn_ends
+    assert rec.turn_ends[0] - M_SPEECH_END <= 0.5 + TOL, rec.turn_ends

@@ -73,7 +73,13 @@ def test_normalise(raw, expected):
     ("machine number chaar saal", NONE, "id_in_progress"),  # live: Prisma wrote "saat" as "saal"
     ("das saal", NONE, "other"),  # "saal" (year) with no read-out going on
     ("pichle saal", NONE, "other"),
-    ("mujhe dedh sau", NONE, "other"),  # a number with no ID/quantity context is not "in progress"
+    ("mujhe dedh sau", NONE, "number_in_progress"),  # a number word at the end: more may come
+    ("paani bhijava do", NONE, "other"),  # "do" = give: a number only after a number or an ID cue
+    ("chaar do", NONE, "number_in_progress"),
+    ("employee id", NONE, "id_in_progress"),  # the cue alone announces an ID
+    ("machine C", NONE, "id_in_progress"),
+    ("kharab hai machine", NONE, "other"),  # "machine" needs an ID-like word after it
+    ("pump P07 band hai", NONE, "other"),
     # short answer after a confirmation question
     ("haan sahi hai", CONFIRM_LOC, "short_answer"),
     ("haan", CONFIRM_LOC, "short_answer"),
@@ -86,7 +92,17 @@ def test_normalise(raw, expected):
     ("employee ID chaar umm", NONE, "hesitation"),
     ("haan matlab", CONFIRM_LOC, "hesitation"),
     # other
-    ("chahiye teesri manzil pe", NONE, "other"),
+    ("chahiye teesri manzil pe", NONE, "postposition"),
+    ("tower B ke paas", NONE, "postposition"),
+    ("yaar 2nd floor pay", NONE, "postposition"),  # Prisma's "pe" (live cut-in 2026-10-31)
+    ("pipe wala", NONE, "postposition"),
+    ("टावर के पास", NONE, "postposition"),
+    ("तीसरी मंजिल पे", NONE, "postposition"),
+    ("ek second", NONE, "hesitation"),
+    ("एक सेकंड", NONE, "hesitation"),
+    ("leak hai lekin", NONE, "continuation"),
+    ("agar", NONE, "continuation"),
+    ("mixer kharab hai", NONE, "other"),
     ("crane ka hydraulic leak ho raha hai", NONE, "other"),
     ("", NONE, "other"),
 ])
@@ -117,7 +133,7 @@ def test_fillers_json_accepts_script_sublists(tmp_path):
     assert clf.classify("क्रेन अरे").tail_class == "hesitation"
     assert clf.classify("phir se").tail_class == "continuation"
     assert clf.classify("kaam khatam ho gaya").tail_class == "completion"
-    assert clf.classify("cement umm").tail_class == "other"  # Aastha's lists replace the placeholder
+    assert clf.classify("cement umm").tail_class == "hesitation"  # config.TURN_* always apply on top
 
 
 def test_aasthas_entries_format(tmp_path):
@@ -153,3 +169,9 @@ def test_haan_alone_after_a_confirmation_is_a_short_answer_even_if_listed_as_hes
     clf = TailClassifier(f)
     assert clf.classify("haan", CONFIRM_LOC).tail_class == "short_answer"
     assert clf.classify("haan", NONE).tail_class == "hesitation"  # no confirmation asked: don't end on "haan"
+
+
+def test_tail_spans_segments():
+    """The last 1-3 words of the turn, not just of the newest segment: "ke" | "paas" split by Prisma."""
+    assert CLF.classify("paas", NONE, turn_text="tower B ke paas").tail_class == "postposition"
+    assert CLF.classify("manzil pe", NONE, turn_text="cement teesri manzil pe").tail_class == "postposition"

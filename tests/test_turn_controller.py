@@ -37,7 +37,7 @@ def test_spec_example_hesitation_holds_the_turn_in_fillers_mode_only():
     fillers, log = ctl("smart_turn_fillers")
     assert run_timeline(fillers, events) == []
     assert fillers.state == State.USER_SPEAKING
-    assert log[0]["outcome"] == "resumed" and log[0]["tail_class"] == "hesitation" and log[0]["wait_ms"] == 3000
+    assert log[0]["outcome"] == "resumed" and log[0]["tail_class"] == "hesitation" and log[0]["wait_ms"] == 3500
 
     fixed, _ = ctl("fixed_timeout")
     assert run_timeline(fixed, events) == [pytest.approx(2.8)]
@@ -49,7 +49,7 @@ def test_spec_example_hesitation_holds_the_turn_in_fillers_mode_only():
 def test_completion_replies_as_soon_as_the_segment_arrives():
     c, log = ctl("smart_turn_fillers")
     ends = run_timeline(c, [(0.2, "vad_start"), (2.3, "vad_stop", 0.2, ST_NOT), (2.6, "segment", "bas, itna hi")])
-    assert ends == [pytest.approx(2.6)]  # 300 ms after 2.1 is already past when the words arrive
+    assert ends == [pytest.approx(2.6)]  # 400 ms after 2.1 is already past when the words arrive
     assert log[-1]["rule"] == "completion" and log[-1]["outcome"] == "turn_over"
     assert c.state == State.BOT_THINKING
 
@@ -58,14 +58,14 @@ def test_completion_without_delay_when_segment_is_early():
     c, _ = ctl("smart_turn_fillers")
     # Prisma's segment arrives before our VAD stop (but after the last speech): it is the pause's tail
     ends = run_timeline(c, [(0.2, "vad_start"), (2.2, "segment", "ho gaya"), (2.3, "vad_stop", 0.2, ST_NOT)])
-    assert ends == [pytest.approx(2.4)]  # last speech 2.1 + 300 ms
+    assert ends == [pytest.approx(2.5)]  # last speech 2.1 + 400 ms
 
 
 def test_segment_from_before_the_last_speech_is_not_the_tail():
     c, log = ctl("smart_turn_fillers")
     ends = run_timeline(c, [(0.2, "vad_start"), (1.0, "segment", "bas"), (2.3, "vad_stop", 0.2, None)])
     assert log[-1]["tail_class"] is None and log[-1]["rule"] == "no_text"
-    assert ends == [pytest.approx(2.1 + 3.5)]  # no text of its own: wait to the cap
+    assert ends == [pytest.approx(2.1 + 2.5)]  # no text of its own: never fast
 
 
 def test_no_text_within_budget_does_not_trust_smart_turn_alone():
@@ -73,7 +73,7 @@ def test_no_text_within_budget_does_not_trust_smart_turn_alone():
     # and the old 1200 ms wait cut the worker off before "Bay do mein"
     c, log = ctl("smart_turn_fillers")
     ends = run_timeline(c, [(0.2, "vad_start"), (2.3, "vad_stop", 0.2, ST_DONE)])
-    assert ends == [pytest.approx(2.1 + 3.5)]
+    assert ends == [pytest.approx(2.1 + 2.5)]  # no text: 2500 even with Smart Turn 0.98
     assert log[-1]["rule"] == "no_text" and log[-1]["tail_text"] is None and log[-1]["tail_source"] is None
 
 
@@ -97,7 +97,7 @@ def test_final_replaces_the_partial():
     c, log = ctl("smart_turn_fillers")
     events = [(0.2, "vad_start"), (2.0, "partial", "pump band ho gaya"), (2.3, "vad_stop", 0.2, ST_DONE),
               (2.5, "segment", "pump band ho gaya hai umm")]
-    assert run_timeline(c, events) == [pytest.approx(2.1 + 3.0)]
+    assert run_timeline(c, events) == [pytest.approx(2.1 + 3.5)]
     assert log[-1]["tail_source"] == "final" and log[-1]["tail_class"] == "hesitation"
 
 
@@ -126,7 +126,7 @@ def test_late_segment_shortens_the_wait():
 def test_late_segment_extends_the_wait():
     c, log = ctl("smart_turn_fillers")
     events = [(0.2, "vad_start"), (2.3, "vad_stop", 0.2, None), (2.8, "segment", "cement umm")]
-    assert run_timeline(c, events) == [pytest.approx(2.1 + 3.0)]  # no_text, then hesitation
+    assert run_timeline(c, events) == [pytest.approx(2.1 + 3.5)]  # no_text, then hesitation
     assert log[-1]["revisions"] == 1 and log[-1]["rule"] == "hesitation"
 
 
@@ -163,7 +163,7 @@ def test_smart_turn_mode_incomplete_waits_for_the_silence_fallback():
 def test_hard_cap():
     c, log = ctl("smart_turn_fillers", policy=replace(POLICY, wait_hesitation_ms=9000))
     ends = run_timeline(c, [(0.2, "vad_start"), (2.3, "vad_stop", 0.2, None), (2.4, "segment", "umm")])
-    assert ends == [pytest.approx(2.1 + 3.5)]
+    assert ends == [pytest.approx(2.1 + 4.0)]
     assert log[-1]["capped"]
 
 

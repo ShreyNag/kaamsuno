@@ -210,7 +210,8 @@ async def run_item(item: Item, schema, system: str, complete) -> tuple[str, dict
 
 def turn_item(item: Item, clf: TailClassifier) -> str:
     cls = clf.classify(item.segments[-1]).tail_class
-    return "keep_listening" if cls in ("hesitation", "continuation", "number_in_progress", "id_in_progress") \
+    return "keep_listening" if cls in ("hesitation", "continuation", "postposition", "number_in_progress",
+                                       "id_in_progress") \
         else f"reply ({cls})"
 
 

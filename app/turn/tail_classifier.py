@@ -1,17 +1,18 @@
 """What do the last 1-3 words before a pause say about whether the worker is done?
 
-    hesitation          "umm", "matlab", "kya bolte hain"      -> they're thinking, wait
-    continuation        "aur", "jaise", "because", "ke"        -> the sentence isn't finished, wait
+    hesitation          "umm", "matlab", "ek second"           -> they're thinking, wait
+    continuation        "aur", "kyunki", "because"             -> a connector: the sentence isn't finished, wait
+    postposition        "pe", "ke paas", "wala"                -> can't end a sentence, wait
     completion          "bas", "itna hi", "that's it"          -> done, reply fast
-    id_in_progress      "employee ID chaar saat..."            -> digits still coming, wait long
-    number_in_progress  "dhai sau" after "kitna?"              -> a quantity still coming, wait
+    id_in_progress      "employee ID", "machine ID chaar"      -> an ID being read out, wait
+    number_in_progress  "chaar saat", "dhai sau"               -> a number word at the end, wait
     short_answer        "haan sahi hai" after a confirmation  -> done, reply fast
     other               anything else (Smart Turn decides)
 
-Lists come from research/fillers.json (Aastha's entries, mapped by `function`, see
-FUNCTION_TO_CLASS) plus our additions in research/fillers_*extra*.json, else the
-placeholder below. Matching is on normalised text, in Latin and Devanagari script
-(hi-IN returns Devanagari).
+The tail is the last 1-3 words of the turn's newest text (the words before the pause can span two
+Prisma segments: "ke" | "paas"). Lists: config.TURN_* (all classes), unioned with research/fillers.json
+(Aastha's entries, mapped by `function`, see FUNCTION_TO_CLASS) and our research/fillers_*extra*.json.
+Matching is on normalised text, in Latin and Devanagari script (hi-IN returns Devanagari).
 
     .venv/Scripts/python -m app.turn.tail_classifier      # class counts and examples
 """
@@ -29,8 +30,9 @@ from loguru import logger
 
 from app import config
 
-TAIL_CLASSES = ("hesitation", "continuation", "completion", "id_in_progress", "number_in_progress", "short_answer",
-                "other")
+TAIL_CLASSES = ("hesitation", "continuation", "postposition", "completion", "id_in_progress", "number_in_progress",
+                "short_answer", "other")
+INCOMPLETE_CLASSES = ("hesitation", "continuation", "postposition")  # the sentence isn't finished: wait
 
 # Placeholder until research/fillers.json arrives. Single words and short phrases.
 PLACEHOLDER_FILLERS: dict[str, list[str]] = {
@@ -64,8 +66,11 @@ NUMBER_WORDS = {
     "शून्य", "एक", "दो", "तीन", "चार", "पांच", "पाँच", "छह", "छः", "सात", "आठ", "नौ", "दस", "सौ", "हज़ार", "हजार",
     "लाख", "डेढ़", "ढाई", "साढ़े", "सवा", "पौने",
 }
-# Words that say "an ID is being read out" earlier in the turn
-ID_CUES = {"id", "aaidee", "aidi", "number", "no", "numbar", "आईडी", "नंबर", "नम्बर"}
+# Words that say "an ID is being read out" earlier in the turn (config.TURN_ID_CUES)
+ID_CUES = set(config.TURN_ID_CUES)
+# Of those, the ones that announce an ID by themselves ("employee ID [pause]"); "machine" and "no" end
+# sentences too ("kharab hai machine"), so they need an ID-like word after them
+ID_CUES_ALONE = ID_CUES - set(config.TURN_ID_CUES_NEED_FOLLOWER)
 
 _REPEATS = re.compile(r"(.)\1{2,}")
 
@@ -89,7 +94,10 @@ def _phrases(words: list[str]) -> set[tuple[str, ...]]:
     return {tuple(tokens(w)) for w in words if tokens(w)}
 
 
-CLASSES = ("hesitation", "continuation", "completion", "confirmation", "uncertainty")
+CLASSES = ("hesitation", "continuation", "completion", "confirmation", "uncertainty", "postposition")
+# config's lists (the keyword rule), added to whatever the files give
+CONFIG_LISTS = {"hesitation": config.TURN_HESITATION, "continuation": config.TURN_CONNECTORS,
+                "completion": config.TURN_COMPLETION, "postposition": config.TURN_POSTPOSITIONS}
 
 # Aastha's fillers.json `function` -> our class (research_integration_prompt.md). Unlisted functions
 # (discourse/reference/regional markers, multi-marker sequences, ...) are ignored for turn-taking.
@@ -112,10 +120,14 @@ class Fillers:
     completion: frozenset[tuple[str, ...]]
     confirmation: frozenset[tuple[str, ...]] = frozenset()  # short answers, only after a confirmation question
     uncertainty: frozenset[tuple[str, ...]] = frozenset()  # not a turn cue: the value being given is doubtful
+    postposition: frozenset[tuple[str, ...]] = frozenset()
 
     @classmethod
-    def from_lists(cls, lists: dict[str, list[str]]) -> Fillers:
-        return cls(**{k: frozenset(_phrases(lists.get(k, []))) for k in CLASSES})
+    def from_lists(cls, lists: dict[str, list[str]], with_config: bool = True) -> Fillers:
+        """`with_config`: add config.TURN_* lists; False only to test a file's lists on their own."""
+        merged = {k: list(lists.get(k, [])) + (list(CONFIG_LISTS.get(k, ())) if with_config else [])
+                  for k in CLASSES}
+        return cls(**{k: frozenset(_phrases(v)) for k, v in merged.items()})
 
     def find(self, text: str, cls: str) -> str | None:
         """The first phrase of class `cls` anywhere in `text` (whole tokens), else None."""
@@ -223,22 +235,23 @@ class TailClassifier:
         self.max_tokens = max_tokens
 
     def _ending(self, toks: list[str]) -> tuple[str, tuple[str, ...]] | None:
-        """Longest filler phrase the text ends with; ties go hesitation > continuation > completion."""
+        """Longest filler phrase the text ends with; ties go hesitation > continuation > postposition > completion."""
         for n in range(min(self.max_tokens, len(toks)), 0, -1):
             end = tuple(toks[-n:])
-            for cls in ("hesitation", "continuation", "completion"):
+            for cls in ("hesitation", "continuation", "postposition", "completion"):
                 if end in getattr(self.fillers, cls):
                     return cls, end
         return None
 
     def classify(self, segment: str, context: DialogueContext = DialogueContext(), turn_text: str = "") -> TailResult:
-        """`segment` is the text just before the pause; `turn_text` everything said this turn (defaults to it)."""
-        toks = tokens(segment)
-        turn = tokens(turn_text) or toks
+        """`segment` is the newest text before the pause; `turn_text` everything said this turn, ending with it
+        (defaults to it). The tail is read from the end of the turn, so a phrase split over two segments counts."""
+        turn = tokens(turn_text) or tokens(segment)
+        toks = turn
         if not toks:
             return TailResult("other", "")
         hit = self._ending(toks)
-        waiting = bool(hit) and hit[0] in ("hesitation", "continuation")
+        waiting = bool(hit) and hit[0] in INCOMPLETE_CLASSES
         # Checked first: Aastha's data calls "haan"/"achha" hesitation ("don't end a turn on them if the
         # utterance is unfinished"), but a whole turn of just "haan" right after "... sahi?" is finished.
         if context.confirmation and (all(t in YES_NO_WORDS for t in turn) or tuple(turn) in self.fillers.confirmation
@@ -249,34 +262,47 @@ class TailClassifier:
         last = toks[-1]
         number = self._number_tail(last, turn, context)
         if number:
-            return TailResult(number, last)
+            return TailResult(number, " ".join(toks[-2:]))
         if hit:
             return TailResult(hit[0], " ".join(hit[1]))
         return TailResult("other", " ".join(toks[-self.max_tokens:]))
 
     @staticmethod
     def _numeric_context(turn: list[str], context: DialogueContext) -> str | None:
-        """"id_in_progress" | "number_in_progress" | None: is a number being read out here?"""
+        """"id_in_progress" | "number_in_progress" | None: is a number or ID being read out here?"""
         if context.asked_field in config.ID_FIELDS:
             return "id_in_progress"
         if context.asked_field in config.QUANTITY_FIELDS:
             return "number_in_progress"
-        # "employee ID chaar saat": an ID cue followed only by numbers up to the pause
+        # "machine ID chaar saat", "machine C 7": an ID cue followed only by ID-like words up to the pause
         i = len(turn) - 1
-        while i >= 0 and is_number(turn[i]):
+        while i >= 0 and _id_like(turn[i]):
             i -= 1
-        return "id_in_progress" if i >= 0 and turn[i] in ID_CUES else None
+        return "id_in_progress" if 0 <= i < len(turn) - 1 and turn[i] in ID_CUES else None
 
     def _number_tail(self, last: str, turn: list[str], context: DialogueContext) -> str | None:
-        """A number mid read-out, or a soundalike Prisma wrote for one ("machine number chaar saal")."""
+        """An ID or number still being said:
+        - the last word announces an ID ("employee ID"), or follows an ID cue ("machine ID chaar", "machine C")
+        - the last word is a number word ("chaar saat", "dhai sau"); "do"/"ek" only after another number or
+          when an ID/quantity was asked ("paani bhijava do" is done)
+        - a digit soundalike Prisma wrote ("machine number chaar saal"), only inside an ID/quantity read-out"""
+        if last in ID_CUES_ALONE:
+            return "id_in_progress"
+        ctx = self._numeric_context(turn, context)
+        prev_number = len(turn) >= 2 and is_number(turn[-2])
         if is_number(last):
-            return self._numeric_context(turn, context)
-        if last not in config.NUMBER_SOUNDALIKES:
-            return None
-        if context.asked_field in config.ID_FIELDS + config.QUANTITY_FIELDS:
-            return self._numeric_context(turn, context)
-        return self._numeric_context(turn[:-1], context) if len(turn) >= 2 and is_number(turn[-2]) else None
+            if last in config.AMBIGUOUS_NUMBER_WORDS and not (prev_number or ctx):
+                return None
+            return ctx or "number_in_progress"
+        if last in config.NUMBER_SOUNDALIKES and ctx:  # "das saal" (ten years) is not a read-out
+            return ctx
+        return ctx if ctx == "id_in_progress" and _id_like(last) else None
 
+
+def _id_like(tok: str) -> bool:
+    """Can be part of an ID read-out: a number word, a digit soundalike, one letter, or a code ("p07")."""
+    return (is_number(tok) or tok in config.NUMBER_SOUNDALIKES or (len(tok) == 1 and tok.isalpha())
+            or bool(re.fullmatch(r"[a-z]{1,3}\d+", tok)))
 
 if __name__ == "__main__":
     import sys

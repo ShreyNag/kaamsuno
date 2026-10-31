@@ -326,3 +326,35 @@ Measured on the last 10 turns in `logs/` (`python -m eval.latency_report`):
 - **Open:**
   - The LLM always marks its `description` summary `stated: false`, so the bot still asks "Thoda aur bataiye" after a complete report. Making description inferred-OK too is waiting on Shrey.
   - The live e2e test `test_live_short_answers_...` fails: the read-back comes without quantity ever being asked (material_shortage). Not investigated yet.
+
+## Turn taking: tone AND words before a fast reply (2026-10-31)
+
+- **Rule** (`app/turn/turn_policy.py`; every value in `config.TURN_POLICY`):
+
+  | tail / signal | wait after the last speech |
+  |---|---:|
+  | completion words ("bas", "itna hi", "ho gaya", "that's it"), short answer to "... sahi?" | 400 ms |
+  | incomplete ending: hesitation, connector, postposition | 3,500 ms |
+  | number in progress (number word at the end, or after "ID"/"number"/"machine") | 3,000 ms |
+  | Smart Turn ≥ 0.8 AND text arrived AND no incomplete ending | 400 ms (the only other fast path) |
+  | text not arrived, Smart Turn 0.5–0.8, or no verdict | 2,500 ms |
+  | Smart Turn < 0.5, words fine | 3,000 ms (**not in the brief**; tone says "not finished") |
+  | no text AND Smart Turn < 0.5 (a lone "umm": Prisma sends nothing) | 3,000 ms (the longer of the two) |
+  | hard cap | 4,000 ms |
+
+  Speech resuming at any point cancels the pause, as before.
+- **Keyword rule** (`app/turn/tail_classifier.py`): lists in config (`TURN_HESITATION`, `TURN_CONNECTORS`, `TURN_POSTPOSITIONS`, `TURN_COMPLETION`, `TURN_ID_CUES`), Latin and Devanagari, unioned with Aastha's fillers.json.
+  - The tail is the last 1–3 words of the turn's text, not of the newest segment, so "ke" | "paas" split by Prisma still counts.
+  - Postpositions are a new class: none were in any list before. That is why "teesri manzil pe" and "yaar 2nd floor pay" fell through to Smart Turn alone.
+  - "pay"/"pai" are listed as Prisma's spellings of "pe".
+  - "do"/"ek" (also give / a) count as numbers only after another number or an ID cue: "paani bhijava do" is a finished request. "machine"/"no" need an ID-like word after them ("kharab hai machine" is finished).
+- **Why the old filler rule missed the live cut-ins** (20261031-181558, -181658, -181858):
+  - "yaar 2nd floor pay" (ST 0.01): no postposition list → "other" → 1,200 ms; the worker resumed at 1.9 s. **Now held** (postposition, 3,500 ms).
+  - "sunbe jittade", "ek saath do paanch ko paani chaahiye", "mujhe naa dhaai sau … nahi", "dedh sau bori cement chaahiye": the words read as finished and Smart Turn said 0.89–0.98. There was no filler to catch, and **the new rule still replies fast**: both signals say "finished". The worker then added more ("aur 3rd floor pe chaahiye", 0.7–1.3 s later). Catching these needs something other than the tail, e.g. a minimum report state before a fast reply.
+- **Speed cost** (`eval/turn_delay.py` → `eval/out/turn_delay.md`; 13 sessions with Smart Turn verdicts):
+  - End-of-turn delay p50 585 → 673 ms, p95 2,054 → 3,500 ms.
+  - Cut-ins 16 → 9; 7 of the 16 live cut-ins are now held. The 9 left are "finished-sounding" sentences like those above.
+- **Tests:**
+  - `tests/test_turn_eager.py`: synthetic timelines, real config and lists, Smart Turn 0.98/0.65/none, 1/2/2.5 s pauses, final, partial-only or late text. Pauses after "aur", "ke paas", "umm", "chaar saat", "teesri manzil pe" (and Devanagari) never end the turn. "mixer kharab hai" (ST 0.98) and "bas itna hi" end ≤ 0.5 s after the speech when Prisma's text arrives at +0.45 s.
+  - `tests/test_turn_modes.py`: the same on the real matlab_pause.wav recording (VAD, Smart Turn and turn strategy as the bot runs them; text injected).
+  - The re-recorded s02–s12 pause clips are still missing, so they are not in these tests.

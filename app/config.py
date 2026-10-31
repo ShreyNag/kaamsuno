@@ -229,27 +229,71 @@ USER_TURN_STOP_TIMEOUT_S = 5.0  # Pipecat's last-resort turn end if no strategy 
 
 @dataclass(frozen=True)
 class TurnPolicyConfig:
-    """smart_turn_fillers: how long to wait after the last speech, by tail class (app/turn/turn_policy.py)."""
+    """smart_turn_fillers: how long to wait after the last speech (app/turn/turn_policy.py).
+
+    A fast reply needs BOTH tone and words to say "finished": Smart Turn P(complete) >= st_complete_prob,
+    the pause's text has arrived, and its last 1-3 words aren't an incomplete ending. See decisions.md.
+    """
 
     # Wait for Prisma's segment for this pause, counted from the VAD stop (which is
     # already VAD_STOP_SECS after the last speech). Decide without it after this.
     # 680 = p90 of last speech -> segment (883 ms, n=92, old logs) - VAD stop 200 ms. See decisions.md.
     segment_budget_ms: int = int(_env("SEGMENT_BUDGET_MS", "680"))
-    wait_completion_ms: int = 300
-    wait_short_answer_ms: int = 300
-    wait_hesitation_ms: int = 3000  # regardless of Smart Turn (live test 3: 2 s pauses after "umm")
-    wait_continuation_ms: int = 3000  # regardless of Smart Turn
-    wait_number_ms: int = 2000  # a quantity being said ("dhai sau ..."); 1500 cut in live
-    wait_id_ms: int = 3000  # an ID being read out ("machine ID chaar saat [2.5 s] ek nau")
-    wait_st_complete_ms: int = 400  # tail "other" and Smart Turn P(complete) >= st_complete_prob
-    wait_st_incomplete_ms: int = 1200
-    wait_no_signal_ms: int = 800  # tail "other" and no Smart Turn verdict
-    st_complete_prob: float = 0.7
-    max_wait_ms: int = 3500  # hard cap after the last speech
-    # No final and no partial for the pause by the segment budget (Prisma sends nothing for a lone
-    # "umm"): Smart Turn alone isn't trusted; wait up to the cap, re-deciding if text arrives
-    wait_no_text_ms: int = 3500
-    tail_tokens: int = 3  # the classifier looks at the last 1..tail_tokens tokens
+    wait_completion_ms: int = int(_env("WAIT_COMPLETION_MS", "400"))  # "bas", "itna hi", "that's it"
+    wait_short_answer_ms: int = int(_env("WAIT_SHORT_ANSWER_MS", "400"))  # "haan sahi hai" after "... sahi?"
+    wait_hesitation_ms: int = int(_env("WAIT_HESITATION_MS", "3500"))  # "umm", "matlab", "ek second"
+    wait_continuation_ms: int = int(_env("WAIT_CONTINUATION_MS", "3500"))  # connectors: "aur", "kyunki", "because"
+    wait_postposition_ms: int = int(_env("WAIT_POSTPOSITION_MS", "3500"))  # "pe", "ke paas", "wala"
+    wait_number_ms: int = int(_env("WAIT_NUMBER_MS", "3000"))  # a number word at the end ("chaar saat")
+    wait_id_ms: int = int(_env("WAIT_ID_MS", "3000"))  # after "ID", "number", "machine" ("machine ID chaar")
+    wait_st_complete_ms: int = int(_env("WAIT_ST_COMPLETE_MS", "400"))  # P >= st_complete_prob, text in, tail ok
+    st_complete_prob: float = float(_env("ST_COMPLETE_PROB", "0.8"))
+    st_unsure_prob: float = float(_env("ST_UNSURE_PROB", "0.5"))  # [unsure, complete): Smart Turn unsure
+    wait_st_unsure_ms: int = int(_env("WAIT_ST_UNSURE_MS", "2500"))
+    # P < st_unsure_prob: the tone says "not finished" though the words don't. Not in the brief; between
+    # "unsure" (2.5 s) and "incomplete ending" (3.5 s).
+    wait_st_incomplete_ms: int = int(_env("WAIT_ST_INCOMPLETE_MS", "3000"))
+    wait_no_signal_ms: int = int(_env("WAIT_NO_SIGNAL_MS", "2500"))  # no Smart Turn verdict: treated as unsure
+    # No final and no partial for the pause by the segment budget: text arriving later re-decides
+    wait_no_text_ms: int = int(_env("WAIT_NO_TEXT_MS", "2500"))
+    max_wait_ms: int = int(_env("TURN_MAX_WAIT_MS", "4000"))  # hard cap after the last speech
+    tail_tokens: int = 3  # the classifier looks at the last 1..tail_tokens words of the turn
+
+
+# Incomplete endings (the tail classifier, app/turn/tail_classifier.py). Matched on the last 1-3 words of
+# the turn's newest text, Latin and Devanagari. These are unioned with Aastha's research/fillers.json.
+TURN_HESITATION = (
+    "um", "umm", "uh", "uhh", "hmm", "aa", "aah", "er", "erm", "matlab", "mtlb", "woh", "wo", "yaani",
+    "kya bolte hain", "kya kehte hain", "kya bolte", "ek second", "ek sec", "ek minute", "ruko", "ruk",
+    "उम", "उम्म", "अं", "आ", "मतलब", "वो", "यानी", "क्या बोलते हैं", "क्या कहते हैं", "एक सेकंड", "एक मिनट", "रुको",
+)
+TURN_CONNECTORS = (
+    "aur", "toh", "to", "phir", "fir", "lekin", "magar", "par", "ya", "kyunki", "kyonki", "jab", "agar", "ki",
+    "jaise", "jaise ki", "ki wajah se", "isliye", "and", "but", "because", "so", "or", "if", "when", "then",
+    "like", "such as", "the", "a", "of", "with",
+    "और", "तो", "फिर", "लेकिन", "मगर", "पर", "या", "क्योंकि", "जब", "अगर", "कि", "जैसे", "इसलिए",
+)
+# Postpositions and particles that can't end a sentence. "pay"/"pai": Prisma's spelling of "pe"
+# (live 2026-10-31, "yaar 2nd floor pay" cut in).
+TURN_POSTPOSITIONS = (
+    "ke", "ka", "ki", "mein", "me", "pe", "pay", "pai", "par", "se", "ko", "tak", "wala", "wali", "wale", "jo",
+    "ke paas", "ke pass", "ke upar", "ke neeche", "ke andar", "ke bahar", "ke saamne", "ke peeche", "ke baad",
+    "ke liye", "ki taraf", "ki wajah", "of the", "near the", "at the", "in the", "on the", "near",
+    "के", "का", "की", "में", "पे", "पर", "से", "को", "तक", "वाला", "वाली", "वाले", "जो",
+    "के पास", "के ऊपर", "के नीचे", "के अंदर", "के बाहर", "के सामने", "के पीछे", "के बाद", "के लिए",
+)
+TURN_COMPLETION = (
+    "bas", "itna hi", "bas itna hi", "bas itna", "itna hi hai", "ho gaya", "bas yahi", "khatam", "done",
+    "thats it", "that is it", "thats all", "bas itni si baat hai",
+    "बस", "इतना ही", "बस इतना ही", "हो गया", "बस यही", "खत्म",
+)
+# A tail right after one of these (or the word itself) is an ID being read out: "machine ID chaar ..."
+TURN_ID_CUES = ("id", "aaidee", "aidi", "number", "numbar", "no", "machine", "mashin", "asset",
+                "आईडी", "नंबर", "नम्बर", "मशीन")
+TURN_ID_CUES_NEED_FOLLOWER = ("no", "machine", "mashin", "asset", "मशीन")  # these end sentences too
+# Number words that are also common words ("do" = give, "ek" = a): a number only after another number or
+# an ID cue, or when the bot asked for an ID or quantity ("paani bhijava do" is a finished request)
+AMBIGUOUS_NUMBER_WORDS = frozenset({"do", "ek", "दो", "एक"})
 
 
 TURN_POLICY = TurnPolicyConfig()

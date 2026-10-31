@@ -109,8 +109,10 @@ def main() -> None:
     args = ap.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")
     p = config.TURN_POLICY
-    print(f"policy now: hesitation/continuation {p.wait_hesitation_ms}/{p.wait_continuation_ms}, number/ID "
-          f"{p.wait_number_ms}/{p.wait_id_ms}, no text {p.wait_no_text_ms}, cap {p.max_wait_ms} ms\n")
+    print(f"policy now: fast {p.wait_st_complete_ms} ms only if ST >= {p.st_complete_prob} + text + no incomplete "
+          f"ending; hesitation/connector/postposition {p.wait_hesitation_ms}/{p.wait_continuation_ms}/"
+          f"{p.wait_postposition_ms}, number/ID {p.wait_number_ms}/{p.wait_id_ms}, ST unsure {p.wait_st_unsure_ms}, "
+          f"no text {p.wait_no_text_ms}, cap {p.max_wait_ms} ms\n")
     for path in args.logs:
         print("\n".join(compare(path)) + "\n")
 
