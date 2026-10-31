@@ -100,7 +100,8 @@ def ask_order(report: Report, schema: Schema) -> list[str]:
 def pending(report: Report, schema: Schema, low_confidence: float = config.LOW_CONFIDENCE) -> list[tuple[str, str]]:
     """Every (field, reason) the dialogue could ask about now, in priority order."""
     order = ask_order(report, schema)
-    out = [(n, "missing") for n in order if not is_known(report[n])]
+    out = [(n, "missing") for n in order if not is_known(report[n])
+           or report[n]["value"] in config.VAGUE_VALUES.get(n, ())]  # incident_type "other": ask what happened
     out += [(n, "missing_id") for n in order if n in config.NEEDS_ID and is_known(report[n])
             and not re.search(r"\d", str(report[n]["value"]))]
     out += [(n, "conflict") for n in order if report[n].get("conflicts")]

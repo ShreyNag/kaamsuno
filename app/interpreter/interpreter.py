@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import copy
+import hashlib
 import json
 import re
 import time
@@ -72,11 +73,16 @@ def is_known(entry: dict) -> bool:
 
 
 def _inferred(name: str, upd: dict, evidence: str, asked_field: str | None = None) -> bool:
-    """The LLM says it guessed ("stated": false), or urgency whose evidence has no urgency word
-    (unless it answers "how urgent is it?": then any answer is stated)."""
-    if upd.get("stated") is False:
-        return True
-    return name == "urgency" and asked_field != "urgency" and not set(_norm(evidence).split()) & config.URGENCY_CUES
+    """The LLM says it guessed ("stated": false). Urgency: guessed iff its evidence has no urgency word
+    (unless it answers "how urgent is it?": then any answer is stated), whatever the LLM's flag says. Never for INFERRED_OK_FIELDS:
+    incident_type and assigned_team are categories inferred from the description by design."""
+    if name in config.INFERRED_OK_FIELDS:
+        return False
+    if upd.get("correction") is True:  # the worker replacing a value said it; live, the LLM flagged
+        return False                   # "nahi, chauthi manzil" stated: false, and the correction was dropped
+    if name == "urgency":  # the urgency words decide, not the LLM's flag: it marks "urgent hai" -> "high" a guess
+        return asked_field != "urgency" and not set(_norm(evidence).split()) & config.URGENCY_CUES
+    return upd.get("stated") is False
 
 
 def merge_update(report: Report, updates: dict[str, Any], transcript: str, schema: Schema,
@@ -97,7 +103,8 @@ def merge_update(report: Report, updates: dict[str, Any], transcript: str, schem
     - a quantity whose evidence isn't just the digits keeps the spoken phrase in spoken_number_raw
     - a value that is only a label ("employee id") is dropped
     - `inferred` marks a value the worker didn't state (the LLM's "stated": false, or urgency without an
-      urgency word in its evidence); it is kept and shown, but the dialogue still asks for it
+      urgency word in its evidence); it is kept and shown, but the dialogue still asks for it. Not for
+      config.INFERRED_OK_FIELDS (incident_type, assigned_team): those are inferred by design
     - assume_correction (during the read-back): any different value is the worker correcting it
     """
     out = copy.deepcopy(report)
@@ -223,6 +230,8 @@ class Interpreter:
         self._wake = asyncio.Event()
         self._worker: asyncio.Task | None = None
         self.n_calls = 0
+        self._log("interp_prompt", prompt_sha=hashlib.sha256(self._system.encode()).hexdigest()[:12],
+                  prompt_chars=len(self._system))
 
     def submit(self, text: str) -> int:
         """Queue one final segment; returns its sequence number. Never blocks."""
@@ -267,9 +276,11 @@ class Interpreter:
                    if v is not None and k not in config.SYSTEM_FIELDS}
         user = json.dumps({"current_report": current, "bot_just_asked": asked, "new_segment": text},
                           ensure_ascii=False)
-        self._log("interp_request", seq=batch[-1], segments=len(batch), chars=len(user))
+        # the system prompt is the same for every call: logged once per session as prompt_sha (see __init__)
+        self._log("interp_request", seq=batch[-1], segments=len(batch), chars=len(user),
+                  **({"user": user} if config.LLM_LOG_PAYLOADS else {}))
         self.n_calls += 1
-        t0, error = time.time(), None
+        t0, error, raw = time.time(), None, None
         try:
             raw = await self._complete([{"role": "system", "content": self._system}, {"role": "user", "content": user}])
             updates = json.loads(raw).get("updates", {})
@@ -286,7 +297,7 @@ class Interpreter:
             updates, error = {}, str(e)[:160]
         self._last_end = time.monotonic()
         self._log("interp_response", seq=batch[-1], ms=round((time.time() - t0) * 1000), fields=sorted(updates),
-                  **({"error": error} if error else {}))
+                  **({"error": error} if error else {}), **({"raw": raw} if config.LLM_LOG_PAYLOADS else {}))
         cue = self._uncertainty_cue(text) if updates else None
         if cue:
             cap = config.LOW_CONFIDENCE - 0.1

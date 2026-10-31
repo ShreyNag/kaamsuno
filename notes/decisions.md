@@ -310,3 +310,19 @@ Measured on the last 10 turns in `logs/` (`python -m eval.latency_report`):
   - Silero's false alarms rose because of the new noises: crowd 12.5 % (10 dB) / 19.3 % (5 dB) and hammering 8.4 % at 5 dB; 0–1.6 % elsewhere. Crowd is babble (real voices), so part of that is the VAD hearing speech, as LICENSES.md says; report it apart.
   - Custom does worst on hammering at 5 dB (69 % false alarms): impulsive hits pass its gate.
   - Tuning again picked Silero 0.3 in every fold; the live value stays 0.5 (see the VAD decision).
+
+## incident_type inferred, not asked (2026-10-31)
+
+- **Why it was asked (session 20261031-181558):** the worker gave material, quantity, urgency and location, and the bot still asked "Kya hua hai?". No Groq call ever returned `incident_type` (the logged field lists; replayed requests match the logged sizes exactly). The prompt's rule 1, "Never guess", kept the LLM from choosing a category the worker never named. Had it returned one, it would be `"stated": false` → `inferred` → `is_known` false → asked as missing.
+- **Fix:**
+  - `config.INFERRED_OK_FIELDS` = incident_type, assigned_team: a guessed value counts as filled. They're categories picked from the description by design.
+  - `config.VAGUE_VALUES`: incident_type "other" is asked as if missing. Below `LOW_CONFIDENCE` (0.6) it is confirmed as before.
+  - The prompt (rule 1) tells the LLM to fill both as soon as the problem is clear, with `"stated": false`, 0.9 when it clearly fits.
+  - The no-guessing rule stays for location, quantity, unit, asset ID, time and urgency.
+- **Two more from the live test with the brief's sentence:**
+  - Urgency: Groq flagged "urgent hai" → "high" as `"stated": false`. Urgency is now stated iff its evidence has an urgency word (the existing `URGENCY_CUES` rule), whatever the LLM's flag says.
+  - A correction (`"correction": true`) always counts as stated. Groq flagged "nahi, chauthi manzil" `stated: false` at the read-back and the correction was dropped.
+- **Hop log keeps each call's request JSON and raw reply** (`LLM_LOG_PAYLOADS`, on by default); the system prompt is logged once per session as a hash. Before this, a bad turn could only be explained by replaying it.
+- **Open:**
+  - The LLM always marks its `description` summary `stated: false`, so the bot still asks "Thoda aur bataiye" after a complete report. Making description inferred-OK too is waiting on Shrey.
+  - The live e2e test `test_live_short_answers_...` fails: the read-back comes without quantity ever being asked (material_shortage). Not investigated yet.

@@ -331,7 +331,7 @@ def filled(**values):
     return r
 
 
-ALL_CRITICAL = dict(location=("Tower B", 0.9), incident_type=("other", 0.9),
+ALL_CRITICAL = dict(location=("Tower B", 0.9), incident_type=("safety_hazard", 0.9),
                     description=("loose scaffolding", 0.9), urgency=("high", 0.9))
 
 
@@ -367,6 +367,55 @@ def test_urgency_without_an_urgency_word_is_inferred():
     assert not r["urgency"]["inferred"]
 
 
+def test_inferred_categories_count_as_filled_other_guesses_as_missing():
+    said = "teesri manzil pe dedh sau bori cement kam pad gaya hai urgent hai"
+    guess = lambda v, e: {**upd(v, e), "stated": False}  # noqa: E731
+    r = merge_update(empty_report(SCHEMA), {
+        "incident_type": guess("material_shortage", "cement kam pad gaya hai"),
+        "location": guess("3rd floor", "teesri manzil"), "quantity": guess(150, "dedh sau bori"),
+        "unit": guess("bags", "bori"), "urgency": guess("high", "cement kam pad gaya hai")}, said, SCHEMA)
+    assert not r["incident_type"]["inferred"]
+    assert all(r[n]["inferred"] for n in ("location", "quantity", "unit", "urgency"))  # no-guessing rule kept
+    q = next_question(r, SCHEMA, T)
+    assert (q.field, q.reason) == ("location", "missing")
+    r = merge_update(r, {"location": upd("3rd floor", "teesri manzil")}, said, SCHEMA)
+    assert next_question(r, SCHEMA, T).field != "incident_type"
+
+
+def test_a_correction_is_stated_even_if_the_llm_says_guessed():
+    r = merge_update(empty_report(SCHEMA), {"location": upd("3rd floor", "teesri manzil")}, "teesri manzil", SCHEMA)
+    said = "teesri manzil nahi, chauthi manzil"
+    r = merge_update(r, {"location": {**upd("4th floor", "nahi, chauthi manzil", correction=True), "stated": False}},
+                     said, SCHEMA, assume_correction=True)  # what Groq returned at the read-back (2026-10-31)
+    assert r["location"]["value"] == "4th floor" and not r["location"]["inferred"]
+
+
+def test_urgency_with_an_urgency_word_is_stated_even_if_the_llm_says_guessed():
+    said = "cement kam pad gaya hai urgent hai"
+    r = merge_update(empty_report(SCHEMA), {"urgency": {**upd("high", "urgent hai"), "stated": False}}, said, SCHEMA)
+    assert not r["urgency"]["inferred"]  # live: the LLM flags "urgent hai" -> "high" as its own inference
+    r = merge_update(empty_report(SCHEMA), {"urgency": {**upd("high", "cement kam pad gaya"), "stated": True}}, said, SCHEMA)
+    assert r["urgency"]["inferred"]  # no urgency word: a guess, whatever the flag says
+
+
+@pytest.mark.skipif(not SCHEMA_PATH.exists(), reason="research/schema.json not present")
+def test_assigned_team_guess_counts_as_filled():
+    s = load_schema()
+    r = merge_update(empty_report(s), {"assigned_team": {**upd("stores_or_materials", "cement kam"), "stated": False}},
+                     "cement kam pad gaya", s)
+    assert r["assigned_team"]["value"] == "stores_or_materials" and not r["assigned_team"]["inferred"]
+
+
+@pytest.mark.parametrize("value, conf, reason", [("other", 0.9, "missing"), ("safety_hazard", 0.4, "low_confidence")])
+def test_incident_type_asked_only_when_other_or_low_confidence(value, conf, reason):
+    r = filled(**{**ALL_CRITICAL, "incident_type": (value, conf)})
+    for n in r:
+        r[n]["confidence"] = max(r[n]["confidence"], 0.99)
+    r["incident_type"]["confidence"] = conf
+    q = next_question(r, SCHEMA, T)
+    assert (q.field, q.reason) == ("incident_type", reason)
+
+
 def test_llm_stated_false_marks_inferred_and_never_overwrites_a_stated_value():
     said = "tower B mein"
     r = merge_update(empty_report(SCHEMA), {"location": upd("Tower B", "tower B")}, said, SCHEMA)
@@ -397,7 +446,7 @@ def test_ask_order_required_fields_first():
     ("material_shortage", "material"),
     ("safety_hazard", "people_at_risk"),
     ("injury_or_near_miss", "people_at_risk"),
-    ("other", None),
+    ("other", "incident_type"),  # "other" says nothing: ask what happened
 ])
 def test_type_dependent_fields_after_the_required_ones(itype, first):
     schema = parse_schema({**PLACEHOLDER_SCHEMA, "fields": PLACEHOLDER_SCHEMA["fields"] + [
@@ -437,7 +486,7 @@ def test_low_confidence_number_is_confirmed():
 def test_complete_report_gets_a_readback_not_an_announcement():
     q = next_question(filled(**ALL_CRITICAL), SCHEMA, T)
     assert q.reason == "readback" and "taiyaar" not in q.text
-    assert q.text.startswith("Main report read-back kar raha hoon: Tower B, other, urgency high")
+    assert q.text.startswith("Main report read-back kar raha hoon: Tower B, safety hazard, urgency high")
 
 
 def test_question_cap_then_readback():

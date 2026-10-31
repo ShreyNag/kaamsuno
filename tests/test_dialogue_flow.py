@@ -36,7 +36,7 @@ SCRIPT = {
     "bahut urgent hai": {"urgency": u("high", "bahut urgent hai")},
     "crane number C 7": {"asset_or_equipment": u("crane C-7", "crane number C 7")},
     "bay 2 mein scaffolding hil raha hai bahut urgent": {
-        "location": u("Bay 2", "bay 2"), "incident_type": u("other", "scaffolding hil raha hai"),
+        "location": u("Bay 2", "bay 2"), "incident_type": u("safety_hazard", "scaffolding hil raha hai"),
         "description": u("scaffolding shaking", "scaffolding hil raha hai"), "urgency": u("high", "bahut urgent")},
     "nahi, bay 3": {"location": u("Bay 3", "bay 3")},  # no correction flag: the read-back makes it one
     "nahi, bay teen": {"location": u("Bay 3", "bay teen")},
@@ -126,7 +126,7 @@ def test_equipment_failure_without_an_id_gets_the_id_question(tmp_path):
 def test_complete_report_gets_a_readback_not_taiyar_hai(tmp_path):
     said, doc, reporter = converse(["bay 2 mein scaffolding hil raha hai bahut urgent"], tmp_path)
     assert len(said[0]) == 1 and "taiyaar" not in said[0][0] and "taiyar" not in said[0][0]
-    assert said[0][0] == "Main report read-back kar raha hoon: Bay 2, other, urgency high. Sahi hai toh confirm kar do."
+    assert said[0][0] == "Main report read-back kar raha hoon: Bay 2, safety hazard, urgency high. Sahi hai toh confirm kar do."
     assert doc["report"]["status"]["value"] == "awaiting_confirmation"
     assert reporter.dialogue.phase == "readback"
 
@@ -230,3 +230,20 @@ def test_restating_a_value_re_reads_it(tmp_path):
 def test_haan_ya_nahi_only_when_the_reply_has_neither_yes_no_nor_field_content(tmp_path):
     said, _, _ = converse([READY, "kya bola aapne"], tmp_path)
     assert said[1] == [T["_readback_prompt"]]
+
+
+SENTENCE = "Teesri manzil pe dedh sau bori cement kam pad gaya hai, urgent hai"
+# What the LLM returns for it with the current prompt: the category is its own inference ("stated": false)
+SCRIPT[SENTENCE] = {
+    "location": u("3rd floor", "Teesri manzil"), "material": u("cement", "cement"),
+    "quantity": u(150, "dedh sau bori"), "unit": u("bags", "dedh sau bori"),
+    "incident_type": u("material_shortage", "cement kam pad gaya hai", 0.9, stated=False),
+    "description": u("150 bags of cement short on the 3rd floor", "cement kam pad gaya hai"),
+    "urgency": u("high", "urgent hai")}
+
+
+def test_all_details_in_one_sentence_never_ask_incident_type(tmp_path):
+    said, doc, _ = converse([SENTENCE], tmp_path)
+    assert "Kya hua hai" not in said[0][0]  # the incident_type question
+    assert said[0][0].startswith("Main report read-back kar raha hoon: 3rd floor, material shortage")
+    assert doc["report"]["incident_type"]["value"] == "material_shortage"

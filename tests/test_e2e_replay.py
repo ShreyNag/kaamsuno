@@ -150,3 +150,27 @@ def test_live_short_answers_fill_the_asked_field_and_a_readback_correction_lands
     assert str(r["quantity"]["value"]) == "150" and "bag" in str(r["unit"]["value"]).lower()
     assert r["urgency"]["value"] in ("high", "emergency") and is_known(r["urgency"])
     assert "4" in str(r["location"]["value"]) or "chauthi" in str(r["location"]["value"]).lower()
+
+
+@pytest.mark.skipif(not SCHEMA_PATH.exists(), reason="needs Aastha's research/schema.json")
+def test_real_llm_infers_incident_type_and_never_asks_it():
+    """The production prompt and Groq on one sentence with every detail: the category is inferred, not asked."""
+    from app.interpreter.dialogue import DialogueManager
+    from app.interpreter.groq import groq_complete
+    from app.interpreter.interpreter import Interpreter, is_known
+
+    schema = load_schema()
+    book = load_template_book()
+    sentence = "Teesri manzil pe dedh sau bori cement kam pad gaya hai, urgent hai"
+
+    async def main():
+        it = Interpreter(schema, groq_complete(config.LLM_MODEL), uncertainty_cue=lambda t: None)
+        it.submit(sentence)
+        assert await it.drain(timeout=None)
+        return it.report
+
+    r = asyncio.run(main())
+    print({n: (e["value"], e["confidence"], e.get("inferred")) for n, e in r.items() if e["value"] is not None})
+    assert r["incident_type"]["value"] == "material_shortage" and is_known(r["incident_type"])
+    q = DialogueManager().decide(r, schema, book.for_language("hinglish"), sentence, {}, set())
+    assert q.field != "incident_type", q

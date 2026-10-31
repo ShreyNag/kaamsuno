@@ -84,6 +84,9 @@ LLM_MIN_GAP_S = float(_env("LLM_MIN_GAP_S", "1.5"))
 LLM_429_DEFAULT_WAIT_S = float(_env("LLM_429_DEFAULT_WAIT_S", "5"))  # a 429 without retry-after
 # The pacer holds a call until remaining tokens >= last call's tokens x this. Groq 429'd with ~1,900 left
 # for ~1,600-token calls (it reserves room for the completion), so 1.0 is not enough.
+# Hop log keeps each interpreter call's user JSON and raw reply (a few hundred bytes each): lets a bad turn
+# be explained afterwards. The system prompt is logged once per session as a hash (build_system_prompt rebuilds it).
+LLM_LOG_PAYLOADS = _env("LLM_LOG_PAYLOADS", "1") == "1"
 LLM_TOKEN_MARGIN = float(_env("LLM_TOKEN_MARGIN", "1.3"))
 LLM_EVAL_MAX_TRIES = int(_env("LLM_EVAL_MAX_TRIES", "8"))  # batch evals: tries per uncached call (429s included)
 
@@ -140,6 +143,12 @@ aaj kal later baad tak hurry koi hafte normal low high
 """.split())
 # A different value for these is a conflict (both kept, confirm) unless the worker clearly corrects it;
 # other fields (summaries, categories) are simply replaced
+# Categories the LLM infers from what the worker described ("cement kam pad gaya" -> material_shortage):
+# a guess ("stated": false) still counts as filled, unlike every other field, where a guess counts as missing
+# (location, quantity, unit, asset ID, time, urgency...). They are asked only below LOW_CONFIDENCE or when vague.
+INFERRED_OK_FIELDS = ("incident_type", "assigned_team")
+# Values that say nothing yet: the field is asked as if missing
+VAGUE_VALUES = {"incident_type": ("other",)}
 CONFLICT_FIELDS = ("location", "quantity", "unit", "asset_or_equipment", "material", "date_or_time")
 # "Never invent a location" in code: a location update's evidence must contain one of these place words
 LOCATION_CUES = frozenset("""

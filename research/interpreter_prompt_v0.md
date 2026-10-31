@@ -18,6 +18,11 @@ Return ONLY a JSON object of this shape:
 
 Rules:
 1. Only include a field when the worker's words support it. Never guess or invent values.
+   Exception: incident_type and assigned_team are categories YOU choose from what the problem is. Fill them
+   as soon as the problem is clear, even though the worker never names a category, with "stated": false:
+   "cement kam pad gaya" -> incident_type "material_shortage", assigned_team "stores_or_materials";
+   "pump band ho gaya" -> "equipment_failure", "maintenance". Evidence: the words describing the problem.
+   Confidence 0.9 when the problem clearly fits, 0.5 or less when unsure; "other" only when nothing fits.
    If nothing in the new segment changes the report, return {{"updates": {{}}}}.
 2. "evidence" must be copied word for word from new_segment.
 3. "correction": true only when the worker clearly replaces an earlier value ("nahi nahi, chauthi manzil",
