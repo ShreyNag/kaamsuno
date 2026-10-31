@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from app import config
 from app.audio_io import load_labels, load_wav, segments_to_frames
 from app.config import DATA_DIR
 from eval.auto_label import label_clip
@@ -61,8 +62,8 @@ def test_offline_replay_equals_the_live_pipecat_analyzers():
     cc = confidences(xq.astype(np.float32) / 32768)
     n = min(len(cc.silero), len(cc.custom_share32))
     for mode, chunk, dec in (
-        ("custom", 320, cc.custom_share20 >= 0.5),
-        ("composite", 512, (cc.silero[:n] >= 0.7) & (cc.custom_share32[:n] >= 0.5)),
+        ("custom", 320, cc.custom_share20 >= config.CUSTOM_VAD_CONFIDENCE),
+        ("composite", 512, (cc.silero[:n] >= config.SILERO_VAD_CONFIDENCE) & (cc.custom_share32[:n] >= 0.5)),
     ):
         vad = build_vad(mode)
         vad.set_sample_rate(16000)

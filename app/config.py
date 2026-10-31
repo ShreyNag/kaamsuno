@@ -185,12 +185,15 @@ class VADConfig:
 
 VAD = VADConfig()
 
-# Which VAD drives Pipecat's user-speaking events: silero | custom | composite
-VAD_MODE = _env("VAD_MODE", "composite")
+# Which VAD drives Pipecat's user-speaking events: silero | custom | composite.
+# Silero won the comparison on real recordings (eval/out/vad_results.md); custom and composite stay for the eval.
+VAD_MODE = _env("VAD_MODE", "silero")
 
 # Pipecat VADParams for the Silero analyser. stop_secs is how long the VAD waits
 # before reporting "stopped"; 0.2 is what Smart Turn and Pipecat's latency tables assume.
-VAD_CONFIDENCE = float(_env("VAD_CONFIDENCE", "0.7"))
+# Silero speech-probability threshold (silero and composite). Tuning on F2 picked 0.3, but its labels are
+# padded and the objective favours recall; 0.5 (Silero's own default) for live. See decisions.md.
+SILERO_VAD_CONFIDENCE = float(_env("SILERO_VAD_CONFIDENCE", "0.5"))
 VAD_START_SECS = float(_env("VAD_START_SECS", "0.2"))
 VAD_STOP_SECS = float(_env("VAD_STOP_SECS", "0.2"))
 # custom VAD (app/vad/pipecat_vad.py): confidence = share of 10 ms frames that are speech candidates.

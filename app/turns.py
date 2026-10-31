@@ -39,7 +39,7 @@ def vad_params(mode: str = config.VAD_MODE) -> VADParams:
     if mode == "custom":
         return VADParams(confidence=config.CUSTOM_VAD_CONFIDENCE, start_secs=config.VAD_START_SECS,
                          stop_secs=config.VAD_STOP_SECS, min_volume=config.CUSTOM_VAD_MIN_VOLUME)
-    return VADParams(confidence=config.VAD_CONFIDENCE, start_secs=config.VAD_START_SECS, stop_secs=config.VAD_STOP_SECS)
+    return VADParams(confidence=config.SILERO_VAD_CONFIDENCE, start_secs=config.VAD_START_SECS, stop_secs=config.VAD_STOP_SECS)
 
 
 def build_vad(mode: str = config.VAD_MODE) -> VADAnalyzer:

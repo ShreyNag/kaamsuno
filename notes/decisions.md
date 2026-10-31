@@ -265,3 +265,8 @@ Measured on the last 10 turns in `logs/` (`python -m eval.latency_report`):
   - Custom beats Silero on false alarms only in white noise and hum (0.000 vs 0.007–0.015). It loses on recall in every condition, and on false alarms in pink noise (40 %), generator (17–20 %), traffic (8–10 %) and drilling (4–5 %).
   - Composite cuts false alarms to about 0, but loses a third of Silero's recall: 0.52 vs 0.86 raw, 0.55 vs 0.84 deployed.
 - **Recommendation: Silero for the live bot** (`VAD_MODE=silero`). The config default is still `composite`; not switched without asking.
+
+## VAD decision (2026-10-31)
+
+- **`VAD_MODE=silero` is the default** (agreed with Shrey), from the real-recording comparison: Silero F1 0.92 / false alarm 1.3 %, WebRTC 0.90 / 23.6 %, custom 0.79 (recall 0.67), composite 0.69 (recall 0.52). `custom` and `composite` stay buildable and in `eval/vad_eval.py` for the comparison.
+- **Silero's threshold is its own knob, `SILERO_VAD_CONFIDENCE` = 0.5** (was `VAD_CONFIDENCE` = 0.7; renamed because it never applied to custom). Composite uses it too. Tuning picked 0.3 in every fold, but the auto-labels are padded and the F2 objective weights recall 2×, so it is biased low; 0.5 is Silero's own default and a middle ground between 0.3 and the old 0.7. Recheck after the re-recorded pause clips.
