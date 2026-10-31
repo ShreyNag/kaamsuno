@@ -41,10 +41,12 @@ class Spoken(FrameProcessor):
 async def fake_llm(messages):
     seg = json.loads(messages[1]["content"])["new_segment"]
     await asyncio.sleep(0.2)
+    updates = {}  # segments that arrive during a call go out together in the next one
     if "manzil" in seg:
-        return json.dumps({"updates": {"location": {"value": "3rd floor", "confidence": 0.9, "evidence": "teesri manzil"}}})
-    return json.dumps({"updates": {"incident_type": {"value": "material_shortage", "confidence": 0.9,
-                                                      "evidence": "cement kam hai"}}})
+        updates["location"] = {"value": "3rd floor", "confidence": 0.9, "evidence": "teesri manzil"}
+    if "cement" in seg:
+        updates["incident_type"] = {"value": "material_shortage", "confidence": 0.9, "evidence": "cement kam hai"}
+    return json.dumps({"updates": updates})
 
 
 def test_segments_are_silent_and_turn_end_asks_top_missing_field(tmp_path):
@@ -112,7 +114,7 @@ def test_resuming_speech_cancels_the_pending_question(tmp_path):
 async def correcting_llm(messages):
     seg = json.loads(messages[1]["content"])["new_segment"]
     floor = {"teesri manzil": "3rd floor", "paanchvi manzil": "5th floor"}
-    hit = next((k for k in floor if k in seg), None)
+    hit = max((k for k in floor if k in seg), key=seg.rfind, default=None)  # the last floor said wins
     upd = {"value": floor[hit], "confidence": 0.9, "evidence": hit, "correction": "nahi" in seg} if hit else None
     return json.dumps({"updates": {"location": upd}} if hit else {"updates": {}})
 
@@ -128,6 +130,7 @@ def test_report_saved_to_disk_with_history_and_transcript(tmp_path):
         await asyncio.sleep(0.3)
         await task.queue_frame(UserStartedSpeakingFrame())
         await task.queue_frame(TranscriptionFrame("teesri manzil pe", "u", "now"))
+        await asyncio.sleep(0.05)  # live, the correction comes after the first call went out
         await task.queue_frame(TranscriptionFrame("nahi nahi paanchvi manzil", "u", "now"))
         await asyncio.sleep(0.1)  # a SystemFrame would overtake the queued segments (no Prisma tail wait here)
         await task.queue_frame(UserStoppedSpeakingFrame())

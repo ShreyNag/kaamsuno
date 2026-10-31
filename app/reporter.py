@@ -169,7 +169,8 @@ class ReportProcessor(FrameProcessor):
                 logger.warning("turn end: Prisma segment still pending at tail timeout; asking anyway")
         self._hops.log("stt_tail_done")
         if not await self._interp.drain():
-            logger.warning("turn end: interpreter calls still running at drain timeout; asking anyway")
+            logger.warning("turn end: interpreter still busy at drain timeout; asking from the report as it is")
+            self._hops.log("interp_late", pending=self._interp.pending)
         # reply in the worker's style: the language of what they said since the last question
         said = " ".join(self._interp.segments[self._turn_first_segment:])
         self._turn_first_segment = len(self._interp.segments)

@@ -145,30 +145,104 @@ def test_evidence_match_ignores_case_and_punctuation():
     assert r["location"]["value"] == "3rd floor"
 
 
-# --- ordering ------------------------------------------------------------------
-def test_results_merge_in_segment_order_even_when_they_return_out_of_order():
-    segs = ["teesri manzil pe", "nahi nahi chauthi manzil"]
-    answers = {
-        segs[0]: (0.3, {"location": upd("3rd floor", "teesri manzil")}),  # slow
-        segs[1]: (0.0, {"location": upd("4th floor", "chauthi manzil", correction=True)}),  # fast
-    }
+# --- one call in flight, merged segments, rate limits ---------------------------------
+def test_segments_arriving_during_a_call_go_out_together_in_the_next_one():
+    sent, inflight, peak = [], 0, 0
 
     async def complete(messages):
+        nonlocal inflight, peak
+        inflight += 1
+        peak = max(peak, inflight)
         seg = json.loads(messages[1]["content"])["new_segment"]
-        delay, updates = answers[seg]
-        await asyncio.sleep(delay)
-        return json.dumps({"updates": updates})
+        sent.append(seg)
+        await asyncio.sleep(0.05)
+        inflight -= 1
+        if seg == "teesri manzil pe":
+            return json.dumps({"updates": {"location": upd("3rd floor", "teesri manzil")}})
+        return json.dumps({"updates": {"location": upd("4th floor", "chauthi manzil", correction=True)}})
 
     async def main():
-        it = Interpreter(SCHEMA, complete, system_prompt="")
-        for s in segs:
-            it.submit(s)
+        it = Interpreter(SCHEMA, complete, system_prompt="", min_gap_s=0)
+        it.submit("teesri manzil pe")
+        await asyncio.sleep(0.01)  # the first call is running
+        it.submit("nahi nahi")
+        it.submit("chauthi manzil")
         assert await it.drain(2.0)
-        return it.report
+        return it
 
-    r = asyncio.run(main())
-    assert r["location"]["value"] == "4th floor"
-    assert [h["value"] for h in r["location"]["history"]] == ["3rd floor"]
+    it = asyncio.run(main())
+    assert peak == 1 and it.n_calls == 2
+    assert sent == ["teesri manzil pe", "nahi nahi chauthi manzil"]
+    assert it.report["location"]["value"] == "4th floor"
+    assert [h["value"] for h in it.report["location"]["history"]] == ["3rd floor"]
+
+
+def test_a_call_sends_the_stated_report_the_question_and_only_the_new_text():
+    payloads = []
+
+    async def complete(messages):
+        payloads.append(json.loads(messages[1]["content"]))
+        return json.dumps({"updates": {"location": upd("3rd floor", "teesri manzil")}} if len(payloads) == 1
+                          else {"updates": {}})
+
+    async def main():
+        it = Interpreter(SCHEMA, complete, system_prompt="", min_gap_s=0)
+        it.submit("teesri manzil pe")
+        await it.drain(2.0)
+        it.asked = {"field": "quantity", "reason": "missing", "question": "Kitna?"}
+        it.submit("dedh sau bori")
+        await it.drain(2.0)
+
+    asyncio.run(main())
+    assert payloads[1] == {"current_report": {"location": "3rd floor"},
+                           "bot_just_asked": {"field": "quantity", "reason": "missing", "question": "Kitna?"},
+                           "new_segment": "dedh sau bori"}
+
+
+def test_segments_after_a_new_question_are_not_merged_with_older_ones():
+    sent = []
+
+    async def complete(messages):
+        sent.append(json.loads(messages[1]["content"])["new_segment"])
+        await asyncio.sleep(0.05)
+        return json.dumps({"updates": {}})
+
+    async def main():
+        it = Interpreter(SCHEMA, complete, system_prompt="", min_gap_s=0)
+        it.submit("a")
+        await asyncio.sleep(0.01)
+        it.submit("b")
+        it.asked = {"field": "quantity", "reason": "missing", "question": "Kitna?"}
+        it.submit("c")
+        await it.drain(2.0)
+
+    asyncio.run(main())
+    assert sent == ["a", "b", "c"]
+
+
+def test_min_gap_between_calls_but_turn_end_sends_at_once():
+    starts = []
+
+    async def complete(messages):
+        starts.append(asyncio.get_running_loop().time())
+        return json.dumps({"updates": {}})
+
+    async def main():
+        it = Interpreter(SCHEMA, complete, system_prompt="", min_gap_s=0.3)
+        it.submit("a")
+        await asyncio.sleep(0.02)
+        it.submit("b")
+        await asyncio.sleep(0.5)  # waits out the gap on its own
+        it.submit("c")
+        await asyncio.sleep(0.02)
+        assert it.n_calls == 2  # "c" is held by the gap...
+        assert await it.drain(1.0)  # ...until the turn ends
+        return it
+
+    it = asyncio.run(main())
+    assert it.n_calls == 3
+    assert starts[1] - starts[0] >= 0.29
+    assert starts[2] - starts[1] < 0.29
 
 
 def test_a_failed_call_does_not_stall_later_segments():
@@ -179,14 +253,75 @@ def test_a_failed_call_does_not_stall_later_segments():
         return json.dumps({"updates": {"unit": upd("bags", "bori")}})
 
     async def main():
-        it = Interpreter(SCHEMA, complete, system_prompt="")
+        it = Interpreter(SCHEMA, complete, system_prompt="", min_gap_s=0)
         it.submit("bad")
+        await asyncio.sleep(0.01)
         it.submit("dedh sau bori")
         await it.drain(2.0)
         return it.report
 
     assert asyncio.run(main())["unit"]["value"] == "bags"
 
+
+def test_a_429_keeps_the_segments_and_retries_them_with_the_next_ones():
+    import time
+
+    from app.interpreter.groq import GroqPacer, RateLimited
+
+    sent, events = [], []
+    log = lambda e, **kw: events.append((e, kw))  # noqa: E731
+    pacer = GroqPacer(log=log, clock=time.monotonic)
+
+    async def complete(messages):
+        sent.append(json.loads(messages[1]["content"])["new_segment"])
+        if len(sent) == 1:  # what groq_complete does on a 429
+            raise RateLimited(pacer.observe_429({"retry-after": "0.2"}, "tokens per minute"))
+        return json.dumps({"updates": {"unit": upd("bags", "bori")}})
+
+    async def main():
+        it = Interpreter(SCHEMA, complete, system_prompt="", min_gap_s=0, pace=pacer.wait_s, log=log)
+        it.submit("dedh sau")
+        await asyncio.sleep(0.05)
+        it.submit("bori")
+        assert not await it.drain(0.05)  # late: the dialogue asks from the report as it is
+        assert await it.drain(1.0)
+        return it
+
+    it = asyncio.run(main())
+    assert sent == ["dedh sau", "dedh sau bori"]
+    assert it.report["unit"]["value"] == "bags"
+    assert any(e == "groq_429" for e, _ in events)
+    assert any(e == "interp_response" and kw.get("error") == "rate_limited" for e, kw in events)
+    assert any(e == "interp_wait" and kw["limit"] == "retry_after" for e, kw in events)
+
+
+def test_groq_headers_are_parsed_and_pace_the_next_call():
+    from app.interpreter.groq import GroqPacer, parse_duration
+
+    assert parse_duration("25m55.199s") == pytest.approx(1555.199)
+    assert parse_duration("15.4s") == pytest.approx(15.4)
+    assert parse_duration("120ms") == pytest.approx(0.12)
+    assert parse_duration("7") == 7.0
+    now = [100.0]
+    logged = []
+    p = GroqPacer(log=lambda e, **kw: logged.append((e, kw)), clock=lambda: now[0])
+    usage = type("U", (), {"total_tokens": 2000, "prompt_tokens": 1600, "completion_tokens": 400,
+                           "prompt_tokens_details": None})()
+    p.observe({"x-ratelimit-limit-tokens": "8000", "x-ratelimit-remaining-tokens": "5000",
+               "x-ratelimit-limit-requests": "1000", "x-ratelimit-remaining-requests": "900",
+               "x-ratelimit-reset-tokens": "22.5s", "x-ratelimit-reset-requests": "1h"}, usage)
+    assert p.wait_s() == (0.0, None)  # 5000 left, a call costs ~2000
+    p.observe({"x-ratelimit-limit-tokens": "8000", "x-ratelimit-remaining-tokens": "1000"}, usage)
+    wait, why = p.wait_s()
+    need = 2000 * config.LLM_TOKEN_MARGIN  # Groq reserves room for the completion
+    assert why == "tokens" and wait == pytest.approx((need - 1000) / (8000 / 60))  # refills at 133 tokens/s
+    now[0] += 20
+    assert p.wait_s() == (0.0, None)
+    assert p.observe_429({"retry-after": "3"}, "Rate limit reached") == 3.0
+    assert p.wait_s() == (pytest.approx(3.0), "retry_after")
+    assert p.observe_429({}, "Please try again in 1m2.5s.") == pytest.approx(62.5)
+    assert [e for e, _ in logged] == ["groq_limits", "groq_limits", "groq_429", "groq_429"]
+    assert logged[0][1]["limit_tokens"] == 8000 and logged[0][1]["prompt_tokens"] == 1600
 
 # --- dialogue ------------------------------------------------------------------
 def filled(**values):

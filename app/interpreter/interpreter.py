@@ -1,8 +1,8 @@
-"""Live interpreter: each final Prisma segment + the current report -> field updates via the LLM.
+"""Live interpreter: final Prisma segments + the current report -> field updates via the LLM.
 
-Calls run concurrently as background tasks (a slow LLM never blocks audio), and
-their results are merged strictly in segment order. The merge is a pure
-function (`merge_update`) that enforces the report rules, whatever the LLM says.
+Calls run as a background task (a slow LLM never blocks audio), one at a time per session, so results
+merge in segment order. The merge is a pure function (`merge_update`) that enforces the report rules,
+whatever the LLM says.
 """
 
 from __future__ import annotations
@@ -20,6 +20,7 @@ from typing import Any
 from loguru import logger
 
 from app import config
+from app.interpreter.groq import RateLimited, groq_complete  # noqa: F401  (groq_complete re-exported)
 from app.interpreter.schema import Schema
 
 PROMPT_PATH = config.RESEARCH_DIR / "interpreter_prompt_v0.md"
@@ -177,27 +178,17 @@ def _default_uncertainty_cue(text: str) -> str | None:
     return load_fillers().find(text, "uncertainty")
 
 
-def groq_complete(model: str = config.LLM_MODEL, max_retries: int = 2) -> Complete:
-    """JSON-mode chat completion against Groq's OpenAI-compatible endpoint."""
-    from openai import AsyncOpenAI
-
-    client = AsyncOpenAI(api_key=config.GROQ_API_KEY, base_url=config.GROQ_BASE_URL, timeout=config.LLM_TIMEOUT_S,
-                         max_retries=max_retries)
-
-    async def complete(messages: list[dict[str, str]]) -> str:
-        r = await client.chat.completions.create(
-            model=model,
-            messages=messages,
-            response_format={"type": "json_object"},
-            temperature=0,
-            reasoning_effort=config.LLM_REASONING_EFFORT,
-        )
-        return r.choices[0].message.content or "{}"
-
-    return complete
-
-
 class Interpreter:
+    """At most one LLM call in flight per session (Groq free tier: tokens per minute are the limit).
+
+    Segments that arrive while a call runs wait and go out together in the next call, at least
+    LLM_MIN_GAP_S after the previous one ended. drain() at turn end sends what is left at once (no gap)
+    and waits up to its timeout; after that the dialogue asks from the report as it is, and the late
+    result still merges. A call sends only the report's stated values, the bot's question and the new
+    text, never the whole transcript. A 429 keeps the segments and retries after Groq's retry-after;
+    `pace` (GroqPacer.wait_s) holds a call back until the token bucket can take it.
+    """
+
     def __init__(
         self,
         schema: Schema,
@@ -207,6 +198,8 @@ class Interpreter:
         on_update: Callable[[Report], Awaitable[None]] | None = None,
         log: Callable[..., None] | None = None,
         uncertainty_cue: Callable[[str], str | None] | None = None,
+        min_gap_s: float = config.LLM_MIN_GAP_S,
+        pace: Callable[[], tuple[float, str | None]] | None = None,
     ):
         self.schema = schema
         # "shayad", "pata nahi", "lagbhag"...: values from such a segment get confirmed (Aastha's fillers.json)
@@ -217,40 +210,82 @@ class Interpreter:
         self._system = system_prompt if system_prompt is not None else build_system_prompt(schema)
         self.on_update = on_update
         self._log = log or (lambda event, **kw: None)
-        self._results: dict[int, dict[str, Any]] = {}
         self.assume_correction = False  # set by the dialogue during the read-back
         # The bot's last move, {field, reason, question}: a short answer ("dedh sau bori") fills that field
         self.asked: dict[str, Any] | None = None
         self.touched: set[str] = set()  # fields updated (even to the same value) since take_touched()
-        self._next_commit = 0
         self._asked_for: dict[int, dict[str, Any] | None] = {}  # seq -> the bot's move when it was said
-        self._tasks: set[asyncio.Task] = set()
+        self._pending: list[int] = []  # segments not yet sent, oldest first
+        self._min_gap_s = min_gap_s
+        self._pace = pace or (lambda: (0.0, None))
+        self._last_end = float("-inf")  # monotonic end of the last call
+        self._flush = False  # turn end: skip the min gap
+        self._wake = asyncio.Event()
+        self._worker: asyncio.Task | None = None
+        self.n_calls = 0
 
     def submit(self, text: str) -> int:
         """Queue one final segment; returns its sequence number. Never blocks."""
         seq = len(self.segments)
         self.segments.append(text)
-        self._asked_for[seq] = asked = self.asked
-        task = asyncio.create_task(self._run(seq, stated_values(self.report), self.segments[:seq], text, asked))
-        self._tasks.add(task)
-        task.add_done_callback(self._tasks.discard)
+        self._asked_for[seq] = self.asked
+        self._pending.append(seq)
+        self._wake.set()
+        if not self.busy:
+            self._worker = asyncio.create_task(self._loop())
         return seq
 
-    async def _run(self, seq: int, current: dict[str, Any], earlier: list[str], text: str,
-                   asked: dict[str, Any] | None = None) -> None:
-        user = json.dumps({"current_report": current, "earlier_segments": earlier, "bot_just_asked": asked,
-                           "new_segment": text}, ensure_ascii=False)
-        self._log("interp_request", seq=seq)
+    async def _loop(self) -> None:
+        while self._pending:
+            gap = 0.0 if self._flush else self._last_end + self._min_gap_s - time.monotonic()
+            limit_wait, why = self._pace()
+            wait = max(gap, limit_wait)
+            if wait > 0:
+                if limit_wait > 0 and limit_wait >= gap:
+                    self._log("interp_wait", seconds=round(limit_wait, 2), limit=why, pending=len(self._pending))
+                self._wake.clear()
+                try:
+                    await asyncio.wait_for(self._wake.wait(), timeout=wait)
+                except TimeoutError:
+                    pass
+                continue
+            await self._call(self._take_batch())
+
+    def _take_batch(self) -> list[int]:
+        """The pending segments said after the same bot question (a short answer is read against it)."""
+        first = self._asked_for[self._pending[0]]
+        n = 1
+        while n < len(self._pending) and self._asked_for[self._pending[n]] is first:
+            n += 1
+        batch, self._pending = self._pending[:n], self._pending[n:]
+        return batch
+
+    async def _call(self, batch: list[int]) -> None:
+        text = " ".join(self.segments[i] for i in batch)
+        asked = self._asked_for[batch[0]]
+        current = {k: v for k, v in stated_values(self.report).items()
+                   if v is not None and k not in config.SYSTEM_FIELDS}
+        user = json.dumps({"current_report": current, "bot_just_asked": asked, "new_segment": text},
+                          ensure_ascii=False)
+        self._log("interp_request", seq=batch[-1], segments=len(batch), chars=len(user))
+        self.n_calls += 1
         t0, error = time.time(), None
         try:
             raw = await self._complete([{"role": "system", "content": self._system}, {"role": "user", "content": user}])
             updates = json.loads(raw).get("updates", {})
             if not isinstance(updates, dict):
                 raise ValueError(f"'updates' is {type(updates).__name__}, not an object")
+        except RateLimited as e:  # keep the segments: the next call (after retry-after) includes them
+            self._pending[:0] = batch
+            self._last_end = time.monotonic()
+            self._log("interp_response", seq=batch[-1], ms=round((time.time() - t0) * 1000), fields=[],
+                      error="rate_limited", retry_after_s=round(e.retry_after_s, 2))
+            return
         except Exception as e:  # a failed call must not stall later segments
-            logger.error(f"interpreter call {seq} failed: {e}")
+            logger.error(f"interpreter call for segments {batch} failed: {e}")
             updates, error = {}, str(e)[:160]
-        self._log("interp_response", seq=seq, ms=round((time.time() - t0) * 1000), fields=sorted(updates),
+        self._last_end = time.monotonic()
+        self._log("interp_response", seq=batch[-1], ms=round((time.time() - t0) * 1000), fields=sorted(updates),
                   **({"error": error} if error else {}))
         cue = self._uncertainty_cue(text) if updates else None
         if cue:
@@ -258,32 +293,37 @@ class Interpreter:
             for upd in updates.values():
                 if isinstance(upd, dict):
                     upd["confidence"] = min(_confidence(upd.get("confidence")), cap)
-            self._log("interp_uncertain", seq=seq, cue=cue, fields=sorted(updates))
-        self._results[seq] = updates
-        await self._commit_in_order()
-
-    async def _commit_in_order(self) -> None:
-        changed = False
-        while self._next_commit in self._results:
-            updates = self._results.pop(self._next_commit)
-            asked = self._asked_for.pop(self._next_commit, None)
-            transcript = " ".join(self.segments[: self._next_commit + 1])
-            before = self.report
-            self.report = merge_update(self.report, updates, transcript, self.schema, self.assume_correction,
-                                       asked_field=asked and asked.get("field"))
-            self.touched |= {n for n in updates if n in before and self.report[n] != before[n]}
-            self._next_commit += 1
-            changed = True
-        if changed and self.on_update:
+            self._log("interp_uncertain", seq=batch[-1], cue=cue, fields=sorted(updates))
+        transcript = " ".join(self.segments[: batch[-1] + 1])
+        before = self.report
+        self.report = merge_update(self.report, updates, transcript, self.schema, self.assume_correction,
+                                   asked_field=asked and asked.get("field"))
+        self.touched |= {n for n in updates if n in before and self.report[n] != before[n]}
+        if self.on_update:
             await self.on_update(self.report)
 
     def take_touched(self) -> set[str]:
         touched, self.touched = self.touched, set()
         return touched
 
-    async def drain(self, timeout: float = config.INTERPRETER_DRAIN_TIMEOUT_S) -> bool:
-        """Wait for in-flight calls; False if some were still running at the timeout."""
-        if not self._tasks:
+    @property
+    def pending(self) -> int:
+        """Segments not yet sent to the LLM."""
+        return len(self._pending)
+
+    @property
+    def busy(self) -> bool:
+        return self._worker is not None and not self._worker.done()
+
+    async def drain(self, timeout: float | None = config.INTERPRETER_DRAIN_TIMEOUT_S) -> bool:
+        """Turn end: send what is pending now (no min gap) and wait for it. False if still running at the
+        timeout (rate-limit wait or slow call); the caller then asks from the report as it is."""
+        if not self.busy:
             return True
-        _, pending = await asyncio.wait(set(self._tasks), timeout=timeout)
-        return not pending
+        self._flush = True
+        self._wake.set()
+        try:
+            done, _ = await asyncio.wait({self._worker}, timeout=timeout)
+            return bool(done)
+        finally:
+            self._flush = False

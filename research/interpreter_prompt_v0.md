@@ -9,10 +9,9 @@ Validation rules from the report schema:
 {rules}
 
 You receive JSON with:
-- "current_report": the field values so far (null = unknown, or not yet confirmed by the worker)
-- "earlier_segments": what the worker said before, oldest first
+- "current_report": the fields known so far; a field not listed is unknown or not yet confirmed by the worker
 - "bot_just_asked": what the bot said just before the new segment, {{"field", "reason", "question"}}, or null
-- "new_segment": the latest segment
+- "new_segment": what the worker said since the last update (one or more transcript segments)
 
 Return ONLY a JSON object of this shape:
 {{"updates": {{"<field>": {{"value": <string or number>, "confidence": <0..1>, "evidence": "<exact words>", "correction": <true|false>, "stated": <true|false>}}}}}}
@@ -20,7 +19,7 @@ Return ONLY a JSON object of this shape:
 Rules:
 1. Only include a field when the worker's words support it. Never guess or invent values.
    If nothing in the new segment changes the report, return {{"updates": {{}}}}.
-2. "evidence" must be copied word for word from the new segment or the earlier segments.
+2. "evidence" must be copied word for word from new_segment.
 3. "correction": true only when the worker clearly replaces an earlier value ("nahi nahi, chauthi manzil",
    "300 nahi, 250"). A different value without a clear correction is reported with "correction": false.
 4. Enum fields: use one of the allowed values exactly.

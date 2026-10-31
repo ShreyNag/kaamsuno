@@ -25,7 +25,8 @@ from pipecat.turns.user_turn_processor import UserTurnProcessor
 from pipecat_gnani import GnaniTTSService
 
 from app import config
-from app.interpreter.interpreter import Interpreter, groq_complete
+from app.interpreter.groq import GroqPacer, groq_complete
+from app.interpreter.interpreter import Interpreter
 from app.interpreter.schema import SchemaFormatError, load_schema
 from app.interpreter.templates import load_template_book
 from app.logging_utils import HopLogger, HopObserver
@@ -73,7 +74,8 @@ def build_interpreter(schema, hops: HopLogger) -> Interpreter:
     if config.LLM_PROVIDER != "groq":
         raise NotImplementedError(f"LLM_PROVIDER={config.LLM_PROVIDER!r}; only groq is wired up")
     _require("GROQ_API_KEY", config.GROQ_API_KEY)
-    return Interpreter(schema, groq_complete(config.LLM_MODEL), log=hops.log)
+    pacer = GroqPacer(log=hops.log)  # free tier: limits read from Groq's headers, every 429 logged
+    return Interpreter(schema, groq_complete(config.LLM_MODEL, pacer=pacer), log=hops.log, pace=pacer.wait_s)
 
 
 async def run_bot(transport: BaseTransport, runner_args: RunnerArguments) -> None:

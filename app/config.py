@@ -77,6 +77,15 @@ LLM_PROVIDER = _env("LLM_PROVIDER", "groq")
 LLM_MODEL = _env("LLM_MODEL", "openai/gpt-oss-20b")
 LLM_REASONING_EFFORT = _env("LLM_REASONING_EFFORT", "low")  # gpt-oss: low keeps a call well under 1 s
 LLM_TIMEOUT_S = float(_env("LLM_TIMEOUT_S", "8"))
+# Groq FREE tier. Limits are read from Groq's headers at run time (app/interpreter/groq.py), not set here.
+# One call in flight per session; segments arriving meanwhile go out together in the next call, at least
+# LLM_MIN_GAP_S after the previous call ended. Turn end sends what is left at once (no gap).
+LLM_MIN_GAP_S = float(_env("LLM_MIN_GAP_S", "1.5"))
+LLM_429_DEFAULT_WAIT_S = float(_env("LLM_429_DEFAULT_WAIT_S", "5"))  # a 429 without retry-after
+# The pacer holds a call until remaining tokens >= last call's tokens x this. Groq 429'd with ~1,900 left
+# for ~1,600-token calls (it reserves room for the completion), so 1.0 is not enough.
+LLM_TOKEN_MARGIN = float(_env("LLM_TOKEN_MARGIN", "1.3"))
+LLM_EVAL_MAX_TRIES = int(_env("LLM_EVAL_MAX_TRIES", "8"))  # batch evals: tries per uncached call (429s included)
 
 
 # --- Interpreter / dialogue ----------------------------------------------------

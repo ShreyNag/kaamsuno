@@ -18,7 +18,8 @@ ask_location is right here and the quantity check is a field check. DIA010/011 (
 are turn-taking items: the turn classifier decides them, no LLM, so they're reported apart.
 
 Calls are cached in data/llm_cache/<model>.json (prompt hash -> reply, ms): a re-run is free and
-reports the latency measured when the call was made; --fresh ignores the cache. Results go to
+reports the latency measured when the call was made, and an interrupted run resumes; --fresh ignores
+the cache. Uncached calls are throttled from Groq's rate-limit headers (free tier, see `cached`). Results go to
 eval/out/llm_compare.md and .csv.
 """
 
@@ -39,7 +40,8 @@ import numpy as np
 
 from app import config
 from app.interpreter.dialogue import DialogueManager, Question
-from app.interpreter.interpreter import Interpreter, build_system_prompt, groq_complete, is_known
+from app.interpreter.groq import GroqPacer, RateLimited, groq_complete
+from app.interpreter.interpreter import Interpreter, build_system_prompt, is_known
 from app.interpreter.schema import PLACEHOLDER_TEMPLATES, load_schema
 from app.turn.tail_classifier import TailClassifier
 
@@ -130,25 +132,44 @@ def action(q: Question) -> str:
 
 
 def cached(model: str, fresh: bool):
-    """The production completion function, behind a per-model disk cache that also keeps the latency."""
+    """The production completion function, behind a per-model disk cache that also keeps the latency.
+
+    Free tier: calls go one at a time, paced by GroqPacer from Groq's own rate-limit headers (it waits
+    for the token bucket instead of hitting 429s); a 429 waits its retry-after and retries. The cache
+    is written after every call, so an interrupted run resumes where it stopped. Every limit event goes
+    to eval/out/llm_compare_limits.jsonl."""
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
     path = CACHE_DIR / f"{model.replace('/', '_')}.json"
     cache = {} if fresh or not path.exists() else json.loads(path.read_text(encoding="utf-8"))
-    live = groq_complete(model, max_retries=0)  # retried below, so a rate-limit wait never counts as latency
+    limits_log = (OUT_DIR / "llm_compare_limits.jsonl").open("a", encoding="utf-8")
+
+    def log(event, **kw):
+        limits_log.write(json.dumps({"t": round(time.time(), 3), "model": model, "event": event, **kw}) + "\n")
+        limits_log.flush()
+
+    pacer = GroqPacer(log=log)
+    live = groq_complete(model, max_retries=0, pacer=pacer)  # waits happen here, never inside the latency
     calls: list[dict] = []
 
     async def complete(messages):
         key = hashlib.sha256(json.dumps(messages, ensure_ascii=False).encode()).hexdigest()
         if key not in cache:
             err = None
-            for attempt in range(8):  # rate limits and network errors are retried, never cached
+            for attempt in range(config.LLM_EVAL_MAX_TRIES):  # rate limits and network errors: retried, never cached
+                wait, why = pacer.wait_s()
+                if wait > 0:
+                    log("eval_wait", seconds=round(wait, 2), limit=why)
+                    await asyncio.sleep(wait + 0.2)
                 t0 = time.perf_counter()
                 try:
                     reply = await live(messages)
+                except RateLimited as e:  # pacer already holds the retry-after
+                    err = str(e)[:200]
+                    continue
                 except Exception as e:
                     err = str(e)[:200]
-                    wait = re.search(r"try again in ([\d.]+)s", str(e))  # Groq's tokens-per-minute limit
-                    await asyncio.sleep(float(wait[1]) + 0.5 if wait else 2 * (attempt + 1))
+                    await asyncio.sleep(2 * (attempt + 1))
                     continue
                 cache[key] = {"reply": reply, "ms": round((time.perf_counter() - t0) * 1000), "error": None}
                 path.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
