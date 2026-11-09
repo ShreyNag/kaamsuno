@@ -1,0 +1,21 @@
+# docker compose up --build    then open http://localhost:7860/client and http://localhost:7860/report/latest
+services:
+  kaamsuno:
+    build: .
+    image: kaamsuno:local
+    env_file: .env
+    environment:
+      TZ: "IST-5:30"            # India time for session IDs and reported_at (POSIX form: no tzdata needed)
+    ports:
+      - "7860:7860"
+    volumes:
+      - ./logs:/app/logs        # one JSONL event log per session
+      - ./reports:/app/reports  # every report, as JSON
+    restart: unless-stopped
+    healthcheck:
+      # /client is served once the Prisma self-test has passed and the server is up
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:7860/client', timeout=3).status == 200 else 1)"]
+      interval: 15s
+      timeout: 5s
+      start_period: 40s
+      retries: 3

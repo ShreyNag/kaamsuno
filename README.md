@@ -72,6 +72,17 @@ start http://localhost:7860/client                    # talk to the bot
 start http://localhost:7860/report/latest             # the live report (open after the client connects)
 ```
 
+**Or with Docker** (Docker Desktop; tested on Windows 11 with WSL 2): fill in `.env`, then
+
+```powershell
+docker compose up --build        # first build ~4 min; then open the same two pages as above
+docker compose down              # stop
+```
+
+The image is Python 3.12.9-slim, CPU only. The Silero and Smart Turn models come inside the Pipecat wheel and are
+loaded once at build time. WebRTC audio from the host browser reaches the container through Docker Desktop's NAT
+(peer-reflexive ICE), so no UDP ports need publishing. If a browser won't connect, use the native route above.
+
 Reports are saved to `reports/<incident_id>.json`. Each session's event log (every hop, with timings) goes to
 `logs/<session>.jsonl`. Knobs such as `TURN_MODE`, `VAD_MODE` and the turn waits are in `app/config.py`, and each
 can be overridden from the environment.

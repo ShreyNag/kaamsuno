@@ -1,0 +1,21 @@
+# Keep the build context small and secret-free: the image gets code + research files only.
+.env
+.env.*
+!.env.example
+.git
+.venv
+**/__pycache__
+**/*.pyc
+.pytest_cache
+logs/
+reports/
+data/
+eval/out/
+*.zip
+*.md
+!README.md
+!research/*.md
+HOW_TO_RUN.md
+Dockerfile
+docker-compose.yml
+.dockerignore
