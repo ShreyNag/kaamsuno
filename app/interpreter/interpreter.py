@@ -180,6 +180,23 @@ def build_system_prompt(schema: Schema, path: Path | None = None) -> str:
     )
 
 
+def emergency_trigger(text: str) -> str | None:
+    """The first config.EMERGENCY_TRIGGERS phrase in `text` (whole words), or None."""
+    padded = f" {_norm(text)} "
+    return next((t for t in config.EMERGENCY_TRIGGERS if f" {_norm(t)} " in padded), None)
+
+
+def flag_emergency(report: Report, cue: str) -> bool:
+    """Set urgency=emergency from a trigger word (stated, full confidence). True if it changed."""
+    cur = report.get("urgency")
+    if cur is None or cur["value"] == "emergency":
+        return False
+    if cur["value"] is not None:
+        cur["history"].append({k: cur.get(k) for k in ("value", "confidence", "evidence")})
+    cur.update(value="emergency", confidence=1.0, evidence=cue, inferred=False, conflicts=[])
+    return True
+
+
 def _default_uncertainty_cue(text: str) -> str | None:
     from app.turn.tail_classifier import load_fillers
 
@@ -235,9 +252,15 @@ class Interpreter:
                   prompt_chars=len(self._system))
 
     def submit(self, text: str) -> int:
-        """Queue one final segment; returns its sequence number. Never blocks."""
+        """Queue one final segment; returns its sequence number. Never blocks. An emergency trigger word
+        ("sparks", "chot lagi") sets urgency=emergency right here, without waiting for the LLM."""
         seq = len(self.segments)
         self.segments.append(text)
+        cue = emergency_trigger(text)
+        if cue and flag_emergency(self.report, cue):
+            self.touched.add("urgency")
+            self._log("emergency_trigger", seq=seq, cue=cue)
+            logger.warning(f"emergency trigger {cue!r} in {text!r}: urgency=emergency")
         self._asked_for[seq] = self.asked
         self._pending.append(seq)
         self._wake.set()

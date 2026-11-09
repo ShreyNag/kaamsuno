@@ -332,3 +332,38 @@ def test_speaking_again_after_the_report_was_sent_starts_a_new_report(tmp_path):
     said, _, reporter = converse([READY, "haan", "nahi", NEW_ISSUE], tmp_path, send_report=sup)
     assert said[3] == [T["urgency"]]  # already sent: no "pehli report bhej di" again
     assert len(sup.got) == 1 and reporter.incident_id == "flow-2"
+
+
+# --- emergency: trigger words -> alert at once -> safety line -> details -> full report -------------------
+SPARKS = "wire se sparks aa rahe hain aur log paas hain"  # DIA014; the scripted LLM extracts nothing from it
+SCRIPT["bay 2 mein"] = {"location": u("Bay 2", "bay 2")}
+
+
+def test_emergency_words_alert_the_supervisor_then_the_bot_collects_details(tmp_path):
+    sup = FakeSupervisor()
+    said, doc, reporter = converse([SPARKS, "bay 2 mein"], tmp_path, send_report=sup)
+    (alert, kind), = sup.got[:1]
+    assert kind == "emergency" and alert["urgency"] == "emergency" and alert["incident_id"] == "flow"
+    assert said[0] == [f"{T['_emergency']} {T['location']}"]  # safety line, then the first missing field
+    assert T["_emergency"] in said[0][0] and "alert bhej diya" in T["_emergency"]
+    assert not any(T["_emergency"] in line for line in said[1])  # announced once
+    assert doc["report"]["urgency"]["value"] == "emergency" and doc["report"]["location"]["value"] == "Bay 2"
+    assert [k for _, k, _ in reporter.sent] == ["emergency"]  # alert once, the full report later
+
+
+def test_emergency_alert_that_did_not_go_tells_the_worker_to_call(tmp_path):
+    said, _, reporter = converse([SPARKS], tmp_path)  # no channel configured
+    assert said[0][0].startswith(T["_emergency_unsent"])
+    assert reporter.sent == [("flow", "emergency", False)]
+
+
+def test_emergency_full_report_is_sent_after_the_read_back(tmp_path):
+    sup = FakeSupervisor()
+    SCRIPT["safety hazard hai abhi turant"] = {
+        "incident_type": u("safety_hazard", "safety hazard"), "description": u("sparks from a wire", "safety hazard hai")}
+    said, _, _ = converse([SPARKS, "bay 2 mein", "safety hazard hai abhi turant", "haan", "nahi"], tmp_path,
+                          send_report=sup)
+    assert said[2][0].startswith("Main report read-back kar raha hoon: Bay 2, safety hazard")
+    assert said[4] == [T["_submitted"]]
+    assert [k for _, k in sup.got] == ["emergency", "report"]
+    assert sup.got[1][0]["urgency"] == "emergency"  # never downgraded

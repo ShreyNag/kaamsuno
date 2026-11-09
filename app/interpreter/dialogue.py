@@ -2,7 +2,8 @@
 
 DialogueManager keeps the conversation state; one `decide()` per turn end:
 
-    emergency (urgency == "emergency")      -> alert line once, no questions, then the read-back
+    emergency (urgency == "emergency")      -> once: safety line ("alert sent" / "call your supervisor")
+                                               + the first missing question; then collecting as usual
     collecting:
         nothing captured yet                -> opening question
         next pending field                  -> ask it (order below)
@@ -144,6 +145,7 @@ class DialogueManager:
     unconfirmed: set = field(default_factory=set)  # asked the maximum times and still not filled
     last_text: str = ""
     emergency_announced: bool = False
+    alert_sent: bool = False  # set by the reporter: did the supervisor get the emergency alert?
     _corrected: bool = False
     _unclear_after_confirm: int = 0  # replies to "aur kuch?" that were neither no, yes nor new content
 
@@ -162,18 +164,23 @@ class DialogueManager:
     def _decide(self, report, schema, t, turn_text, changed, touched) -> Question:
         urgency = report.get("urgency", {})
         if is_known(urgency) and urgency["value"] == "emergency" and not self.emergency_announced:
+            # The safety line first (the reporter has already alerted the supervisor), then keep collecting:
+            # the full report still needs the location and details.
             self.emergency_announced = True
-            return Question(None, "emergency", t["_emergency"])
+            line = t["_emergency"] if self.alert_sent else t["_emergency_unsent"]
+            if self.phase != "collecting":
+                return Question(None, "emergency", line)
+            nxt = self._next_field_question(report, schema, t, turn_text) or self._readback(report, schema, t)
+            return Question(nxt.field, "emergency", f"{line} {nxt.text}")
         if self.phase in ("confirmed", "submitted"):
             return self._after_confirmation(turn_text, changed, t)
         if self.phase == "readback":
             return self._after_readback(report, schema, t, turn_text, changed, touched)
         if not captured_anything(report, schema):
             return Question(None, "opening", t["_opening"])
-        if not self.emergency_announced:
-            q = self._next_field_question(report, schema, t, turn_text)
-            if q:
-                return q
+        q = self._next_field_question(report, schema, t, turn_text)
+        if q:
+            return q
         return self._readback(report, schema, t)
 
     def _next_field_question(self, report, schema, t, turn_text: str) -> Question | None:

@@ -144,6 +144,18 @@ collapse gir gira giri girne electrocution spark sparks fatal maut
 aaj kal later baad tak hurry koi hafte normal low high
 तुरंत जल्दी अभी फौरन इमरजेंसी खतरा आग चोट खून गैस करंट गिर आज कल बाद
 """.split())
+# Emergency trigger words/phrases (Latin and Devanagari): any of these in a segment sets urgency=emergency at
+# once, before the LLM, and the supervisor is alerted. From DIA014/SCN0008 ("sparks", "chingari") and Aastha's
+# rule "imminent hazard: escalate, don't wait for metadata". Bare "current" is NOT here: "current nahi hai"
+# is a power cut; electric shock needs "current laga", "karant", "shock".
+EMERGENCY_TRIGGERS = tuple("""
+spark|sparks|sparking|chingari|chingaari|aag|aag lagi|fire|dhuan|dhuaan|dhua|smoke|jal raha|jal rahi|jal gaya
+chot|chot lagi|chot lag gayi|injured|injury|hurt|khoon|bleeding|behosh|unconscious|ambulance
+gas leak|gas ki smell|gas ki badboo|karant|current laga|current lag gaya|shock laga|electric shock|electrocuted
+electrocution|collapse|collapsed|dhah gaya|dab gaya|dab gaye|fas gaya|phas gaya|fans gaya|trapped|gir gaya|gir gayi
+gir gaye|fell|blast|explosion|dhamaka
+चिंगारी|आग|धुआं|धुआँ|चोट|खून|बेहोश|गैस लीक|करंट|झटका|गिर गया|गिर गई|दब गया|फंस गया|धमाका
+""".replace("\n", "|").strip("|").split("|"))
 # A different value for these is a conflict (both kept, confirm) unless the worker clearly corrects it;
 # other fields (summaries, categories) are simply replaced
 # Categories the LLM infers from what the worker described ("cement kam pad gaya" -> material_shortage):

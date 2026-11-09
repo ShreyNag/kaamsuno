@@ -94,6 +94,7 @@ class ReportProcessor(FrameProcessor):
             self._interp.take_touched()
             self._seg_offset = len(self._interp.segments)
         self.dialogue = DialogueManager()
+        self._alert_task: asyncio.Task | None = None  # this report's emergency alert, sent once
         self._questions: list[dict] = []
         self._known_at_last_turn: dict[str, object] = {}  # stated values when the bot last spoke
         self._confirmed_report = None
@@ -168,12 +169,20 @@ class ReportProcessor(FrameProcessor):
 
     async def _on_report_update(self, report: Report) -> None:
         self._hops.log("report_update", report={k: v["value"] for k, v in report.items() if v["value"] is not None})
+        self._maybe_alert()  # the LLM flagged an emergency the trigger words missed
         self.publish()
+
+    def _maybe_alert(self) -> None:
+        """urgency=emergency (trigger words or the LLM): alert the supervisor now, once per report, without
+        waiting for the turn to end. The safety line at turn end says whether it went."""
+        if self._alert_task is None and self._interp.report.get("urgency", {}).get("value") == "emergency":
+            self._alert_task = self.create_task(self.send("emergency"), "emergency_alert")
 
     async def process_frame(self, frame: Frame, direction: FrameDirection):
         await super().process_frame(frame, direction)
         if isinstance(frame, TranscriptionFrame) and frame.text.strip():
             self._interp.submit(frame.text.strip())  # update state only; never speak here
+            self._maybe_alert()  # "sparks", "chot lagi": urgency was set in submit, before the LLM
             self.publish()
         elif isinstance(frame, VADUserStoppedSpeakingFrame):
             self._last_speech_end = time.time() - frame.stop_secs
@@ -213,6 +222,7 @@ class ReportProcessor(FrameProcessor):
         templates = self._templates.for_language(lang) if isinstance(self._templates, TemplateBook) \
             else self._templates
         changed = self._changed_fields()
+        await self._settle_alert()
         q = self.dialogue.decide(self._interp.report, self._schema, templates, said, changed,
                                  self._interp.take_touched())
         if q.reason == "confirmed":  # what the worker approved; a new issue must not leak into it
@@ -258,6 +268,14 @@ class ReportProcessor(FrameProcessor):
         self._hops.log("report_sent", incident_id=self.incident_id, kind=kind, ok=ok, **({"error": error} if error else {}))
         return ok
 
+    async def _settle_alert(self, timeout_s: float = 3.0) -> None:
+        """Before the safety line: wait (briefly) for the emergency alert, so the line is true."""
+        task = self._alert_task
+        if task is None or self.dialogue.emergency_announced:
+            return
+        done, _ = await asyncio.wait({task}, timeout=timeout_s)
+        self.dialogue.alert_sent = bool(done) and not task.cancelled() and task.result() is True
+
     async def _submit(self, t) -> Question:
         """"Aur kuch?" -> "nahi": send, then tell the worker whether it went."""
         self._set_system("status", "submitted")
@@ -282,7 +300,9 @@ class ReportProcessor(FrameProcessor):
         for text in turn_segments:  # read this turn's words again, now against the empty report
             self._interp.submit(text)
         self._turn_first_segment = len(self._interp.segments)
+        self._maybe_alert()
         await self._interp.drain(timeout=2 * config.INTERPRETER_DRAIN_TIMEOUT_S)
+        await self._settle_alert()
         q = self.dialogue.decide(self._interp.report, self._schema, t, " ".join(turn_segments),
                                  self._changed_fields(), self._interp.take_touched())
         text = f"{prefix} {q.text}".strip()

@@ -43,12 +43,20 @@ BROKEN_SCRIPT_IDS = tuple(f"DIA{n:03d}" for r in ((27, 31), (37, 41), (47, 51), 
 # OURS, replacing the broken intents. Emergency follows DIA014's pattern (hazard, keep safe distance,
 # supervisor alerted, urgent report). filler_pause has no text: the bot says nothing and keeps listening.
 OURS: dict[str, dict[str, list[str]]] = {
-    "_emergency": {
-        "hinglish": ["Yeh urgent safety issue ho sakta hai. Safe distance rakhein aur supervisor ko abhi alert "
-                     "karein. Main urgent report bana raha hoon."],
-        "hi": ["Yeh khatre ki baat hai. Surakshit doori rakhiye aur supervisor ko abhi bataiye. "
+    "_emergency": {  # spoken after the alert reached the supervisor
+        "hinglish": ["Yeh urgent safety issue hai. Safe distance rakhiye, kisi ko paas mat jaane dijiye. "
+                     "Maine supervisor ko alert bhej diya hai."],
+        "hi": ["Yeh khatre ki baat hai. Surakshit doori rakhiye, kisi ko paas mat jaane dijiye. "
+               "Maine supervisor ko alert bhej diya hai."],
+        "en": ["This is an urgent safety issue. Keep a safe distance and keep others away. "
+               "I have alerted your supervisor."],
+    },
+    "_emergency_unsent": {  # the alert did not go out (no channel, network): the worker must call
+        "hinglish": ["Yeh urgent safety issue hai. Safe distance rakhiye aur supervisor ko abhi phone kariye. "
+                     "Main urgent report bana raha hoon."],
+        "hi": ["Yeh khatre ki baat hai. Surakshit doori rakhiye aur supervisor ko abhi phone kariye. "
                "Main turant urgent report bana raha hoon."],
-        "en": ["This may be an urgent safety issue. Keep a safe distance and alert your supervisor now. "
+        "en": ["This is an urgent safety issue. Keep a safe distance and call your supervisor now. "
                "I am making an urgent report."],
     },
     "_rejection": {

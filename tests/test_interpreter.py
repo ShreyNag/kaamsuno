@@ -478,9 +478,65 @@ def test_equipment_without_an_id_gets_the_id_question():
     assert next_question(r, SCHEMA, T).reason == "readback"
 
 
-def test_emergency_skips_all_questions():
-    q = next_question(filled(urgency=("emergency", 0.95)), SCHEMA, T)
-    assert (q.field, q.reason, q.text) == (None, "emergency", T["_emergency"])
+def test_emergency_safety_line_first_then_details_are_still_collected():
+    from app.interpreter.dialogue import DialogueManager
+
+    q = next_question(filled(urgency=("emergency", 0.95)), SCHEMA, T)  # alert not (yet) sent: "call them"
+    assert (q.field, q.reason) == ("location", "emergency")
+    assert q.text == f"{T['_emergency_unsent']} {T['location']}"
+    dm = DialogueManager(alert_sent=True)
+    r = filled(urgency=("emergency", 0.95), location=("Bay 2", 0.9))
+    q = dm.decide(r, SCHEMA, T)
+    assert q.reason == "emergency" and q.text.startswith(T["_emergency"]) and q.field == "incident_type"
+    q = dm.decide(filled(**{**ALL_CRITICAL, "urgency": ("emergency", 0.95)}), SCHEMA, T)
+    assert q.reason == "readback"  # announced once; then the normal flow
+
+
+@pytest.mark.parametrize("text, cue", [
+    ("Wire se sparks aa rahe hain aur log paas hain.", "sparks"),  # DIA014
+    ("Wire se chingari nikal rahi hai, log paas khade hain.", "chingari"),  # SCN0008
+    ("Ek aadmi ko chot lagi hai", "chot"),
+    ("Godown mein aag lagi hai", "aag"),
+    ("गैस लीक हो रही है", "गैस लीक"),
+    ("usko current lag gaya", "current lag gaya"),
+    ("scaffolding gir gaya", "gir gaya"),
+])
+def test_emergency_trigger_words(text, cue):
+    from app.interpreter.interpreter import emergency_trigger
+
+    assert emergency_trigger(text) == cue
+
+
+@pytest.mark.parametrize("text", [
+    "current nahi hai teesri manzil pe",  # a power cut, not a shock
+    "aage wale gate pe cement kam hai",  # "aage" is not "aag"
+    "machine band ho gayi hai", "dedh sau bori cement chahiye", "bahut urgent hai",
+])
+def test_ordinary_reports_are_not_emergencies(text):
+    from app.interpreter.interpreter import emergency_trigger
+
+    assert emergency_trigger(text) is None
+
+
+@pytest.mark.parametrize("llm_updates", [
+    {},  # what Groq returned for DIA014 on 2026-10-31: no urgency at all
+    {"urgency": {"value": "high", "confidence": 0.8, "evidence": "sparks aa rahe hain"}},  # a downgrade attempt
+    {"incident_type": {"value": "safety_hazard", "confidence": 0.9, "evidence": "sparks aa rahe hain", "stated": False}},
+])
+def test_dia014_is_an_emergency_whatever_the_llm_says(llm_updates):
+    """DIA014 through the eval's own runner (eval/llm_compare.run_item), with a scripted LLM."""
+    import asyncio
+    import json as _json
+
+    from eval.llm_compare import dia_items, run_item
+
+    item = next(i for i in dia_items() if i.id == "DIA014")
+
+    async def llm(messages):
+        return _json.dumps({"updates": llm_updates})
+
+    act, checks = asyncio.run(run_item(item, SCHEMA, "", llm))
+    assert act in item.gold and all(checks.values()), (act, checks)
 
 
 def test_missing_beats_low_confidence():
