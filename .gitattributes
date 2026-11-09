@@ -1,0 +1,6 @@
+# Docker files must keep LF line endings on Windows checkouts (CRLF breaks "\" line continuations)
+Dockerfile text eol=lf
+docker-compose.yml text eol=lf
+.dockerignore text eol=lf
+*.sh text eol=lf
+*.wav binary
