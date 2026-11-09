@@ -75,7 +75,8 @@ def is_known(entry: dict) -> bool:
 def _inferred(name: str, upd: dict, evidence: str, asked_field: str | None = None) -> bool:
     """The LLM says it guessed ("stated": false). Urgency: guessed iff its evidence has no urgency word
     (unless it answers "how urgent is it?": then any answer is stated), whatever the LLM's flag says. Never for INFERRED_OK_FIELDS:
-    incident_type and assigned_team are categories inferred from the description by design."""
+    incident_type and assigned_team are categories inferred from the description by design, and description
+    is the LLM's own summary of the worker's words."""
     if name in config.INFERRED_OK_FIELDS:
         return False
     if upd.get("correction") is True:  # the worker replacing a value said it; live, the LLM flagged

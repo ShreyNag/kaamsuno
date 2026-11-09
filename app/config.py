@@ -146,7 +146,9 @@ aaj kal later baad tak hurry koi hafte normal low high
 # Categories the LLM infers from what the worker described ("cement kam pad gaya" -> material_shortage):
 # a guess ("stated": false) still counts as filled, unlike every other field, where a guess counts as missing
 # (location, quantity, unit, asset ID, time, urgency...). They are asked only below LOW_CONFIDENCE or when vague.
-INFERRED_OK_FIELDS = ("incident_type", "assigned_team")
+# description too: it is the LLM's English summary of what the worker said, which it always flags
+# "stated": false, so the bot asked "Thoda aur bataiye" after a complete report (decisions.md, 2026-10-31).
+INFERRED_OK_FIELDS = ("incident_type", "assigned_team", "description")
 # Values that say nothing yet: the field is asked as if missing
 VAGUE_VALUES = {"incident_type": ("other",)}
 CONFLICT_FIELDS = ("location", "quantity", "unit", "asset_or_equipment", "material", "date_or_time")

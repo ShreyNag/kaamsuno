@@ -324,7 +324,7 @@ Measured on the last 10 turns in `logs/` (`python -m eval.latency_report`):
   - A correction (`"correction": true`) always counts as stated. Groq flagged "nahi, chauthi manzil" `stated: false` at the read-back and the correction was dropped.
 - **Hop log keeps each call's request JSON and raw reply** (`LLM_LOG_PAYLOADS`, on by default); the system prompt is logged once per session as a hash. Before this, a bad turn could only be explained by replaying it.
 - **Open:**
-  - The LLM always marks its `description` summary `stated: false`, so the bot still asks "Thoda aur bataiye" after a complete report. Making description inferred-OK too is waiting on Shrey.
+  - ~~The LLM always marks its `description` summary `stated: false`, so the bot still asks "Thoda aur bataiye" after a complete report.~~ Fixed 2026-11-10: `description` is in `INFERRED_OK_FIELDS` (agreed with Shrey). Its evidence must still be in the transcript.
   - The live e2e test `test_live_short_answers_...` fails: the read-back comes without quantity ever being asked (material_shortage). Not investigated yet.
 
 ## Turn taking: tone AND words before a fast reply (2026-10-31)

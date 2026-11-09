@@ -382,6 +382,18 @@ def test_inferred_categories_count_as_filled_other_guesses_as_missing():
     assert next_question(r, SCHEMA, T).field != "incident_type"
 
 
+def test_a_summarised_description_counts_as_filled_and_is_not_asked_again():
+    # Groq always flags its description summary "stated": false; that made the bot ask "Thoda aur bataiye"
+    said = "teesri manzil pe cement kam pad gaya hai bahut urgent hai"
+    r = merge_update(empty_report(SCHEMA), {
+        "location": upd("3rd floor", "teesri manzil"), "incident_type": upd("material_shortage", "cement kam pad gaya hai"),
+        "description": {**upd("Cement shortage on 3rd floor", "cement kam pad gaya hai"), "stated": False},
+        "urgency": upd("high", "bahut urgent hai")}, said, SCHEMA)
+    assert not r["description"]["inferred"]
+    q = next_question(r, SCHEMA, T)
+    assert q.field != "description"
+
+
 def test_a_correction_is_stated_even_if_the_llm_says_guessed():
     r = merge_update(empty_report(SCHEMA), {"location": upd("3rd floor", "teesri manzil")}, "teesri manzil", SCHEMA)
     said = "teesri manzil nahi, chauthi manzil"
