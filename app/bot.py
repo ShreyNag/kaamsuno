@@ -30,6 +30,7 @@ from app.interpreter.interpreter import Interpreter
 from app.interpreter.schema import SchemaFormatError, load_schema
 from app.interpreter.templates import load_template_book
 from app.logging_utils import HopLogger, HopObserver
+from app.notify import build_sender
 from app.reporter import ReportProcessor
 from app.stt import PrismaSTTService, prisma_headers
 from app.turns import build_turn_strategies, build_vad, describe, turn_strategy
@@ -95,6 +96,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments) -> Non
         interpreter=build_interpreter(schema, hops), stt=stt, hops=hops,
         set_dialogue_context=turn_strategy(strategies).set_dialogue_context,
         reports_dir=config.REPORTS_DIR,
+        send_report=build_sender(),  # Telegram; None (saved only) if not configured
     )
     turns = UserTurnProcessor(user_turn_strategies=strategies, user_turn_stop_timeout=config.USER_TURN_STOP_TIMEOUT_S)
 

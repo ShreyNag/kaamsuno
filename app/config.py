@@ -29,6 +29,9 @@ def _env(name: str, default: str) -> str:
 GNANI_API_KEY = os.getenv("GNANI_API_KEY", "")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_BASE_URL = "https://api.groq.com/openai/v1"
+# Supervisor channel (app/notify.py). Not set: reports are saved locally and the bot says it couldn't send.
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "").strip()
 
 # --- Language / speech services ---------------------------------------------
 LANGUAGE_CODE = _env("LANGUAGE_CODE", "en-IN")  # en-IN accepts Hinglish, outputs Latin script
