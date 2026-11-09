@@ -40,6 +40,7 @@ from app.interpreter.interpreter import Interpreter, Report, empty_report, is_kn
 from app.interpreter.schema import Schema
 from app.interpreter.templates import TemplateBook, detect_language
 from app.logging_utils import HopLogger
+from app.plain import field_word, say_value
 from app.report_server import HUB, ReportHub
 from app.stt import PrismaSTTService
 from app.turn.tail_classifier import DialogueContext
@@ -142,8 +143,14 @@ class ReportProcessor(FrameProcessor):
             "low_confidence": config.LOW_CONFIDENCE,
             "question": self._question and {"field": self._question.field, "reason": self._question.reason,
                                             "text": self._question.text},
-            "fields": [{"name": f.name, "critical": f.critical, **r[f.name]} for f in self._schema.fields],
+            "fields": [{"name": f.name, "critical": f.critical, **r[f.name], "label": field_word(f.name, "en"),
+                        "display": say_value(f.name, r[f.name]["value"], "en") if is_known(r[f.name]) else None}
+                       for f in self._schema.fields],
             "segments": list(self._interp.segments[self._seg_offset:]),
+            "phase": self.dialogue.phase,
+            # what went to the supervisor for this report: [{kind: report|emergency, ok}]
+            "sent": [{"kind": k, "ok": ok} for iid, k, ok in self.sent if iid == self.incident_id],
+            "earlier_reports": sorted({iid for iid, k, ok in self.sent if iid != self.incident_id and k == "report" and ok}),
         }
 
     def publish(self) -> None:
@@ -306,6 +313,7 @@ class ReportProcessor(FrameProcessor):
                 logger.error(f"report {self.incident_id} not sent: {error}")
         self.sent.append((self.incident_id, kind, ok))
         self._hops.log("report_sent", incident_id=self.incident_id, kind=kind, ok=ok, **({"error": error} if error else {}))
+        self.publish()  # the page shows "Sent to supervisor ✓" (or the alert) as soon as it went
         return ok
 
     async def _settle_alert(self, timeout_s: float = 3.0) -> None:

@@ -411,3 +411,13 @@ def test_emergency_full_report_is_sent_after_the_read_back(tmp_path):
     assert said[4] == [T["_submitted"]]
     assert [k for _, k in sup.got] == ["emergency", "report"]
     assert sup.got[1][0]["urgency"] == "emergency"  # never downgraded
+
+
+def test_page_snapshot_has_plain_words_and_the_sent_status(tmp_path):
+    sup = FakeSupervisor()
+    _, _, reporter = converse([READY, "haan", "nahi"], tmp_path, send_report=sup)
+    snap = reporter.snapshot()
+    f = {x["name"]: x for x in snap["fields"]}
+    assert (f["incident_type"]["label"], f["incident_type"]["display"]) == ("type of problem", "Safety hazard")
+    assert f["urgency"]["display"] == "Urgent" and f["location"]["display"] == "Bay 2"
+    assert snap["sent"] == [{"kind": "report", "ok": True}] and snap["phase"] == "submitted"
