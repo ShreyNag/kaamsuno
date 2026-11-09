@@ -18,11 +18,11 @@ ST_NOT = SmartTurnVerdict(False, 0.1)
 @pytest.mark.parametrize("tail_class, st, ms, rule", [
     ("completion", ST_NOT, 400, "completion"),  # "bas itna hi": fast whatever the tone
     ("short_answer", None, 400, "short_answer"),
-    ("hesitation", ST_DONE, 3500, "hesitation"),  # incomplete endings: regardless of Smart Turn
-    ("continuation", ST_DONE, 3500, "continuation"),
-    ("postposition", ST_DONE, 3500, "postposition"),
-    ("hesitation", None, 3500, "hesitation"),
-    ("number_in_progress", ST_DONE, 3000, "number_in_progress"),
+    ("hesitation", ST_DONE, 2500, "hesitation"),  # incomplete endings: regardless of Smart Turn
+    ("continuation", ST_DONE, 2500, "continuation"),
+    ("postposition", ST_DONE, 2500, "postposition"),
+    ("hesitation", None, 2500, "hesitation"),
+    ("number_in_progress", ST_DONE, 2500, "number_in_progress"),
     ("id_in_progress", ST_DONE, 3000, "id_in_progress"),
     ("other", ST_DONE, 400, "other+smart_turn_complete"),
     ("other", ST_EDGE, 400, "other+smart_turn_complete"),
@@ -50,10 +50,10 @@ def test_no_text_for_the_pause_is_never_a_fast_reply(st, ms, rule):
 def test_hard_cap():
     p = replace(config.TURN_POLICY, wait_hesitation_ms=5000)
     w = choose_wait("hesitation", None, p)
-    assert (w.ms, w.capped) == (4000, True)
+    assert (w.ms, w.capped) == (3000, True)
 
 
 def test_no_default_exceeds_the_cap():
     p = config.TURN_POLICY
     waits = [v for k, v in vars(p).items() if k.startswith("wait_")]
-    assert max(waits) <= p.max_wait_ms == 4000
+    assert max(waits) <= p.max_wait_ms == 3000

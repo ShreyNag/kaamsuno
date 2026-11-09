@@ -34,7 +34,7 @@ def timeline(text_events, st, pause_s):
             + [(LAST + pause_s, "vad_start")])
 
 
-@pytest.mark.parametrize("pause_s", [1.0, 2.0, 2.5])
+@pytest.mark.parametrize("pause_s", [1.0, 2.0, 2.4])  # waits are 2.5 s (demo polish)
 @pytest.mark.parametrize("st", [ST_DONE, ST_UNSURE, None], ids=["st_0.98", "st_0.65", "no_st"])
 @pytest.mark.parametrize("text", MID_SENTENCE)
 def test_mid_sentence_pause_never_ends_the_turn(text, st, pause_s):
@@ -91,7 +91,13 @@ def test_resuming_after_the_turn_was_decided_cancels_it():
     assert run_timeline(c, events) == [] and log[-1]["outcome"] == "resumed"
 
 
-def test_incomplete_ending_waits_three_and_a_half_seconds_even_with_low_tone():
+def test_incomplete_ending_waits_two_and_a_half_seconds_even_with_low_tone():
     c, log = ctl()
     events = [(0.2, "vad_start"), (LAST + 0.2, "vad_stop", 0.2, ST_NOT), (LAST + 0.5, "segment", "cement aur")]
-    assert run_timeline(c, events) == [pytest.approx(LAST + 3.5)]  # 3500 for "aur", under the 4000 cap
+    assert run_timeline(c, events) == [pytest.approx(LAST + 2.5)]  # 2500 for "aur", under the 3000 cap
+
+
+@pytest.mark.parametrize("text", ["machine ID chaar saat", "employee number ek nau"])
+def test_id_read_out_still_holds_a_2_5_s_pause(text):
+    c, log = ctl()
+    assert run_timeline(c, timeline([(LAST + 0.5, "segment", text)], ST_DONE, 2.5)) == [], log

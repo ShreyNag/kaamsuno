@@ -377,3 +377,9 @@ Measured on the last 10 turns in `logs/` (`python -m eval.latency_report`):
 - **The alert goes at once,** when the segment arrives (or the LLM's result merges), not at turn end: `send("emergency")`, once per report. The Telegram message says details are still being collected.
 - **Safety line, then details.** At turn end the bot waits up to 3 s for the alert, then says "…Maine supervisor ko alert bhej diya hai" only if Telegram accepted it, otherwise "…supervisor ko abhi phone kariye". The first missing question follows in the same breath (location first), and the dialogue continues as usual: read-back, "aur kuch?", and the full report is sent as a second message. Before, an emergency skipped every question and went straight to the read-back.
 - **DIA014 passes:** with the scripted worst cases (Groq returns no urgency, or "high") and once live on Groq (gpt-oss-20b, 2026-11-10): action `emergency`, urgency `emergency`. On 2026-10-31 Groq had returned nothing for urgency and the bot asked for the location.
+
+## Demo polish: shorter turn waits (2026-11-10)
+
+- **hesitation / continuation / postposition 3.5 → 2.5 s, number in progress 3.0 → 2.5 s, cap 4.0 → 3.0 s** (agreed with Shrey: long silences look bad on video). ID read-outs stay at 3.0 s (= the cap); the "tone says not finished" wait stays 3.0 s.
+- **Cost, replayed on the same 18 logged sessions** (`eval/turn_delay.py`, 2026-10-31 + 2026-11-10 logs): cut-ins 18 (old waits) → 19 (new); p95 end-of-turn delay 3.5 → 3.0 s; p50 unchanged (564 ms).
+- **The original brief's "a 2.5 s pause after 'umm' must not end the turn" no longer holds**: the wait is now exactly 2.5 s. Tests now hold pauses under 2.5 s (`test_pause_shorter_than_the_wait_does_not_end_the_turn`, the eager timelines at 1.0/2.0/2.4 s) and document that 2.5 s after "umm" ends the turn (`test_a_2_5_s_pause_after_umm_now_ends_the_turn`). ID read-outs still hold a 2.5 s pause.

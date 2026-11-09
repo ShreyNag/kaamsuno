@@ -258,22 +258,23 @@ class TurnPolicyConfig:
     segment_budget_ms: int = int(_env("SEGMENT_BUDGET_MS", "680"))
     wait_completion_ms: int = int(_env("WAIT_COMPLETION_MS", "400"))  # "bas", "itna hi", "that's it"
     wait_short_answer_ms: int = int(_env("WAIT_SHORT_ANSWER_MS", "400"))  # "haan sahi hai" after "... sahi?"
-    wait_hesitation_ms: int = int(_env("WAIT_HESITATION_MS", "3500"))  # "umm", "matlab", "ek second"
-    wait_continuation_ms: int = int(_env("WAIT_CONTINUATION_MS", "3500"))  # connectors: "aur", "kyunki", "because"
-    wait_postposition_ms: int = int(_env("WAIT_POSTPOSITION_MS", "3500"))  # "pe", "ke paas", "wala"
-    wait_number_ms: int = int(_env("WAIT_NUMBER_MS", "3000"))  # a number word at the end ("chaar saat")
+    wait_hesitation_ms: int = int(_env("WAIT_HESITATION_MS", "2500"))  # "umm", "matlab", "ek second"
+    wait_continuation_ms: int = int(_env("WAIT_CONTINUATION_MS", "2500"))  # connectors: "aur", "kyunki", "because"
+    wait_postposition_ms: int = int(_env("WAIT_POSTPOSITION_MS", "2500"))  # "pe", "ke paas", "wala"
+    wait_number_ms: int = int(_env("WAIT_NUMBER_MS", "2500"))  # a number word at the end ("chaar saat")
     wait_id_ms: int = int(_env("WAIT_ID_MS", "3000"))  # after "ID", "number", "machine" ("machine ID chaar")
     wait_st_complete_ms: int = int(_env("WAIT_ST_COMPLETE_MS", "400"))  # P >= st_complete_prob, text in, tail ok
     st_complete_prob: float = float(_env("ST_COMPLETE_PROB", "0.8"))
     st_unsure_prob: float = float(_env("ST_UNSURE_PROB", "0.5"))  # [unsure, complete): Smart Turn unsure
     wait_st_unsure_ms: int = int(_env("WAIT_ST_UNSURE_MS", "2500"))
-    # P < st_unsure_prob: the tone says "not finished" though the words don't. Not in the brief; between
-    # "unsure" (2.5 s) and "incomplete ending" (3.5 s).
+    # P < st_unsure_prob: the tone says "not finished" though the words don't. Not in the brief. 3.0 s = the cap.
+    # Demo polish 2026-11-10: hesitation/connector/postposition 3.5 -> 2.5 s, number 3.0 -> 2.5 s, cap 4.0 -> 3.0 s
+    # (long silences look bad on video). ID read-outs stay at 3.0 s (= the cap): a 2.5 s pause mid-ID is common.
     wait_st_incomplete_ms: int = int(_env("WAIT_ST_INCOMPLETE_MS", "3000"))
     wait_no_signal_ms: int = int(_env("WAIT_NO_SIGNAL_MS", "2500"))  # no Smart Turn verdict: treated as unsure
     # No final and no partial for the pause by the segment budget: text arriving later re-decides
     wait_no_text_ms: int = int(_env("WAIT_NO_TEXT_MS", "2500"))
-    max_wait_ms: int = int(_env("TURN_MAX_WAIT_MS", "4000"))  # hard cap after the last speech
+    max_wait_ms: int = int(_env("TURN_MAX_WAIT_MS", "3000"))  # hard cap after the last speech
     tail_tokens: int = 3  # the classifier looks at the last 1..tail_tokens words of the turn
 
 
