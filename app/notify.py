@@ -18,28 +18,29 @@ import httpx
 from loguru import logger
 
 from app import config
+from app.plain import field_word, say_value
 
 KIND_HEADER = {
     "emergency": "🚨 EMERGENCY ALERT (KaamSuno)",
     "report": "📋 Incident report (KaamSuno)",
 }
 URGENCY_MARK = {"emergency": "🚨", "high": "🔴", "normal": "🟡", "low": "🟢"}
-CONFIRMATION_TEXT = {"confirmed": "confirmed by the worker", "corrected_then_confirmed": "corrected, then confirmed",
-                     "rejected": "rejected by the worker", "not_obtained": "not yet confirmed"}
 
 
-def _label(v: Any) -> str:
-    return str(v).replace("_", " ")
+def _en(name: str, value: Any) -> str | None:
+    """Plain English for the supervisor; None for values that say nothing ("other", "unknown")."""
+    return say_value(name, value, "en")
 
 
 def format_message(values: dict[str, Any], kind: str = "report") -> str:
     """Urgency, type, location, item/asset, quantity + unit, description, report ID; then the rest."""
     v = values.get
     lines = [KIND_HEADER.get(kind, KIND_HEADER["report"]), ""]
-    urgency = v("urgency")
-    lines.append(f"Urgency: {URGENCY_MARK.get(urgency, '')} {_label(urgency).upper()}".replace(":  ", ": ")
-                 if urgency else "Urgency: not given yet")
-    lines.append(f"Type: {_label(v('incident_type')) if v('incident_type') else 'not given yet'}")
+    urgency, itype = v("urgency"), v("incident_type")
+    urgency_text = _en("urgency", urgency)
+    lines.append(f"Urgency: {URGENCY_MARK.get(urgency, '')} {urgency_text}".replace(":  ", ": ")
+                 if urgency_text else "Urgency: not given yet")
+    lines.append(f"Type: {_en('incident_type', itype) or ('see description' if itype else 'not given yet')}")
     lines.append(f"Location: {v('location') or 'not given yet'}")
     item = v("asset_or_equipment") or v("material")
     if item:
@@ -55,10 +56,10 @@ def format_message(values: dict[str, Any], kind: str = "report") -> str:
     if meta:
         lines.append("Site: " + " · ".join(meta))
     if kind == "report":
-        lines.append(f"Read-back: {CONFIRMATION_TEXT.get(v('reporter_confirmation'), 'not yet confirmed')}")
+        lines.append(f"Read-back: {_en('reporter_confirmation', v('reporter_confirmation') or 'not_obtained')}")
     if v("uncertainties"):
-        lines.append("Unclear: " + ", ".join(_label(u.get("field", u)) if isinstance(u, dict) else _label(u)
-                                             for u in v("uncertainties")))
+        names = [u.get("field") if isinstance(u, dict) else u for u in v("uncertainties")]
+        lines.append("Unclear: " + ", ".join(field_word(str(n), "en") for n in dict.fromkeys(names)))
     if kind == "emergency":
         lines += ["", "Details are still being collected; the full report follows."]
     if v("transcript"):

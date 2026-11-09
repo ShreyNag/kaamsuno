@@ -17,9 +17,9 @@ FULL = {"incident_id": "20261110-100000-abc", "site_name": "Demo Site A", "repor
 
 def test_report_message_has_every_field_the_supervisor_needs():
     m = format_message(FULL, "report")
-    for line in ("Incident report", "Urgency: 🔴 HIGH", "Type: material shortage", "Location: 3rd floor",
+    for line in ("Incident report", "Urgency: 🔴 Urgent", "Type: Material shortage", "Location: 3rd floor",
                  "Item/asset: cement", "Quantity: 150 bags", "Description: Cement short on the 3rd floor",
-                 "Report ID: 20261110-100000-abc", "Read-back: corrected, then confirmed"):
+                 "Report ID: 20261110-100000-abc", "Read-back: Corrected, then confirmed"):
         assert line in m, (line, m)
     assert m.index("Urgency") < m.index("Type") < m.index("Location") < m.index("Item/asset") < m.index("Quantity")
 
@@ -54,3 +54,11 @@ def test_sender_true_only_when_telegram_says_ok(monkeypatch):
     assert asyncio.run(TelegramSender("TOKEN", "-100")(FULL, "report")) is True
     body = json.loads(sent[0].read())
     assert body["chat_id"] == "-100" and "Quantity: 150 bags" in body["text"]
+
+
+def test_other_and_unknown_never_reach_the_supervisor():
+    m = format_message({**FULL, "incident_type": "other", "urgency": "unknown",
+                        "uncertainties": [{"field": "asset_or_equipment", "reason": "not_answered"}]})
+    assert "Type: see description" in m and "Urgency: not given yet" in m
+    assert "Unclear: machine or equipment" in m
+    assert "other" not in m.lower().replace("another", "") and "_" not in m.replace(FULL["incident_id"], "")

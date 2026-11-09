@@ -548,13 +548,13 @@ def test_low_confidence_number_is_confirmed():
     vals = {**ALL_CRITICAL, "urgency": ("high", 0.4)}
     q = next_question(filled(**vals), SCHEMA, T)
     assert (q.field, q.reason) == ("urgency", "low_confidence")
-    assert q.text == "Ek baar confirm kijiye: urgency high hai, sahi?"
+    assert q.text == "Ek baar confirm kijiye: urgency bahut urgent hai, sahi?"
 
 
 def test_complete_report_gets_a_readback_not_an_announcement():
     q = next_question(filled(**ALL_CRITICAL), SCHEMA, T)
     assert q.reason == "readback" and "taiyaar" not in q.text
-    assert q.text.startswith("Main report read-back kar raha hoon: Tower B, safety hazard, urgency high")
+    assert q.text.startswith("Main report read-back kar raha hoon: Tower B, safety ka khatra, bahut urgent")
 
 
 def test_question_cap_then_readback():

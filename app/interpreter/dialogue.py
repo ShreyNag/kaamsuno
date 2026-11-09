@@ -46,6 +46,7 @@ from dataclasses import dataclass, field
 from app import config
 from app.interpreter.interpreter import Report, is_known
 from app.interpreter.schema import Schema
+from app.plain import field_word, say_value
 from app.turn.tail_classifier import load_fillers, tokens
 
 YES_WORDS = frozenset("""haan han haa ha ji sahi theek thik correct yes yeah yep ok okay bilkul right pakka confirm
@@ -112,8 +113,27 @@ def named_fields(text: str) -> list[str]:
     return [name for name, cues in config.FIELD_WORDS.items() if words & set(cues)]
 
 
-def _label(name: str) -> str:
-    return name.replace("_", " ")
+def _lang(t) -> str:
+    """The template view's language ("hinglish" for the plain placeholder dict)."""
+    return getattr(t, "language", "hinglish")
+
+
+def _label(name: str, t=None) -> str:
+    """A field's name in plain words for the worker ("asset_or_equipment" -> "machine")."""
+    return field_word(name, _lang(t))
+
+
+def _value(name: str, value, t=None) -> str | None:
+    """A value in plain words ("material_shortage" -> "material ki kami"); None for "other"/"unknown"."""
+    return say_value(name, value, _lang(t))
+
+
+def _item(name: str, value, t=None) -> str | None:
+    """"location Bay 3" for a re-read; categories need no field name ("bahut urgent", "machine kharab")."""
+    v = _value(name, value, t)
+    if v is None:
+        return None
+    return v if name in ("incident_type", "urgency") else f"{_label(name, t)} {v}"
 
 
 def ask_order(report: Report, schema: Schema) -> list[str]:
@@ -200,7 +220,7 @@ class DialogueManager:
             text, ask = self._render(name, reason, report, t), reason
             if self.asked[(name, reason)]:  # the answer didn't fill it: once more, worded for what we heard
                 ask = "reask" if usable(turn_text) else "repeat"
-                text = t["_reask"].format(field_label=_label(name)) if ask == "reask" else t["_repeat"]
+                text = t["_reask"].format(field_label=_label(name, t)) if ask == "reask" else t["_repeat"]
             self.asked[(name, reason)] += 1
             self.questions += 1
             return Question(name, ask, text)
@@ -209,13 +229,13 @@ class DialogueManager:
     def _render(self, name: str, reason: str, report: Report, t) -> str:
         entry = report[name]
         if reason == "missing":
-            return t.get(name) or t["_generic"].format(field_label=_label(name))
+            return t.get(name) or t["_generic"].format(field_label=_label(name, t))
         if reason == "missing_id":
             return t["_asset_id"].format(asset=entry["value"])
         if reason == "conflict":
-            values = [entry["value"], *(c["value"] for c in entry["conflicts"])]
-            return t["_conflict"].format(field_label=_label(name), values=" ya ".join(map(str, values)))
-        return t["_low_confidence"].format(field_label=_label(name), value=entry["value"])
+            values = [_value(name, v, t) or "?" for v in (entry["value"], *(c["value"] for c in entry["conflicts"]))]
+            return t["_conflict"].format(field_label=_label(name, t), values=" ya ".join(values))
+        return t["_low_confidence"].format(field_label=_label(name, t), value=_value(name, entry["value"], t) or "")
 
     # --- read-back ------------------------------------------------------------------
     def _readback(self, report, schema, t) -> Question:
@@ -235,17 +255,17 @@ class DialogueManager:
                 continue  # description is a free-text paraphrase; unit goes with the quantity
             if not is_known(e):
                 if name in schema.critical_priority or name in self.unconfirmed:
-                    parts.append(t["_not_given"].format(field_label=_label(name)))
+                    parts.append(t["_not_given"].format(field_label=_label(name, t)))
                 continue
-            v = str(e["value"])
+            v = _value(name, e["value"], t)
+            if v is None:  # "other", "unknown": nothing worth saying
+                continue
             if name == "quantity" and is_known(unit):
-                v = f"{v} {unit['value']}"
-            elif name == "incident_type":
-                v = _label(v)
-            elif name == "urgency":
-                v = f"urgency {v}"
+                v = f"{v} {_value('unit', unit['value'], t)}"
+            elif name == "urgency" and v in ("normal", "jaldi nahi"):
+                v = f"{_label(name, t)} {v}"
             elif name == "people_at_risk":
-                v = f"{_label(name)}: {v}"
+                v = f"{_label(name, t)}: {v}"
             parts.append(v)
         return parts
 
@@ -288,13 +308,13 @@ class DialogueManager:
             return self._reread(restated, t)
         named = [n for n in named_fields(turn_text) if schema.has(n)]
         if named:  # "location galat hai": ask for the right value; the answer comes back as a change
-            return Question(named[0], "which_value", t["_which_value"].format(field_label=_label(named[0])))
+            return Question(named[0], "which_value", t["_which_value"].format(field_label=_label(named[0], t)))
         if is_no(turn_text):
             return Question(None, "rejection", t["_rejection"])
         return Question(None, "readback_prompt", t["_readback_prompt"])
 
     def _reread(self, fields: dict[str, object], t) -> Question:
-        items = ", ".join(f"{_label(n)} {v}" for n, v in fields.items())
+        items = ", ".join(i for i in (_item(n, v, t) for n, v in fields.items()) if i) or _label(next(iter(fields)), t)
         return Question(next(iter(fields)), "reread", t["_reread"].format(changes=items))
 
 

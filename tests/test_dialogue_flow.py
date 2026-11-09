@@ -129,14 +129,14 @@ def test_equipment_failure_without_an_id_gets_the_id_question(tmp_path):
     said, doc, _ = converse(["bay 2 mein crane band ho gaya", "bahut urgent hai", "crane number C 7"], tmp_path)
     assert said[0] == [T["urgency"]]  # required fields first
     assert said[1] == [T["_asset_id"].format(asset="crane")]  # then the machine's ID
-    assert said[2][0].startswith("Main report read-back kar raha hoon: Bay 2, equipment failure, crane C-7")
+    assert said[2][0].startswith("Main report read-back kar raha hoon: Bay 2, machine kharab, crane C-7")
     assert doc["report"]["asset_or_equipment"]["value"] == "crane C-7"
 
 
 def test_complete_report_gets_a_readback_not_taiyar_hai(tmp_path):
     said, doc, reporter = converse(["bay 2 mein scaffolding hil raha hai bahut urgent"], tmp_path)
     assert len(said[0]) == 1 and "taiyaar" not in said[0][0] and "taiyar" not in said[0][0]
-    assert said[0][0] == "Main report read-back kar raha hoon: Bay 2, safety hazard, urgency high. Sahi hai toh confirm kar do."
+    assert said[0][0] == "Main report read-back kar raha hoon: Bay 2, safety ka khatra, bahut urgent. Sahi hai toh confirm kar do."
     assert doc["report"]["status"]["value"] == "awaiting_confirmation"
     assert reporter.dialogue.phase == "readback"
 
@@ -163,7 +163,7 @@ def test_short_answers_fill_the_field_just_asked_without_any_repeat(tmp_path):
     said, doc, _ = converse(["teesri manzil pe cement kam pad gaya hai", "abhi turant", "dedh sau bori"], tmp_path)
     assert said[0] == [T["urgency"]]  # the guessed urgency is still asked
     assert said[1] == [T["quantity"]]
-    assert said[2][0].startswith("Main report read-back kar raha hoon: 3rd floor, material shortage, cement, 150 bags")
+    assert said[2][0].startswith("Main report read-back kar raha hoon: 3rd floor, material ki kami, cement, 150 bags")
     assert all(T["_repeat"] not in line for turn in said for line in turn)
     r = doc["report"]
     assert (r["quantity"]["value"], r["unit"]["value"], r["urgency"]["value"]) == (150, "bags", "high")
@@ -198,7 +198,7 @@ def test_repeat_only_when_nothing_usable_was_heard_and_only_once(tmp_path):
 
 def test_unanswered_field_is_read_back_as_not_given(tmp_path):
     said, _, _ = converse(["pump band ho gaya hai", "umm", "umm", "abhi turant"], tmp_path)
-    assert said[3][0].startswith("Main report read-back kar raha hoon: location nahi pata, equipment failure, pump,")
+    assert said[3][0].startswith("Main report read-back kar raha hoon: location nahi pata, machine kharab, pump,")
 
 
 # --- live test 3, problem 2: corrections at the read-back ----------------------------------------------
@@ -228,7 +228,7 @@ def test_nahi_then_the_corrected_value(tmp_path):
                             tmp_path)
     assert said[3][0].startswith("Main report read-back kar raha hoon")  # urgency read back as not given
     assert said[4] == [T["_rejection"]]
-    assert said[5] == ["Theek hai, urgency high. Sahi hai?"]
+    assert said[5] == ["Theek hai, bahut urgent. Sahi hai?"]
     assert doc["report"]["urgency"]["value"] == "high"
 
 
@@ -255,7 +255,7 @@ SCRIPT[SENTENCE] = {
 def test_all_details_in_one_sentence_never_ask_incident_type(tmp_path):
     said, doc, _ = converse([SENTENCE], tmp_path)
     assert "Kya hua hai" not in said[0][0]  # the incident_type question
-    assert said[0][0].startswith("Main report read-back kar raha hoon: 3rd floor, material shortage")
+    assert said[0][0].startswith("Main report read-back kar raha hoon: 3rd floor, material ki kami")
     assert doc["report"]["incident_type"]["value"] == "material_shortage"
 
 
@@ -407,7 +407,7 @@ def test_emergency_full_report_is_sent_after_the_read_back(tmp_path):
         "incident_type": u("safety_hazard", "safety hazard"), "description": u("sparks from a wire", "safety hazard hai")}
     said, _, _ = converse([SPARKS, "bay 2 mein", "safety hazard hai abhi turant", "haan", "nahi"], tmp_path,
                           send_report=sup)
-    assert said[2][0].startswith("Main report read-back kar raha hoon: Bay 2, safety hazard")
+    assert said[2][0].startswith("Main report read-back kar raha hoon: Bay 2, safety ka khatra")
     assert said[4] == [T["_submitted"]]
     assert [k for _, k in sup.got] == ["emergency", "report"]
     assert sup.got[1][0]["urgency"] == "emergency"  # never downgraded
