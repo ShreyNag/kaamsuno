@@ -1,0 +1,231 @@
+{
+  "schema_version": "1.1",
+  "project": "KaamSuno",
+  "purpose": "A voice-first incident reporting assistant for frontline operations. The bot must clarify uncertain details and obtain confirmation before submitting a report.",
+  "required_before_submission": [
+    "incident_type",
+    "location",
+    "description",
+    "urgency",
+    "reporter_confirmation"
+  ],
+  "fields": [
+    {
+      "name": "incident_id",
+      "type": "string",
+      "required": false,
+      "description": "Generated unique ID; never ask the worker to invent one."
+    },
+    {
+      "name": "reported_at",
+      "type": "datetime",
+      "required": false,
+      "description": "Server timestamp; do not infer from speech if the system can record it."
+    },
+    {
+      "name": "reporter_name_or_id",
+      "type": "string",
+      "required": false,
+      "description": "Only collect if operationally needed; allow 'don't know'."
+    },
+    {
+      "name": "site_name",
+      "type": "string",
+      "required": true,
+      "description": "Site/project name."
+    },
+    {
+      "name": "location",
+      "type": "string",
+      "required": true,
+      "description": "Specific area, floor, road section, gate, machine bay, landmark or GPS-derived location if permitted."
+    },
+    {
+      "name": "incident_type",
+      "type": "enum",
+      "required": true,
+      "allowed": [
+        "equipment_failure",
+        "safety_hazard",
+        "injury_or_near_miss",
+        "material_shortage",
+        "quality_issue",
+        "utility_outage",
+        "access_or_logistics",
+        "environmental_issue",
+        "other"
+      ],
+      "description": "Best-fit category; preserve original wording in description."
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "required": true,
+      "description": "Faithful concise summary; do not add unsupported facts."
+    },
+    {
+      "name": "asset_or_equipment",
+      "type": "string",
+      "required": false,
+      "description": "Machine/tool/vehicle name and asset ID if available."
+    },
+    {
+      "name": "material",
+      "type": "string",
+      "required": false,
+      "description": "Material name/type, grade or specification if stated."
+    },
+    {
+      "name": "quantity",
+      "type": "number|string",
+      "required": false,
+      "description": "Keep numeric value plus original spoken form when ambiguity matters."
+    },
+    {
+      "name": "unit",
+      "type": "string",
+      "required": false,
+      "description": "kg, bags, litres, metres, pieces, hours, etc.; never guess missing units."
+    },
+    {
+      "name": "spoken_number_raw",
+      "type": "string",
+      "required": false,
+      "description": "Original number phrase for audit when a number is normalized."
+    },
+    {
+      "name": "date_or_time",
+      "type": "string",
+      "required": false,
+      "description": "When it happened or when needed; clarify relative/ambiguous time."
+    },
+    {
+      "name": "impact",
+      "type": "string",
+      "required": false,
+      "description": "What is blocked, damaged, delayed or at risk."
+    },
+    {
+      "name": "people_at_risk",
+      "type": "string",
+      "required": false,
+      "description": "Who may be affected, if known; avoid collecting unnecessary personal data."
+    },
+    {
+      "name": "urgency",
+      "type": "enum",
+      "required": true,
+      "allowed": [
+        "emergency",
+        "high",
+        "normal",
+        "low",
+        "unknown"
+      ],
+      "description": "Use explicit risk rules; uncertainty must not silently downgrade an apparent emergency."
+    },
+    {
+      "name": "immediate_action_taken",
+      "type": "string",
+      "required": false,
+      "description": "Actions already taken; never instruct untrained workers to perform dangerous work."
+    },
+    {
+      "name": "requested_action",
+      "type": "string",
+      "required": false,
+      "description": "Repair, replenish, inspect, isolate, clean, investigate, etc."
+    },
+    {
+      "name": "assigned_team",
+      "type": "enum",
+      "required": false,
+      "allowed": [
+        "maintenance",
+        "electrical",
+        "safety",
+        "stores_or_materials",
+        "civil_or_quality",
+        "operations",
+        "supervisor",
+        "environmental",
+        "unknown"
+      ],
+      "description": "Routing suggestion, subject to operational rules."
+    },
+    {
+      "name": "missing_fields",
+      "type": "array[string]",
+      "required": false,
+      "description": "Required/important fields that remain unknown."
+    },
+    {
+      "name": "uncertainties",
+      "type": "array[object]",
+      "required": false,
+      "description": "Field, competing interpretations, confidence and clarification question."
+    },
+    {
+      "name": "conflicts",
+      "type": "array[object]",
+      "required": false,
+      "description": "Conflicting details stated by worker; retain both until clarified."
+    },
+    {
+      "name": "source_language",
+      "type": "string",
+      "required": false,
+      "description": "Detected/selected language, e.g. Hindi, English, Hinglish, Punjabi-influenced Hinglish."
+    },
+    {
+      "name": "transcript",
+      "type": "string",
+      "required": false,
+      "description": "Transcript, with uncertainty markers if needed."
+    },
+    {
+      "name": "report_summary_spoken",
+      "type": "string",
+      "required": false,
+      "description": "Human-readable read-back."
+    },
+    {
+      "name": "reporter_confirmation",
+      "type": "enum",
+      "required": true,
+      "allowed": [
+        "confirmed",
+        "corrected_then_confirmed",
+        "rejected",
+        "not_obtained"
+      ],
+      "description": "Do not submit a normal work order as confirmed unless worker approves; emergency escalation follows separate safety policy."
+    },
+    {
+      "name": "status",
+      "type": "enum",
+      "required": false,
+      "allowed": [
+        "draft",
+        "awaiting_clarification",
+        "awaiting_confirmation",
+        "submitted",
+        "assigned",
+        "in_progress",
+        "resolved",
+        "closed"
+      ],
+      "description": "Workflow state."
+    }
+  ],
+  "validation_rules": [
+    "Never invent a location, quantity, unit, asset ID, date or cause.",
+    "Ask one focused clarification at a time; prioritize safety and routing blockers.",
+    "For emergency indicators, follow configured emergency escalation policy immediately; do not wait for perfect metadata.",
+    "If a number/ID has multiple plausible interpretations, read it back digit-by-digit or in the site's standard format.",
+    "Keep original transcript/raw number phrase when normalization could lose information.",
+    "A correction replaces a previous value only after the worker's intent is clear.",
+    "Do not submit a routine report until the read-back is confirmed.",
+    "Do not interpret filler words as a final answer when they signal continuation or uncertainty."
+  ]
+}

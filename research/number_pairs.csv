@@ -1,0 +1,1801 @@
+case_id,spoken_form,expected_normalized_value,category,unit_or_suffix,risk_level,clarification_required,notes
+NUM0001,shunya,0,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0002,shunya pieces,0,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0003,shunya kilo,0,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0004,shunya meter,0,quantity,m,medium,no,Spoken unit variant.
+NUM0005,shunya litre,0,quantity,L,medium,no,Spoken unit variant.
+NUM0006,zero,0,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0007,zero pieces,0,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0008,zero kilo,0,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0009,zero meter,0,quantity,m,medium,no,Spoken unit variant.
+NUM0010,zero litre,0,quantity,L,medium,no,Spoken unit variant.
+NUM0011,ek,1,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0012,ek pieces,1,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0013,ek kilo,1,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0014,ek meter,1,quantity,m,medium,no,Spoken unit variant.
+NUM0015,ek litre,1,quantity,L,medium,no,Spoken unit variant.
+NUM0016,one,1,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0017,one pieces,1,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0018,one kilo,1,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0019,one meter,1,quantity,m,medium,no,Spoken unit variant.
+NUM0020,one litre,1,quantity,L,medium,no,Spoken unit variant.
+NUM0021,do,2,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0022,do pieces,2,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0023,do kilo,2,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0024,do meter,2,quantity,m,medium,no,Spoken unit variant.
+NUM0025,do litre,2,quantity,L,medium,no,Spoken unit variant.
+NUM0026,two,2,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0027,two pieces,2,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0028,two kilo,2,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0029,two meter,2,quantity,m,medium,no,Spoken unit variant.
+NUM0030,two litre,2,quantity,L,medium,no,Spoken unit variant.
+NUM0031,teen,3,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0032,teen pieces,3,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0033,teen kilo,3,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0034,teen meter,3,quantity,m,medium,no,Spoken unit variant.
+NUM0035,teen litre,3,quantity,L,medium,no,Spoken unit variant.
+NUM0036,three,3,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0037,three pieces,3,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0038,three kilo,3,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0039,three meter,3,quantity,m,medium,no,Spoken unit variant.
+NUM0040,three litre,3,quantity,L,medium,no,Spoken unit variant.
+NUM0041,chaar,4,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0042,chaar pieces,4,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0043,chaar kilo,4,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0044,chaar meter,4,quantity,m,medium,no,Spoken unit variant.
+NUM0045,chaar litre,4,quantity,L,medium,no,Spoken unit variant.
+NUM0046,four,4,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0047,four pieces,4,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0048,four kilo,4,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0049,four meter,4,quantity,m,medium,no,Spoken unit variant.
+NUM0050,four litre,4,quantity,L,medium,no,Spoken unit variant.
+NUM0051,paanch,5,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0052,paanch pieces,5,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0053,paanch kilo,5,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0054,paanch meter,5,quantity,m,medium,no,Spoken unit variant.
+NUM0055,paanch litre,5,quantity,L,medium,no,Spoken unit variant.
+NUM0056,five,5,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0057,five pieces,5,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0058,five kilo,5,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0059,five meter,5,quantity,m,medium,no,Spoken unit variant.
+NUM0060,five litre,5,quantity,L,medium,no,Spoken unit variant.
+NUM0061,chhe,6,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0062,chhe pieces,6,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0063,chhe kilo,6,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0064,chhe meter,6,quantity,m,medium,no,Spoken unit variant.
+NUM0065,chhe litre,6,quantity,L,medium,no,Spoken unit variant.
+NUM0066,six,6,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0067,six pieces,6,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0068,six kilo,6,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0069,six meter,6,quantity,m,medium,no,Spoken unit variant.
+NUM0070,six litre,6,quantity,L,medium,no,Spoken unit variant.
+NUM0071,saat,7,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0072,saat pieces,7,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0073,saat kilo,7,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0074,saat meter,7,quantity,m,medium,no,Spoken unit variant.
+NUM0075,saat litre,7,quantity,L,medium,no,Spoken unit variant.
+NUM0076,seven,7,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0077,seven pieces,7,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0078,seven kilo,7,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0079,seven meter,7,quantity,m,medium,no,Spoken unit variant.
+NUM0080,seven litre,7,quantity,L,medium,no,Spoken unit variant.
+NUM0081,aath,8,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0082,aath pieces,8,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0083,aath kilo,8,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0084,aath meter,8,quantity,m,medium,no,Spoken unit variant.
+NUM0085,aath litre,8,quantity,L,medium,no,Spoken unit variant.
+NUM0086,eight,8,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0087,eight pieces,8,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0088,eight kilo,8,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0089,eight meter,8,quantity,m,medium,no,Spoken unit variant.
+NUM0090,eight litre,8,quantity,L,medium,no,Spoken unit variant.
+NUM0091,nau,9,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0092,nau pieces,9,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0093,nau kilo,9,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0094,nau meter,9,quantity,m,medium,no,Spoken unit variant.
+NUM0095,nau litre,9,quantity,L,medium,no,Spoken unit variant.
+NUM0096,nine,9,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0097,nine pieces,9,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0098,nine kilo,9,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0099,nine meter,9,quantity,m,medium,no,Spoken unit variant.
+NUM0100,nine litre,9,quantity,L,medium,no,Spoken unit variant.
+NUM0101,das,10,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0102,das pieces,10,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0103,das kilo,10,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0104,das meter,10,quantity,m,medium,no,Spoken unit variant.
+NUM0105,das litre,10,quantity,L,medium,no,Spoken unit variant.
+NUM0106,ten,10,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0107,ten pieces,10,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0108,ten kilo,10,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0109,ten meter,10,quantity,m,medium,no,Spoken unit variant.
+NUM0110,ten litre,10,quantity,L,medium,no,Spoken unit variant.
+NUM0111,gyarah,11,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0112,gyarah pieces,11,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0113,gyarah kilo,11,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0114,gyarah meter,11,quantity,m,medium,no,Spoken unit variant.
+NUM0115,gyarah litre,11,quantity,L,medium,no,Spoken unit variant.
+NUM0116,eleven,11,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0117,eleven pieces,11,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0118,eleven kilo,11,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0119,eleven meter,11,quantity,m,medium,no,Spoken unit variant.
+NUM0120,eleven litre,11,quantity,L,medium,no,Spoken unit variant.
+NUM0121,baarah,12,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0122,baarah pieces,12,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0123,baarah kilo,12,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0124,baarah meter,12,quantity,m,medium,no,Spoken unit variant.
+NUM0125,baarah litre,12,quantity,L,medium,no,Spoken unit variant.
+NUM0126,twelve,12,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0127,twelve pieces,12,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0128,twelve kilo,12,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0129,twelve meter,12,quantity,m,medium,no,Spoken unit variant.
+NUM0130,twelve litre,12,quantity,L,medium,no,Spoken unit variant.
+NUM0131,terah,13,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0132,terah pieces,13,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0133,terah kilo,13,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0134,terah meter,13,quantity,m,medium,no,Spoken unit variant.
+NUM0135,terah litre,13,quantity,L,medium,no,Spoken unit variant.
+NUM0136,thirteen,13,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0137,thirteen pieces,13,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0138,thirteen kilo,13,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0139,thirteen meter,13,quantity,m,medium,no,Spoken unit variant.
+NUM0140,thirteen litre,13,quantity,L,medium,no,Spoken unit variant.
+NUM0141,chaudah,14,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0142,chaudah pieces,14,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0143,chaudah kilo,14,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0144,chaudah meter,14,quantity,m,medium,no,Spoken unit variant.
+NUM0145,chaudah litre,14,quantity,L,medium,no,Spoken unit variant.
+NUM0146,fourteen,14,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0147,fourteen pieces,14,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0148,fourteen kilo,14,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0149,fourteen meter,14,quantity,m,medium,no,Spoken unit variant.
+NUM0150,fourteen litre,14,quantity,L,medium,no,Spoken unit variant.
+NUM0151,pandrah,15,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0152,pandrah pieces,15,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0153,pandrah kilo,15,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0154,pandrah meter,15,quantity,m,medium,no,Spoken unit variant.
+NUM0155,pandrah litre,15,quantity,L,medium,no,Spoken unit variant.
+NUM0156,fifteen,15,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0157,fifteen pieces,15,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0158,fifteen kilo,15,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0159,fifteen meter,15,quantity,m,medium,no,Spoken unit variant.
+NUM0160,fifteen litre,15,quantity,L,medium,no,Spoken unit variant.
+NUM0161,solah,16,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0162,solah pieces,16,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0163,solah kilo,16,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0164,solah meter,16,quantity,m,medium,no,Spoken unit variant.
+NUM0165,solah litre,16,quantity,L,medium,no,Spoken unit variant.
+NUM0166,sixteen,16,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0167,sixteen pieces,16,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0168,sixteen kilo,16,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0169,sixteen meter,16,quantity,m,medium,no,Spoken unit variant.
+NUM0170,sixteen litre,16,quantity,L,medium,no,Spoken unit variant.
+NUM0171,satrah,17,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0172,satrah pieces,17,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0173,satrah kilo,17,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0174,satrah meter,17,quantity,m,medium,no,Spoken unit variant.
+NUM0175,satrah litre,17,quantity,L,medium,no,Spoken unit variant.
+NUM0176,seventeen,17,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0177,seventeen pieces,17,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0178,seventeen kilo,17,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0179,seventeen meter,17,quantity,m,medium,no,Spoken unit variant.
+NUM0180,seventeen litre,17,quantity,L,medium,no,Spoken unit variant.
+NUM0181,atharah,18,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0182,atharah pieces,18,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0183,atharah kilo,18,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0184,atharah meter,18,quantity,m,medium,no,Spoken unit variant.
+NUM0185,atharah litre,18,quantity,L,medium,no,Spoken unit variant.
+NUM0186,eighteen,18,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0187,eighteen pieces,18,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0188,eighteen kilo,18,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0189,eighteen meter,18,quantity,m,medium,no,Spoken unit variant.
+NUM0190,eighteen litre,18,quantity,L,medium,no,Spoken unit variant.
+NUM0191,unnees,19,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0192,unnees pieces,19,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0193,unnees kilo,19,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0194,unnees meter,19,quantity,m,medium,no,Spoken unit variant.
+NUM0195,unnees litre,19,quantity,L,medium,no,Spoken unit variant.
+NUM0196,nineteen,19,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0197,nineteen pieces,19,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0198,nineteen kilo,19,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0199,nineteen meter,19,quantity,m,medium,no,Spoken unit variant.
+NUM0200,nineteen litre,19,quantity,L,medium,no,Spoken unit variant.
+NUM0201,bees,20,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0202,bees pieces,20,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0203,bees kilo,20,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0204,bees meter,20,quantity,m,medium,no,Spoken unit variant.
+NUM0205,bees litre,20,quantity,L,medium,no,Spoken unit variant.
+NUM0206,twenty,20,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0207,twenty pieces,20,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0208,twenty kilo,20,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0209,twenty meter,20,quantity,m,medium,no,Spoken unit variant.
+NUM0210,twenty litre,20,quantity,L,medium,no,Spoken unit variant.
+NUM0211,ikkees,21,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0212,ikkees pieces,21,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0213,ikkees kilo,21,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0214,ikkees meter,21,quantity,m,medium,no,Spoken unit variant.
+NUM0215,ikkees litre,21,quantity,L,medium,no,Spoken unit variant.
+NUM0216,twenty-one,21,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0217,twenty-one pieces,21,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0218,twenty-one kilo,21,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0219,twenty-one meter,21,quantity,m,medium,no,Spoken unit variant.
+NUM0220,twenty-one litre,21,quantity,L,medium,no,Spoken unit variant.
+NUM0221,baais,22,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0222,baais pieces,22,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0223,baais kilo,22,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0224,baais meter,22,quantity,m,medium,no,Spoken unit variant.
+NUM0225,baais litre,22,quantity,L,medium,no,Spoken unit variant.
+NUM0226,twenty-two,22,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0227,twenty-two pieces,22,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0228,twenty-two kilo,22,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0229,twenty-two meter,22,quantity,m,medium,no,Spoken unit variant.
+NUM0230,twenty-two litre,22,quantity,L,medium,no,Spoken unit variant.
+NUM0231,teis,23,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0232,teis pieces,23,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0233,teis kilo,23,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0234,teis meter,23,quantity,m,medium,no,Spoken unit variant.
+NUM0235,teis litre,23,quantity,L,medium,no,Spoken unit variant.
+NUM0236,twenty-three,23,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0237,twenty-three pieces,23,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0238,twenty-three kilo,23,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0239,twenty-three meter,23,quantity,m,medium,no,Spoken unit variant.
+NUM0240,twenty-three litre,23,quantity,L,medium,no,Spoken unit variant.
+NUM0241,chaubees,24,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0242,chaubees pieces,24,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0243,chaubees kilo,24,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0244,chaubees meter,24,quantity,m,medium,no,Spoken unit variant.
+NUM0245,chaubees litre,24,quantity,L,medium,no,Spoken unit variant.
+NUM0246,twenty-four,24,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0247,twenty-four pieces,24,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0248,twenty-four kilo,24,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0249,twenty-four meter,24,quantity,m,medium,no,Spoken unit variant.
+NUM0250,twenty-four litre,24,quantity,L,medium,no,Spoken unit variant.
+NUM0251,pachis,25,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0252,pachis pieces,25,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0253,pachis kilo,25,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0254,pachis meter,25,quantity,m,medium,no,Spoken unit variant.
+NUM0255,pachis litre,25,quantity,L,medium,no,Spoken unit variant.
+NUM0256,twenty-five,25,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0257,twenty-five pieces,25,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0258,twenty-five kilo,25,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0259,twenty-five meter,25,quantity,m,medium,no,Spoken unit variant.
+NUM0260,twenty-five litre,25,quantity,L,medium,no,Spoken unit variant.
+NUM0261,chhabbees,26,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0262,chhabbees pieces,26,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0263,chhabbees kilo,26,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0264,chhabbees meter,26,quantity,m,medium,no,Spoken unit variant.
+NUM0265,chhabbees litre,26,quantity,L,medium,no,Spoken unit variant.
+NUM0266,twenty-six,26,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0267,twenty-six pieces,26,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0268,twenty-six kilo,26,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0269,twenty-six meter,26,quantity,m,medium,no,Spoken unit variant.
+NUM0270,twenty-six litre,26,quantity,L,medium,no,Spoken unit variant.
+NUM0271,sattais,27,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0272,sattais pieces,27,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0273,sattais kilo,27,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0274,sattais meter,27,quantity,m,medium,no,Spoken unit variant.
+NUM0275,sattais litre,27,quantity,L,medium,no,Spoken unit variant.
+NUM0276,twenty-seven,27,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0277,twenty-seven pieces,27,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0278,twenty-seven kilo,27,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0279,twenty-seven meter,27,quantity,m,medium,no,Spoken unit variant.
+NUM0280,twenty-seven litre,27,quantity,L,medium,no,Spoken unit variant.
+NUM0281,athais,28,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0282,athais pieces,28,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0283,athais kilo,28,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0284,athais meter,28,quantity,m,medium,no,Spoken unit variant.
+NUM0285,athais litre,28,quantity,L,medium,no,Spoken unit variant.
+NUM0286,twenty-eight,28,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0287,twenty-eight pieces,28,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0288,twenty-eight kilo,28,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0289,twenty-eight meter,28,quantity,m,medium,no,Spoken unit variant.
+NUM0290,twenty-eight litre,28,quantity,L,medium,no,Spoken unit variant.
+NUM0291,untees,29,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0292,untees pieces,29,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0293,untees kilo,29,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0294,untees meter,29,quantity,m,medium,no,Spoken unit variant.
+NUM0295,untees litre,29,quantity,L,medium,no,Spoken unit variant.
+NUM0296,twenty-nine,29,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0297,twenty-nine pieces,29,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0298,twenty-nine kilo,29,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0299,twenty-nine meter,29,quantity,m,medium,no,Spoken unit variant.
+NUM0300,twenty-nine litre,29,quantity,L,medium,no,Spoken unit variant.
+NUM0301,tees,30,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0302,tees pieces,30,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0303,tees kilo,30,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0304,tees meter,30,quantity,m,medium,no,Spoken unit variant.
+NUM0305,tees litre,30,quantity,L,medium,no,Spoken unit variant.
+NUM0306,thirty,30,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0307,thirty pieces,30,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0308,thirty kilo,30,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0309,thirty meter,30,quantity,m,medium,no,Spoken unit variant.
+NUM0310,thirty litre,30,quantity,L,medium,no,Spoken unit variant.
+NUM0311,chaalis,40,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0312,chaalis pieces,40,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0313,chaalis kilo,40,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0314,chaalis meter,40,quantity,m,medium,no,Spoken unit variant.
+NUM0315,chaalis litre,40,quantity,L,medium,no,Spoken unit variant.
+NUM0316,forty,40,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0317,forty pieces,40,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0318,forty kilo,40,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0319,forty meter,40,quantity,m,medium,no,Spoken unit variant.
+NUM0320,forty litre,40,quantity,L,medium,no,Spoken unit variant.
+NUM0321,pachaas,50,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0322,pachaas pieces,50,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0323,pachaas kilo,50,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0324,pachaas meter,50,quantity,m,medium,no,Spoken unit variant.
+NUM0325,pachaas litre,50,quantity,L,medium,no,Spoken unit variant.
+NUM0326,fifty,50,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0327,fifty pieces,50,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0328,fifty kilo,50,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0329,fifty meter,50,quantity,m,medium,no,Spoken unit variant.
+NUM0330,fifty litre,50,quantity,L,medium,no,Spoken unit variant.
+NUM0331,saath,60,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0332,saath pieces,60,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0333,saath kilo,60,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0334,saath meter,60,quantity,m,medium,no,Spoken unit variant.
+NUM0335,saath litre,60,quantity,L,medium,no,Spoken unit variant.
+NUM0336,sixty,60,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0337,sixty pieces,60,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0338,sixty kilo,60,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0339,sixty meter,60,quantity,m,medium,no,Spoken unit variant.
+NUM0340,sixty litre,60,quantity,L,medium,no,Spoken unit variant.
+NUM0341,sattar,70,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0342,sattar pieces,70,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0343,sattar kilo,70,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0344,sattar meter,70,quantity,m,medium,no,Spoken unit variant.
+NUM0345,sattar litre,70,quantity,L,medium,no,Spoken unit variant.
+NUM0346,seventy,70,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0347,seventy pieces,70,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0348,seventy kilo,70,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0349,seventy meter,70,quantity,m,medium,no,Spoken unit variant.
+NUM0350,seventy litre,70,quantity,L,medium,no,Spoken unit variant.
+NUM0351,assi,80,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0352,assi pieces,80,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0353,assi kilo,80,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0354,assi meter,80,quantity,m,medium,no,Spoken unit variant.
+NUM0355,assi litre,80,quantity,L,medium,no,Spoken unit variant.
+NUM0356,eighty,80,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0357,eighty pieces,80,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0358,eighty kilo,80,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0359,eighty meter,80,quantity,m,medium,no,Spoken unit variant.
+NUM0360,eighty litre,80,quantity,L,medium,no,Spoken unit variant.
+NUM0361,nabbe,90,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0362,nabbe pieces,90,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0363,nabbe kilo,90,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0364,nabbe meter,90,quantity,m,medium,no,Spoken unit variant.
+NUM0365,nabbe litre,90,quantity,L,medium,no,Spoken unit variant.
+NUM0366,ninety,90,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0367,ninety pieces,90,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0368,ninety kilo,90,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0369,ninety meter,90,quantity,m,medium,no,Spoken unit variant.
+NUM0370,ninety litre,90,quantity,L,medium,no,Spoken unit variant.
+NUM0371,sau,100,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0372,sau pieces,100,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0373,sau kilo,100,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0374,sau meter,100,quantity,m,medium,no,Spoken unit variant.
+NUM0375,sau litre,100,quantity,L,medium,no,Spoken unit variant.
+NUM0376,hundred,100,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0377,hundred pieces,100,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0378,hundred kilo,100,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0379,hundred meter,100,quantity,m,medium,no,Spoken unit variant.
+NUM0380,hundred litre,100,quantity,L,medium,no,Spoken unit variant.
+NUM0381,do sau,200,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0382,do sau pieces,200,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0383,do sau kilo,200,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0384,do sau meter,200,quantity,m,medium,no,Spoken unit variant.
+NUM0385,do sau litre,200,quantity,L,medium,no,Spoken unit variant.
+NUM0386,two hundred,200,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0387,two hundred pieces,200,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0388,two hundred kilo,200,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0389,two hundred meter,200,quantity,m,medium,no,Spoken unit variant.
+NUM0390,two hundred litre,200,quantity,L,medium,no,Spoken unit variant.
+NUM0391,paanch sau,500,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0392,paanch sau pieces,500,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0393,paanch sau kilo,500,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0394,paanch sau meter,500,quantity,m,medium,no,Spoken unit variant.
+NUM0395,paanch sau litre,500,quantity,L,medium,no,Spoken unit variant.
+NUM0396,five hundred,500,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0397,five hundred pieces,500,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0398,five hundred kilo,500,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0399,five hundred meter,500,quantity,m,medium,no,Spoken unit variant.
+NUM0400,five hundred litre,500,quantity,L,medium,no,Spoken unit variant.
+NUM0401,ek hazaar,1000,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0402,ek hazaar pieces,1000,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0403,ek hazaar kilo,1000,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0404,ek hazaar meter,1000,quantity,m,medium,no,Spoken unit variant.
+NUM0405,ek hazaar litre,1000,quantity,L,medium,no,Spoken unit variant.
+NUM0406,one thousand,1000,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0407,one thousand pieces,1000,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0408,one thousand kilo,1000,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0409,one thousand meter,1000,quantity,m,medium,no,Spoken unit variant.
+NUM0410,one thousand litre,1000,quantity,L,medium,no,Spoken unit variant.
+NUM0411,pandrah sau,1500,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0412,pandrah sau pieces,1500,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0413,pandrah sau kilo,1500,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0414,pandrah sau meter,1500,quantity,m,medium,no,Spoken unit variant.
+NUM0415,pandrah sau litre,1500,quantity,L,medium,no,Spoken unit variant.
+NUM0416,fifteen hundred,1500,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0417,fifteen hundred pieces,1500,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0418,fifteen hundred kilo,1500,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0419,fifteen hundred meter,1500,quantity,m,medium,no,Spoken unit variant.
+NUM0420,fifteen hundred litre,1500,quantity,L,medium,no,Spoken unit variant.
+NUM0421,do hazaar,2000,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0422,do hazaar pieces,2000,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0423,do hazaar kilo,2000,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0424,do hazaar meter,2000,quantity,m,medium,no,Spoken unit variant.
+NUM0425,do hazaar litre,2000,quantity,L,medium,no,Spoken unit variant.
+NUM0426,two thousand,2000,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0427,two thousand pieces,2000,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0428,two thousand kilo,2000,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0429,two thousand meter,2000,quantity,m,medium,no,Spoken unit variant.
+NUM0430,two thousand litre,2000,quantity,L,medium,no,Spoken unit variant.
+NUM0431,paanch hazaar,5000,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0432,paanch hazaar pieces,5000,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0433,paanch hazaar kilo,5000,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0434,paanch hazaar meter,5000,quantity,m,medium,no,Spoken unit variant.
+NUM0435,paanch hazaar litre,5000,quantity,L,medium,no,Spoken unit variant.
+NUM0436,five thousand,5000,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0437,five thousand pieces,5000,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0438,five thousand kilo,5000,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0439,five thousand meter,5000,quantity,m,medium,no,Spoken unit variant.
+NUM0440,five thousand litre,5000,quantity,L,medium,no,Spoken unit variant.
+NUM0441,das hazaar,10000,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0442,das hazaar pieces,10000,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0443,das hazaar kilo,10000,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0444,das hazaar meter,10000,quantity,m,medium,no,Spoken unit variant.
+NUM0445,das hazaar litre,10000,quantity,L,medium,no,Spoken unit variant.
+NUM0446,ten thousand,10000,cardinal,,low,no,Basic spoken-number normalization; confirm if tied to safety-critical quantity or ID.
+NUM0447,ten thousand pieces,10000,quantity,pieces,medium,no,Quantity with explicit unit.
+NUM0448,ten thousand kilo,10000,quantity,kg,medium,no,Colloquial kilo; normalize to kg only when local convention is confirmed.
+NUM0449,ten thousand meter,10000,quantity,m,medium,no,Spoken unit variant.
+NUM0450,ten thousand litre,10000,quantity,L,medium,no,Spoken unit variant.
+NUM0451,one kilogram,1,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM0452,ek kilogram,1,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM0453,one litre,1,quantity_unit,L,medium,no,English number plus operational unit.
+NUM0454,ek litre,1,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM0455,one metre,1,quantity_unit,m,medium,no,English number plus operational unit.
+NUM0456,ek metre,1,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM0457,one centimetre,1,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM0458,ek centimetre,1,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM0459,one millimetre,1,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM0460,ek millimetre,1,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM0461,one bags,1,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM0462,ek bags,1,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM0463,one sacks,1,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM0464,ek sacks,1,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM0465,one pieces,1,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM0466,ek pieces,1,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM0467,one units,1,quantity_unit,units,medium,no,English number plus operational unit.
+NUM0468,ek units,1,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM0469,one boxes,1,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM0470,ek boxes,1,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM0471,one pipes,1,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM0472,ek pipes,1,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM0473,one rods,1,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM0474,ek rods,1,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM0475,one cement bags,1,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM0476,ek cement bags,1,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM0477,one hours,1,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM0478,ek hours,1,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM0479,one minutes,1,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM0480,ek minutes,1,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM0481,one litres per minute,1,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM0482,ek litres per minute,1,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM0483,one tonnes,1,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM0484,ek tonnes,1,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM0485,one feet,1,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM0486,ek feet,1,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM0487,one inches,1,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM0488,ek inches,1,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM0489,two kilogram,2,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM0490,do kilogram,2,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM0491,two litre,2,quantity_unit,L,medium,no,English number plus operational unit.
+NUM0492,do litre,2,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM0493,two metre,2,quantity_unit,m,medium,no,English number plus operational unit.
+NUM0494,do metre,2,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM0495,two centimetre,2,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM0496,do centimetre,2,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM0497,two millimetre,2,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM0498,do millimetre,2,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM0499,two bags,2,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM0500,do bags,2,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM0501,two sacks,2,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM0502,do sacks,2,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM0503,two pieces,2,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM0504,do pieces,2,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM0505,two units,2,quantity_unit,units,medium,no,English number plus operational unit.
+NUM0506,do units,2,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM0507,two boxes,2,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM0508,do boxes,2,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM0509,two pipes,2,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM0510,do pipes,2,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM0511,two rods,2,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM0512,do rods,2,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM0513,two cement bags,2,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM0514,do cement bags,2,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM0515,two hours,2,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM0516,do hours,2,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM0517,two minutes,2,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM0518,do minutes,2,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM0519,two litres per minute,2,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM0520,do litres per minute,2,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM0521,two tonnes,2,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM0522,do tonnes,2,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM0523,two feet,2,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM0524,do feet,2,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM0525,two inches,2,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM0526,do inches,2,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM0527,three kilogram,3,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM0528,teen kilogram,3,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM0529,three litre,3,quantity_unit,L,medium,no,English number plus operational unit.
+NUM0530,teen litre,3,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM0531,three metre,3,quantity_unit,m,medium,no,English number plus operational unit.
+NUM0532,teen metre,3,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM0533,three centimetre,3,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM0534,teen centimetre,3,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM0535,three millimetre,3,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM0536,teen millimetre,3,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM0537,three bags,3,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM0538,teen bags,3,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM0539,three sacks,3,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM0540,teen sacks,3,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM0541,three pieces,3,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM0542,teen pieces,3,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM0543,three units,3,quantity_unit,units,medium,no,English number plus operational unit.
+NUM0544,teen units,3,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM0545,three boxes,3,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM0546,teen boxes,3,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM0547,three pipes,3,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM0548,teen pipes,3,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM0549,three rods,3,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM0550,teen rods,3,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM0551,three cement bags,3,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM0552,teen cement bags,3,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM0553,three hours,3,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM0554,teen hours,3,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM0555,three minutes,3,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM0556,teen minutes,3,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM0557,three litres per minute,3,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM0558,teen litres per minute,3,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM0559,three tonnes,3,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM0560,teen tonnes,3,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM0561,three feet,3,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM0562,teen feet,3,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM0563,three inches,3,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM0564,teen inches,3,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM0565,four kilogram,4,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM0566,chaar kilogram,4,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM0567,four litre,4,quantity_unit,L,medium,no,English number plus operational unit.
+NUM0568,chaar litre,4,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM0569,four metre,4,quantity_unit,m,medium,no,English number plus operational unit.
+NUM0570,chaar metre,4,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM0571,four centimetre,4,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM0572,chaar centimetre,4,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM0573,four millimetre,4,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM0574,chaar millimetre,4,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM0575,four bags,4,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM0576,chaar bags,4,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM0577,four sacks,4,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM0578,chaar sacks,4,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM0579,four pieces,4,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM0580,chaar pieces,4,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM0581,four units,4,quantity_unit,units,medium,no,English number plus operational unit.
+NUM0582,chaar units,4,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM0583,four boxes,4,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM0584,chaar boxes,4,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM0585,four pipes,4,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM0586,chaar pipes,4,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM0587,four rods,4,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM0588,chaar rods,4,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM0589,four cement bags,4,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM0590,chaar cement bags,4,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM0591,four hours,4,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM0592,chaar hours,4,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM0593,four minutes,4,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM0594,chaar minutes,4,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM0595,four litres per minute,4,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM0596,chaar litres per minute,4,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM0597,four tonnes,4,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM0598,chaar tonnes,4,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM0599,four feet,4,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM0600,chaar feet,4,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM0601,four inches,4,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM0602,chaar inches,4,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM0603,five kilogram,5,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM0604,paanch kilogram,5,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM0605,five litre,5,quantity_unit,L,medium,no,English number plus operational unit.
+NUM0606,paanch litre,5,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM0607,five metre,5,quantity_unit,m,medium,no,English number plus operational unit.
+NUM0608,paanch metre,5,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM0609,five centimetre,5,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM0610,paanch centimetre,5,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM0611,five millimetre,5,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM0612,paanch millimetre,5,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM0613,five bags,5,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM0614,paanch bags,5,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM0615,five sacks,5,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM0616,paanch sacks,5,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM0617,five pieces,5,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM0618,paanch pieces,5,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM0619,five units,5,quantity_unit,units,medium,no,English number plus operational unit.
+NUM0620,paanch units,5,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM0621,five boxes,5,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM0622,paanch boxes,5,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM0623,five pipes,5,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM0624,paanch pipes,5,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM0625,five rods,5,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM0626,paanch rods,5,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM0627,five cement bags,5,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM0628,paanch cement bags,5,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM0629,five hours,5,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM0630,paanch hours,5,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM0631,five minutes,5,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM0632,paanch minutes,5,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM0633,five litres per minute,5,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM0634,paanch litres per minute,5,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM0635,five tonnes,5,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM0636,paanch tonnes,5,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM0637,five feet,5,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM0638,paanch feet,5,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM0639,five inches,5,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM0640,paanch inches,5,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM0641,six kilogram,6,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM0642,chhe kilogram,6,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM0643,six litre,6,quantity_unit,L,medium,no,English number plus operational unit.
+NUM0644,chhe litre,6,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM0645,six metre,6,quantity_unit,m,medium,no,English number plus operational unit.
+NUM0646,chhe metre,6,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM0647,six centimetre,6,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM0648,chhe centimetre,6,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM0649,six millimetre,6,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM0650,chhe millimetre,6,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM0651,six bags,6,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM0652,chhe bags,6,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM0653,six sacks,6,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM0654,chhe sacks,6,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM0655,six pieces,6,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM0656,chhe pieces,6,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM0657,six units,6,quantity_unit,units,medium,no,English number plus operational unit.
+NUM0658,chhe units,6,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM0659,six boxes,6,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM0660,chhe boxes,6,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM0661,six pipes,6,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM0662,chhe pipes,6,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM0663,six rods,6,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM0664,chhe rods,6,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM0665,six cement bags,6,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM0666,chhe cement bags,6,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM0667,six hours,6,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM0668,chhe hours,6,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM0669,six minutes,6,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM0670,chhe minutes,6,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM0671,six litres per minute,6,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM0672,chhe litres per minute,6,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM0673,six tonnes,6,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM0674,chhe tonnes,6,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM0675,six feet,6,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM0676,chhe feet,6,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM0677,six inches,6,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM0678,chhe inches,6,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM0679,seven kilogram,7,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM0680,saat kilogram,7,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM0681,seven litre,7,quantity_unit,L,medium,no,English number plus operational unit.
+NUM0682,saat litre,7,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM0683,seven metre,7,quantity_unit,m,medium,no,English number plus operational unit.
+NUM0684,saat metre,7,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM0685,seven centimetre,7,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM0686,saat centimetre,7,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM0687,seven millimetre,7,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM0688,saat millimetre,7,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM0689,seven bags,7,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM0690,saat bags,7,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM0691,seven sacks,7,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM0692,saat sacks,7,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM0693,seven pieces,7,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM0694,saat pieces,7,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM0695,seven units,7,quantity_unit,units,medium,no,English number plus operational unit.
+NUM0696,saat units,7,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM0697,seven boxes,7,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM0698,saat boxes,7,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM0699,seven pipes,7,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM0700,saat pipes,7,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM0701,seven rods,7,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM0702,saat rods,7,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM0703,seven cement bags,7,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM0704,saat cement bags,7,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM0705,seven hours,7,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM0706,saat hours,7,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM0707,seven minutes,7,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM0708,saat minutes,7,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM0709,seven litres per minute,7,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM0710,saat litres per minute,7,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM0711,seven tonnes,7,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM0712,saat tonnes,7,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM0713,seven feet,7,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM0714,saat feet,7,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM0715,seven inches,7,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM0716,saat inches,7,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM0717,eight kilogram,8,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM0718,aath kilogram,8,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM0719,eight litre,8,quantity_unit,L,medium,no,English number plus operational unit.
+NUM0720,aath litre,8,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM0721,eight metre,8,quantity_unit,m,medium,no,English number plus operational unit.
+NUM0722,aath metre,8,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM0723,eight centimetre,8,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM0724,aath centimetre,8,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM0725,eight millimetre,8,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM0726,aath millimetre,8,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM0727,eight bags,8,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM0728,aath bags,8,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM0729,eight sacks,8,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM0730,aath sacks,8,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM0731,eight pieces,8,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM0732,aath pieces,8,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM0733,eight units,8,quantity_unit,units,medium,no,English number plus operational unit.
+NUM0734,aath units,8,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM0735,eight boxes,8,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM0736,aath boxes,8,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM0737,eight pipes,8,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM0738,aath pipes,8,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM0739,eight rods,8,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM0740,aath rods,8,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM0741,eight cement bags,8,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM0742,aath cement bags,8,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM0743,eight hours,8,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM0744,aath hours,8,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM0745,eight minutes,8,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM0746,aath minutes,8,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM0747,eight litres per minute,8,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM0748,aath litres per minute,8,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM0749,eight tonnes,8,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM0750,aath tonnes,8,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM0751,eight feet,8,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM0752,aath feet,8,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM0753,eight inches,8,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM0754,aath inches,8,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM0755,nine kilogram,9,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM0756,nau kilogram,9,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM0757,nine litre,9,quantity_unit,L,medium,no,English number plus operational unit.
+NUM0758,nau litre,9,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM0759,nine metre,9,quantity_unit,m,medium,no,English number plus operational unit.
+NUM0760,nau metre,9,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM0761,nine centimetre,9,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM0762,nau centimetre,9,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM0763,nine millimetre,9,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM0764,nau millimetre,9,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM0765,nine bags,9,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM0766,nau bags,9,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM0767,nine sacks,9,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM0768,nau sacks,9,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM0769,nine pieces,9,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM0770,nau pieces,9,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM0771,nine units,9,quantity_unit,units,medium,no,English number plus operational unit.
+NUM0772,nau units,9,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM0773,nine boxes,9,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM0774,nau boxes,9,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM0775,nine pipes,9,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM0776,nau pipes,9,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM0777,nine rods,9,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM0778,nau rods,9,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM0779,nine cement bags,9,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM0780,nau cement bags,9,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM0781,nine hours,9,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM0782,nau hours,9,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM0783,nine minutes,9,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM0784,nau minutes,9,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM0785,nine litres per minute,9,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM0786,nau litres per minute,9,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM0787,nine tonnes,9,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM0788,nau tonnes,9,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM0789,nine feet,9,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM0790,nau feet,9,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM0791,nine inches,9,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM0792,nau inches,9,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM0793,ten kilogram,10,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM0794,das kilogram,10,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM0795,ten litre,10,quantity_unit,L,medium,no,English number plus operational unit.
+NUM0796,das litre,10,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM0797,ten metre,10,quantity_unit,m,medium,no,English number plus operational unit.
+NUM0798,das metre,10,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM0799,ten centimetre,10,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM0800,das centimetre,10,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM0801,ten millimetre,10,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM0802,das millimetre,10,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM0803,ten bags,10,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM0804,das bags,10,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM0805,ten sacks,10,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM0806,das sacks,10,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM0807,ten pieces,10,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM0808,das pieces,10,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM0809,ten units,10,quantity_unit,units,medium,no,English number plus operational unit.
+NUM0810,das units,10,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM0811,ten boxes,10,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM0812,das boxes,10,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM0813,ten pipes,10,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM0814,das pipes,10,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM0815,ten rods,10,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM0816,das rods,10,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM0817,ten cement bags,10,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM0818,das cement bags,10,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM0819,ten hours,10,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM0820,das hours,10,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM0821,ten minutes,10,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM0822,das minutes,10,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM0823,ten litres per minute,10,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM0824,das litres per minute,10,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM0825,ten tonnes,10,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM0826,das tonnes,10,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM0827,ten feet,10,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM0828,das feet,10,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM0829,ten inches,10,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM0830,das inches,10,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM0831,eleven kilogram,11,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM0832,gyarah kilogram,11,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM0833,eleven litre,11,quantity_unit,L,medium,no,English number plus operational unit.
+NUM0834,gyarah litre,11,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM0835,eleven metre,11,quantity_unit,m,medium,no,English number plus operational unit.
+NUM0836,gyarah metre,11,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM0837,eleven centimetre,11,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM0838,gyarah centimetre,11,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM0839,eleven millimetre,11,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM0840,gyarah millimetre,11,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM0841,eleven bags,11,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM0842,gyarah bags,11,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM0843,eleven sacks,11,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM0844,gyarah sacks,11,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM0845,eleven pieces,11,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM0846,gyarah pieces,11,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM0847,eleven units,11,quantity_unit,units,medium,no,English number plus operational unit.
+NUM0848,gyarah units,11,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM0849,eleven boxes,11,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM0850,gyarah boxes,11,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM0851,eleven pipes,11,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM0852,gyarah pipes,11,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM0853,eleven rods,11,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM0854,gyarah rods,11,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM0855,eleven cement bags,11,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM0856,gyarah cement bags,11,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM0857,eleven hours,11,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM0858,gyarah hours,11,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM0859,eleven minutes,11,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM0860,gyarah minutes,11,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM0861,eleven litres per minute,11,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM0862,gyarah litres per minute,11,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM0863,eleven tonnes,11,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM0864,gyarah tonnes,11,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM0865,eleven feet,11,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM0866,gyarah feet,11,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM0867,eleven inches,11,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM0868,gyarah inches,11,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM0869,twelve kilogram,12,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM0870,baarah kilogram,12,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM0871,twelve litre,12,quantity_unit,L,medium,no,English number plus operational unit.
+NUM0872,baarah litre,12,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM0873,twelve metre,12,quantity_unit,m,medium,no,English number plus operational unit.
+NUM0874,baarah metre,12,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM0875,twelve centimetre,12,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM0876,baarah centimetre,12,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM0877,twelve millimetre,12,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM0878,baarah millimetre,12,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM0879,twelve bags,12,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM0880,baarah bags,12,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM0881,twelve sacks,12,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM0882,baarah sacks,12,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM0883,twelve pieces,12,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM0884,baarah pieces,12,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM0885,twelve units,12,quantity_unit,units,medium,no,English number plus operational unit.
+NUM0886,baarah units,12,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM0887,twelve boxes,12,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM0888,baarah boxes,12,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM0889,twelve pipes,12,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM0890,baarah pipes,12,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM0891,twelve rods,12,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM0892,baarah rods,12,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM0893,twelve cement bags,12,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM0894,baarah cement bags,12,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM0895,twelve hours,12,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM0896,baarah hours,12,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM0897,twelve minutes,12,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM0898,baarah minutes,12,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM0899,twelve litres per minute,12,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM0900,baarah litres per minute,12,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM0901,twelve tonnes,12,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM0902,baarah tonnes,12,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM0903,twelve feet,12,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM0904,baarah feet,12,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM0905,twelve inches,12,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM0906,baarah inches,12,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM0907,thirteen kilogram,13,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM0908,terah kilogram,13,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM0909,thirteen litre,13,quantity_unit,L,medium,no,English number plus operational unit.
+NUM0910,terah litre,13,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM0911,thirteen metre,13,quantity_unit,m,medium,no,English number plus operational unit.
+NUM0912,terah metre,13,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM0913,thirteen centimetre,13,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM0914,terah centimetre,13,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM0915,thirteen millimetre,13,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM0916,terah millimetre,13,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM0917,thirteen bags,13,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM0918,terah bags,13,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM0919,thirteen sacks,13,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM0920,terah sacks,13,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM0921,thirteen pieces,13,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM0922,terah pieces,13,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM0923,thirteen units,13,quantity_unit,units,medium,no,English number plus operational unit.
+NUM0924,terah units,13,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM0925,thirteen boxes,13,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM0926,terah boxes,13,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM0927,thirteen pipes,13,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM0928,terah pipes,13,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM0929,thirteen rods,13,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM0930,terah rods,13,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM0931,thirteen cement bags,13,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM0932,terah cement bags,13,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM0933,thirteen hours,13,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM0934,terah hours,13,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM0935,thirteen minutes,13,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM0936,terah minutes,13,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM0937,thirteen litres per minute,13,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM0938,terah litres per minute,13,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM0939,thirteen tonnes,13,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM0940,terah tonnes,13,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM0941,thirteen feet,13,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM0942,terah feet,13,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM0943,thirteen inches,13,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM0944,terah inches,13,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM0945,fourteen kilogram,14,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM0946,chaudah kilogram,14,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM0947,fourteen litre,14,quantity_unit,L,medium,no,English number plus operational unit.
+NUM0948,chaudah litre,14,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM0949,fourteen metre,14,quantity_unit,m,medium,no,English number plus operational unit.
+NUM0950,chaudah metre,14,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM0951,fourteen centimetre,14,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM0952,chaudah centimetre,14,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM0953,fourteen millimetre,14,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM0954,chaudah millimetre,14,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM0955,fourteen bags,14,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM0956,chaudah bags,14,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM0957,fourteen sacks,14,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM0958,chaudah sacks,14,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM0959,fourteen pieces,14,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM0960,chaudah pieces,14,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM0961,fourteen units,14,quantity_unit,units,medium,no,English number plus operational unit.
+NUM0962,chaudah units,14,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM0963,fourteen boxes,14,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM0964,chaudah boxes,14,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM0965,fourteen pipes,14,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM0966,chaudah pipes,14,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM0967,fourteen rods,14,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM0968,chaudah rods,14,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM0969,fourteen cement bags,14,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM0970,chaudah cement bags,14,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM0971,fourteen hours,14,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM0972,chaudah hours,14,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM0973,fourteen minutes,14,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM0974,chaudah minutes,14,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM0975,fourteen litres per minute,14,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM0976,chaudah litres per minute,14,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM0977,fourteen tonnes,14,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM0978,chaudah tonnes,14,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM0979,fourteen feet,14,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM0980,chaudah feet,14,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM0981,fourteen inches,14,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM0982,chaudah inches,14,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM0983,fifteen kilogram,15,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM0984,pandrah kilogram,15,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM0985,fifteen litre,15,quantity_unit,L,medium,no,English number plus operational unit.
+NUM0986,pandrah litre,15,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM0987,fifteen metre,15,quantity_unit,m,medium,no,English number plus operational unit.
+NUM0988,pandrah metre,15,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM0989,fifteen centimetre,15,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM0990,pandrah centimetre,15,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM0991,fifteen millimetre,15,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM0992,pandrah millimetre,15,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM0993,fifteen bags,15,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM0994,pandrah bags,15,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM0995,fifteen sacks,15,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM0996,pandrah sacks,15,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM0997,fifteen pieces,15,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM0998,pandrah pieces,15,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM0999,fifteen units,15,quantity_unit,units,medium,no,English number plus operational unit.
+NUM1000,pandrah units,15,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM1001,fifteen boxes,15,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM1002,pandrah boxes,15,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM1003,fifteen pipes,15,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM1004,pandrah pipes,15,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM1005,fifteen rods,15,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM1006,pandrah rods,15,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM1007,fifteen cement bags,15,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM1008,pandrah cement bags,15,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM1009,fifteen hours,15,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM1010,pandrah hours,15,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM1011,fifteen minutes,15,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM1012,pandrah minutes,15,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM1013,fifteen litres per minute,15,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM1014,pandrah litres per minute,15,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM1015,fifteen tonnes,15,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM1016,pandrah tonnes,15,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM1017,fifteen feet,15,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM1018,pandrah feet,15,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM1019,fifteen inches,15,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM1020,pandrah inches,15,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM1021,sixteen kilogram,16,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM1022,solah kilogram,16,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM1023,sixteen litre,16,quantity_unit,L,medium,no,English number plus operational unit.
+NUM1024,solah litre,16,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM1025,sixteen metre,16,quantity_unit,m,medium,no,English number plus operational unit.
+NUM1026,solah metre,16,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM1027,sixteen centimetre,16,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM1028,solah centimetre,16,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM1029,sixteen millimetre,16,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM1030,solah millimetre,16,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM1031,sixteen bags,16,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM1032,solah bags,16,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM1033,sixteen sacks,16,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM1034,solah sacks,16,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM1035,sixteen pieces,16,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM1036,solah pieces,16,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM1037,sixteen units,16,quantity_unit,units,medium,no,English number plus operational unit.
+NUM1038,solah units,16,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM1039,sixteen boxes,16,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM1040,solah boxes,16,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM1041,sixteen pipes,16,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM1042,solah pipes,16,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM1043,sixteen rods,16,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM1044,solah rods,16,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM1045,sixteen cement bags,16,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM1046,solah cement bags,16,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM1047,sixteen hours,16,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM1048,solah hours,16,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM1049,sixteen minutes,16,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM1050,solah minutes,16,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM1051,sixteen litres per minute,16,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM1052,solah litres per minute,16,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM1053,sixteen tonnes,16,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM1054,solah tonnes,16,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM1055,sixteen feet,16,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM1056,solah feet,16,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM1057,sixteen inches,16,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM1058,solah inches,16,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM1059,seventeen kilogram,17,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM1060,satrah kilogram,17,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM1061,seventeen litre,17,quantity_unit,L,medium,no,English number plus operational unit.
+NUM1062,satrah litre,17,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM1063,seventeen metre,17,quantity_unit,m,medium,no,English number plus operational unit.
+NUM1064,satrah metre,17,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM1065,seventeen centimetre,17,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM1066,satrah centimetre,17,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM1067,seventeen millimetre,17,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM1068,satrah millimetre,17,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM1069,seventeen bags,17,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM1070,satrah bags,17,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM1071,seventeen sacks,17,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM1072,satrah sacks,17,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM1073,seventeen pieces,17,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM1074,satrah pieces,17,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM1075,seventeen units,17,quantity_unit,units,medium,no,English number plus operational unit.
+NUM1076,satrah units,17,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM1077,seventeen boxes,17,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM1078,satrah boxes,17,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM1079,seventeen pipes,17,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM1080,satrah pipes,17,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM1081,seventeen rods,17,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM1082,satrah rods,17,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM1083,seventeen cement bags,17,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM1084,satrah cement bags,17,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM1085,seventeen hours,17,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM1086,satrah hours,17,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM1087,seventeen minutes,17,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM1088,satrah minutes,17,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM1089,seventeen litres per minute,17,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM1090,satrah litres per minute,17,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM1091,seventeen tonnes,17,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM1092,satrah tonnes,17,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM1093,seventeen feet,17,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM1094,satrah feet,17,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM1095,seventeen inches,17,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM1096,satrah inches,17,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM1097,eighteen kilogram,18,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM1098,atharah kilogram,18,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM1099,eighteen litre,18,quantity_unit,L,medium,no,English number plus operational unit.
+NUM1100,atharah litre,18,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM1101,eighteen metre,18,quantity_unit,m,medium,no,English number plus operational unit.
+NUM1102,atharah metre,18,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM1103,eighteen centimetre,18,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM1104,atharah centimetre,18,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM1105,eighteen millimetre,18,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM1106,atharah millimetre,18,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM1107,eighteen bags,18,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM1108,atharah bags,18,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM1109,eighteen sacks,18,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM1110,atharah sacks,18,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM1111,eighteen pieces,18,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM1112,atharah pieces,18,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM1113,eighteen units,18,quantity_unit,units,medium,no,English number plus operational unit.
+NUM1114,atharah units,18,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM1115,eighteen boxes,18,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM1116,atharah boxes,18,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM1117,eighteen pipes,18,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM1118,atharah pipes,18,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM1119,eighteen rods,18,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM1120,atharah rods,18,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM1121,eighteen cement bags,18,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM1122,atharah cement bags,18,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM1123,eighteen hours,18,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM1124,atharah hours,18,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM1125,eighteen minutes,18,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM1126,atharah minutes,18,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM1127,eighteen litres per minute,18,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM1128,atharah litres per minute,18,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM1129,eighteen tonnes,18,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM1130,atharah tonnes,18,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM1131,eighteen feet,18,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM1132,atharah feet,18,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM1133,eighteen inches,18,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM1134,atharah inches,18,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM1135,nineteen kilogram,19,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM1136,unnees kilogram,19,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM1137,nineteen litre,19,quantity_unit,L,medium,no,English number plus operational unit.
+NUM1138,unnees litre,19,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM1139,nineteen metre,19,quantity_unit,m,medium,no,English number plus operational unit.
+NUM1140,unnees metre,19,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM1141,nineteen centimetre,19,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM1142,unnees centimetre,19,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM1143,nineteen millimetre,19,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM1144,unnees millimetre,19,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM1145,nineteen bags,19,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM1146,unnees bags,19,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM1147,nineteen sacks,19,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM1148,unnees sacks,19,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM1149,nineteen pieces,19,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM1150,unnees pieces,19,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM1151,nineteen units,19,quantity_unit,units,medium,no,English number plus operational unit.
+NUM1152,unnees units,19,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM1153,nineteen boxes,19,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM1154,unnees boxes,19,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM1155,nineteen pipes,19,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM1156,unnees pipes,19,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM1157,nineteen rods,19,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM1158,unnees rods,19,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM1159,nineteen cement bags,19,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM1160,unnees cement bags,19,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM1161,nineteen hours,19,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM1162,unnees hours,19,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM1163,nineteen minutes,19,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM1164,unnees minutes,19,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM1165,nineteen litres per minute,19,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM1166,unnees litres per minute,19,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM1167,nineteen tonnes,19,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM1168,unnees tonnes,19,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM1169,nineteen feet,19,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM1170,unnees feet,19,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM1171,nineteen inches,19,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM1172,unnees inches,19,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM1173,twenty kilogram,20,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM1174,bees kilogram,20,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM1175,twenty litre,20,quantity_unit,L,medium,no,English number plus operational unit.
+NUM1176,bees litre,20,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM1177,twenty metre,20,quantity_unit,m,medium,no,English number plus operational unit.
+NUM1178,bees metre,20,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM1179,twenty centimetre,20,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM1180,bees centimetre,20,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM1181,twenty millimetre,20,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM1182,bees millimetre,20,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM1183,twenty bags,20,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM1184,bees bags,20,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM1185,twenty sacks,20,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM1186,bees sacks,20,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM1187,twenty pieces,20,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM1188,bees pieces,20,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM1189,twenty units,20,quantity_unit,units,medium,no,English number plus operational unit.
+NUM1190,bees units,20,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM1191,twenty boxes,20,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM1192,bees boxes,20,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM1193,twenty pipes,20,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM1194,bees pipes,20,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM1195,twenty rods,20,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM1196,bees rods,20,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM1197,twenty cement bags,20,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM1198,bees cement bags,20,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM1199,twenty hours,20,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM1200,bees hours,20,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM1201,twenty minutes,20,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM1202,bees minutes,20,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM1203,twenty litres per minute,20,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM1204,bees litres per minute,20,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM1205,twenty tonnes,20,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM1206,bees tonnes,20,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM1207,twenty feet,20,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM1208,bees feet,20,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM1209,twenty inches,20,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM1210,bees inches,20,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM1211,twenty five kilogram,25,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM1212,pachis kilogram,25,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM1213,twenty five litre,25,quantity_unit,L,medium,no,English number plus operational unit.
+NUM1214,pachis litre,25,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM1215,twenty five metre,25,quantity_unit,m,medium,no,English number plus operational unit.
+NUM1216,pachis metre,25,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM1217,twenty five centimetre,25,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM1218,pachis centimetre,25,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM1219,twenty five millimetre,25,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM1220,pachis millimetre,25,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM1221,twenty five bags,25,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM1222,pachis bags,25,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM1223,twenty five sacks,25,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM1224,pachis sacks,25,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM1225,twenty five pieces,25,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM1226,pachis pieces,25,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM1227,twenty five units,25,quantity_unit,units,medium,no,English number plus operational unit.
+NUM1228,pachis units,25,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM1229,twenty five boxes,25,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM1230,pachis boxes,25,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM1231,twenty five pipes,25,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM1232,pachis pipes,25,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM1233,twenty five rods,25,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM1234,pachis rods,25,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM1235,twenty five cement bags,25,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM1236,pachis cement bags,25,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM1237,twenty five hours,25,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM1238,pachis hours,25,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM1239,twenty five minutes,25,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM1240,pachis minutes,25,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM1241,twenty five litres per minute,25,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM1242,pachis litres per minute,25,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM1243,twenty five tonnes,25,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM1244,pachis tonnes,25,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM1245,twenty five feet,25,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM1246,pachis feet,25,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM1247,twenty five inches,25,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM1248,pachis inches,25,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM1249,thirty kilogram,30,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM1250,tees kilogram,30,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM1251,thirty litre,30,quantity_unit,L,medium,no,English number plus operational unit.
+NUM1252,tees litre,30,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM1253,thirty metre,30,quantity_unit,m,medium,no,English number plus operational unit.
+NUM1254,tees metre,30,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM1255,thirty centimetre,30,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM1256,tees centimetre,30,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM1257,thirty millimetre,30,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM1258,tees millimetre,30,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM1259,thirty bags,30,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM1260,tees bags,30,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM1261,thirty sacks,30,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM1262,tees sacks,30,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM1263,thirty pieces,30,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM1264,tees pieces,30,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM1265,thirty units,30,quantity_unit,units,medium,no,English number plus operational unit.
+NUM1266,tees units,30,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM1267,thirty boxes,30,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM1268,tees boxes,30,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM1269,thirty pipes,30,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM1270,tees pipes,30,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM1271,thirty rods,30,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM1272,tees rods,30,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM1273,thirty cement bags,30,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM1274,tees cement bags,30,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM1275,thirty hours,30,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM1276,tees hours,30,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM1277,thirty minutes,30,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM1278,tees minutes,30,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM1279,thirty litres per minute,30,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM1280,tees litres per minute,30,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM1281,thirty tonnes,30,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM1282,tees tonnes,30,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM1283,thirty feet,30,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM1284,tees feet,30,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM1285,thirty inches,30,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM1286,tees inches,30,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM1287,forty kilogram,40,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM1288,chaalis kilogram,40,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM1289,forty litre,40,quantity_unit,L,medium,no,English number plus operational unit.
+NUM1290,chaalis litre,40,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM1291,forty metre,40,quantity_unit,m,medium,no,English number plus operational unit.
+NUM1292,chaalis metre,40,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM1293,forty centimetre,40,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM1294,chaalis centimetre,40,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM1295,forty millimetre,40,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM1296,chaalis millimetre,40,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM1297,forty bags,40,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM1298,chaalis bags,40,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM1299,forty sacks,40,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM1300,chaalis sacks,40,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM1301,forty pieces,40,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM1302,chaalis pieces,40,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM1303,forty units,40,quantity_unit,units,medium,no,English number plus operational unit.
+NUM1304,chaalis units,40,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM1305,forty boxes,40,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM1306,chaalis boxes,40,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM1307,forty pipes,40,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM1308,chaalis pipes,40,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM1309,forty rods,40,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM1310,chaalis rods,40,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM1311,forty cement bags,40,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM1312,chaalis cement bags,40,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM1313,forty hours,40,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM1314,chaalis hours,40,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM1315,forty minutes,40,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM1316,chaalis minutes,40,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM1317,forty litres per minute,40,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM1318,chaalis litres per minute,40,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM1319,forty tonnes,40,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM1320,chaalis tonnes,40,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM1321,forty feet,40,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM1322,chaalis feet,40,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM1323,forty inches,40,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM1324,chaalis inches,40,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM1325,fifty kilogram,50,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM1326,pachaas kilogram,50,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM1327,fifty litre,50,quantity_unit,L,medium,no,English number plus operational unit.
+NUM1328,pachaas litre,50,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM1329,fifty metre,50,quantity_unit,m,medium,no,English number plus operational unit.
+NUM1330,pachaas metre,50,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM1331,fifty centimetre,50,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM1332,pachaas centimetre,50,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM1333,fifty millimetre,50,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM1334,pachaas millimetre,50,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM1335,fifty bags,50,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM1336,pachaas bags,50,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM1337,fifty sacks,50,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM1338,pachaas sacks,50,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM1339,fifty pieces,50,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM1340,pachaas pieces,50,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM1341,fifty units,50,quantity_unit,units,medium,no,English number plus operational unit.
+NUM1342,pachaas units,50,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM1343,fifty boxes,50,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM1344,pachaas boxes,50,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM1345,fifty pipes,50,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM1346,pachaas pipes,50,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM1347,fifty rods,50,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM1348,pachaas rods,50,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM1349,fifty cement bags,50,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM1350,pachaas cement bags,50,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM1351,fifty hours,50,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM1352,pachaas hours,50,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM1353,fifty minutes,50,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM1354,pachaas minutes,50,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM1355,fifty litres per minute,50,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM1356,pachaas litres per minute,50,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM1357,fifty tonnes,50,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM1358,pachaas tonnes,50,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM1359,fifty feet,50,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM1360,pachaas feet,50,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM1361,fifty inches,50,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM1362,pachaas inches,50,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM1363,sixty kilogram,60,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM1364,saath kilogram,60,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM1365,sixty litre,60,quantity_unit,L,medium,no,English number plus operational unit.
+NUM1366,saath litre,60,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM1367,sixty metre,60,quantity_unit,m,medium,no,English number plus operational unit.
+NUM1368,saath metre,60,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM1369,sixty centimetre,60,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM1370,saath centimetre,60,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM1371,sixty millimetre,60,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM1372,saath millimetre,60,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM1373,sixty bags,60,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM1374,saath bags,60,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM1375,sixty sacks,60,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM1376,saath sacks,60,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM1377,sixty pieces,60,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM1378,saath pieces,60,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM1379,sixty units,60,quantity_unit,units,medium,no,English number plus operational unit.
+NUM1380,saath units,60,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM1381,sixty boxes,60,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM1382,saath boxes,60,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM1383,sixty pipes,60,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM1384,saath pipes,60,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM1385,sixty rods,60,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM1386,saath rods,60,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM1387,sixty cement bags,60,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM1388,saath cement bags,60,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM1389,sixty hours,60,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM1390,saath hours,60,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM1391,sixty minutes,60,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM1392,saath minutes,60,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM1393,sixty litres per minute,60,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM1394,saath litres per minute,60,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM1395,sixty tonnes,60,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM1396,saath tonnes,60,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM1397,sixty feet,60,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM1398,saath feet,60,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM1399,sixty inches,60,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM1400,saath inches,60,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM1401,seventy five kilogram,75,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM1402,pachhattar kilogram,75,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM1403,seventy five litre,75,quantity_unit,L,medium,no,English number plus operational unit.
+NUM1404,pachhattar litre,75,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM1405,seventy five metre,75,quantity_unit,m,medium,no,English number plus operational unit.
+NUM1406,pachhattar metre,75,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM1407,seventy five centimetre,75,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM1408,pachhattar centimetre,75,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM1409,seventy five millimetre,75,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM1410,pachhattar millimetre,75,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM1411,seventy five bags,75,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM1412,pachhattar bags,75,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM1413,seventy five sacks,75,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM1414,pachhattar sacks,75,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM1415,seventy five pieces,75,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM1416,pachhattar pieces,75,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM1417,seventy five units,75,quantity_unit,units,medium,no,English number plus operational unit.
+NUM1418,pachhattar units,75,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM1419,seventy five boxes,75,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM1420,pachhattar boxes,75,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM1421,seventy five pipes,75,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM1422,pachhattar pipes,75,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM1423,seventy five rods,75,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM1424,pachhattar rods,75,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM1425,seventy five cement bags,75,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM1426,pachhattar cement bags,75,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM1427,seventy five hours,75,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM1428,pachhattar hours,75,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM1429,seventy five minutes,75,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM1430,pachhattar minutes,75,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM1431,seventy five litres per minute,75,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM1432,pachhattar litres per minute,75,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM1433,seventy five tonnes,75,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM1434,pachhattar tonnes,75,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM1435,seventy five feet,75,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM1436,pachhattar feet,75,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM1437,seventy five inches,75,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM1438,pachhattar inches,75,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM1439,ninety kilogram,90,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM1440,nabbe kilogram,90,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM1441,ninety litre,90,quantity_unit,L,medium,no,English number plus operational unit.
+NUM1442,nabbe litre,90,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM1443,ninety metre,90,quantity_unit,m,medium,no,English number plus operational unit.
+NUM1444,nabbe metre,90,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM1445,ninety centimetre,90,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM1446,nabbe centimetre,90,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM1447,ninety millimetre,90,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM1448,nabbe millimetre,90,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM1449,ninety bags,90,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM1450,nabbe bags,90,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM1451,ninety sacks,90,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM1452,nabbe sacks,90,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM1453,ninety pieces,90,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM1454,nabbe pieces,90,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM1455,ninety units,90,quantity_unit,units,medium,no,English number plus operational unit.
+NUM1456,nabbe units,90,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM1457,ninety boxes,90,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM1458,nabbe boxes,90,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM1459,ninety pipes,90,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM1460,nabbe pipes,90,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM1461,ninety rods,90,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM1462,nabbe rods,90,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM1463,ninety cement bags,90,quantity_unit,cement bags,medium,no,English number plus operational unit.
+NUM1464,nabbe cement bags,90,quantity_unit_code_mixed,cement bags,medium,no,Hindi number plus English unit.
+NUM1465,ninety hours,90,quantity_unit,hours,medium,no,English number plus operational unit.
+NUM1466,nabbe hours,90,quantity_unit_code_mixed,hours,medium,no,Hindi number plus English unit.
+NUM1467,ninety minutes,90,quantity_unit,minutes,medium,no,English number plus operational unit.
+NUM1468,nabbe minutes,90,quantity_unit_code_mixed,minutes,medium,no,Hindi number plus English unit.
+NUM1469,ninety litres per minute,90,quantity_unit,litres per minute,medium,no,English number plus operational unit.
+NUM1470,nabbe litres per minute,90,quantity_unit_code_mixed,litres per minute,medium,no,Hindi number plus English unit.
+NUM1471,ninety tonnes,90,quantity_unit,tonnes,medium,no,English number plus operational unit.
+NUM1472,nabbe tonnes,90,quantity_unit_code_mixed,tonnes,medium,no,Hindi number plus English unit.
+NUM1473,ninety feet,90,quantity_unit,feet,medium,no,English number plus operational unit.
+NUM1474,nabbe feet,90,quantity_unit_code_mixed,feet,medium,no,Hindi number plus English unit.
+NUM1475,ninety inches,90,quantity_unit,inches,medium,no,English number plus operational unit.
+NUM1476,nabbe inches,90,quantity_unit_code_mixed,inches,medium,no,Hindi number plus English unit.
+NUM1477,one hundred kilogram,100,quantity_unit,kg,medium,no,English number plus operational unit.
+NUM1478,ek sau kilogram,100,quantity_unit_code_mixed,kg,medium,no,Hindi number plus English unit.
+NUM1479,one hundred litre,100,quantity_unit,L,medium,no,English number plus operational unit.
+NUM1480,ek sau litre,100,quantity_unit_code_mixed,L,medium,no,Hindi number plus English unit.
+NUM1481,one hundred metre,100,quantity_unit,m,medium,no,English number plus operational unit.
+NUM1482,ek sau metre,100,quantity_unit_code_mixed,m,medium,no,Hindi number plus English unit.
+NUM1483,one hundred centimetre,100,quantity_unit,cm,medium,no,English number plus operational unit.
+NUM1484,ek sau centimetre,100,quantity_unit_code_mixed,cm,medium,no,Hindi number plus English unit.
+NUM1485,one hundred millimetre,100,quantity_unit,mm,medium,no,English number plus operational unit.
+NUM1486,ek sau millimetre,100,quantity_unit_code_mixed,mm,medium,no,Hindi number plus English unit.
+NUM1487,one hundred bags,100,quantity_unit,bags,medium,no,English number plus operational unit.
+NUM1488,ek sau bags,100,quantity_unit_code_mixed,bags,medium,no,Hindi number plus English unit.
+NUM1489,one hundred sacks,100,quantity_unit,sacks,medium,no,English number plus operational unit.
+NUM1490,ek sau sacks,100,quantity_unit_code_mixed,sacks,medium,no,Hindi number plus English unit.
+NUM1491,one hundred pieces,100,quantity_unit,pieces,medium,no,English number plus operational unit.
+NUM1492,ek sau pieces,100,quantity_unit_code_mixed,pieces,medium,no,Hindi number plus English unit.
+NUM1493,one hundred units,100,quantity_unit,units,medium,no,English number plus operational unit.
+NUM1494,ek sau units,100,quantity_unit_code_mixed,units,medium,no,Hindi number plus English unit.
+NUM1495,one hundred boxes,100,quantity_unit,boxes,medium,no,English number plus operational unit.
+NUM1496,ek sau boxes,100,quantity_unit_code_mixed,boxes,medium,no,Hindi number plus English unit.
+NUM1497,one hundred pipes,100,quantity_unit,pipes,medium,no,English number plus operational unit.
+NUM1498,ek sau pipes,100,quantity_unit_code_mixed,pipes,medium,no,Hindi number plus English unit.
+NUM1499,one hundred rods,100,quantity_unit,rods,medium,no,English number plus operational unit.
+NUM1500,ek sau rods,100,quantity_unit_code_mixed,rods,medium,no,Hindi number plus English unit.
+NUM1501,asset number one zero seven,107,asset_id,,critical,yes,IDs must preserve leading zeros and alphanumeric prefixes; read back before routing.
+NUM1502,asset ID one oh seven,107,asset_id,,critical,yes,IDs must preserve leading zeros and alphanumeric prefixes; read back before routing.
+NUM1503,machine ID one zero seven,107,asset_id,,critical,yes,IDs must preserve leading zeros and alphanumeric prefixes; read back before routing.
+NUM1504,pump number two zero five,205,asset_id,,critical,yes,IDs must preserve leading zeros and alphanumeric prefixes; read back before routing.
+NUM1505,motor ID three one zero,310,asset_id,,critical,yes,IDs must preserve leading zeros and alphanumeric prefixes; read back before routing.
+NUM1506,panel number four zero four,404,asset_id,,critical,yes,IDs must preserve leading zeros and alphanumeric prefixes; read back before routing.
+NUM1507,vehicle ID zero seven two,072,asset_id,,critical,yes,IDs must preserve leading zeros and alphanumeric prefixes; read back before routing.
+NUM1508,asset ID zero zero eight,008,asset_id,,critical,yes,IDs must preserve leading zeros and alphanumeric prefixes; read back before routing.
+NUM1509,machine number two two,22,asset_id,,critical,yes,IDs must preserve leading zeros and alphanumeric prefixes; read back before routing.
+NUM1510,ID one two / one three,12/13,asset_id,,critical,yes,IDs must preserve leading zeros and alphanumeric prefixes; read back before routing.
+NUM1511,line ID A one zero,A10,asset_id,,critical,yes,IDs must preserve leading zeros and alphanumeric prefixes; read back before routing.
+NUM1512,pump P zero seven,P07,asset_id,,critical,yes,IDs must preserve leading zeros and alphanumeric prefixes; read back before routing.
+NUM1513,valve V two zero one,V201,asset_id,,critical,yes,IDs must preserve leading zeros and alphanumeric prefixes; read back before routing.
+NUM1514,crane C one two,C12,asset_id,,critical,yes,IDs must preserve leading zeros and alphanumeric prefixes; read back before routing.
+NUM1515,generator G zero three,G03,asset_id,,critical,yes,IDs must preserve leading zeros and alphanumeric prefixes; read back before routing.
+NUM1516,asset number one hundred seven,107,asset_id,,critical,yes,IDs must preserve leading zeros and alphanumeric prefixes; read back before routing.
+NUM1517,machine one oh one,101,asset_id,,critical,yes,IDs must preserve leading zeros and alphanumeric prefixes; read back before routing.
+NUM1518,unit four zero zero two,4002,asset_id,,critical,yes,IDs must preserve leading zeros and alphanumeric prefixes; read back before routing.
+NUM1519,heard as 'fifteen' versus 'fifty',15 OR 50,ambiguity_pair,,critical,yes,Synthetic contrastive case: system must ask which value was intended instead of guessing.
+NUM1520,heard as 'thirteen' versus 'thirty',13 OR 30,ambiguity_pair,,critical,yes,Synthetic contrastive case: system must ask which value was intended instead of guessing.
+NUM1521,heard as 'fourteen' versus 'forty',14 OR 40,ambiguity_pair,,critical,yes,Synthetic contrastive case: system must ask which value was intended instead of guessing.
+NUM1522,heard as 'sixteen' versus 'sixty',16 OR 60,ambiguity_pair,,critical,yes,Synthetic contrastive case: system must ask which value was intended instead of guessing.
+NUM1523,heard as 'eighteen' versus 'eighty',18 OR 80,ambiguity_pair,,critical,yes,Synthetic contrastive case: system must ask which value was intended instead of guessing.
+NUM1524,heard as 'nineteen' versus 'ninety',19 OR 90,ambiguity_pair,,critical,yes,Synthetic contrastive case: system must ask which value was intended instead of guessing.
+NUM1525,heard as 'two fifteen' versus 'two fifty',215 OR 250,ambiguity_pair,,critical,yes,Synthetic contrastive case: system must ask which value was intended instead of guessing.
+NUM1526,heard as 'one five' versus 'one five zero',15 OR 150,ambiguity_pair,,critical,yes,Synthetic contrastive case: system must ask which value was intended instead of guessing.
+NUM1527,heard as 'zero seven' versus 'seven',07 OR 7,ambiguity_pair,,critical,yes,Synthetic contrastive case: system must ask which value was intended instead of guessing.
+NUM1528,heard as 'oh eight' versus 'eight',08 OR 8,ambiguity_pair,,critical,yes,Synthetic contrastive case: system must ask which value was intended instead of guessing.
+NUM1529,heard as 'point five' versus 'five',0.5 OR 5,ambiguity_pair,,critical,yes,Synthetic contrastive case: system must ask which value was intended instead of guessing.
+NUM1530,heard as 'one point five' versus 'fifteen',1.5 OR 15,ambiguity_pair,,critical,yes,Synthetic contrastive case: system must ask which value was intended instead of guessing.
+NUM1531,heard as 'half a bag' versus 'one bag',0.5 bag OR 1 bag,ambiguity_pair,,critical,yes,Synthetic contrastive case: system must ask which value was intended instead of guessing.
+NUM1532,heard as 'twenty five kg' versus 'twenty five bags',25 kg OR 25 bags,ambiguity_pair,,critical,yes,Synthetic contrastive case: system must ask which value was intended instead of guessing.
+NUM1533,heard as 'five meter' versus 'fifteen meter',5 m OR 15 m,ambiguity_pair,,critical,yes,Synthetic contrastive case: system must ask which value was intended instead of guessing.
+NUM1534,saade nau baje,9:30,time,,high,yes,"Context-sensitive normalization; ask follow-up if exact value affects safety, material order or asset identification."
+NUM1535,paune das baje,9:45,time,,high,yes,"Context-sensitive normalization; ask follow-up if exact value affects safety, material order or asset identification."
+NUM1536,sawa das baje,10:15,time,,high,yes,"Context-sensitive normalization; ask follow-up if exact value affects safety, material order or asset identification."
+NUM1537,do baje ke baad,after 2:00,relative_time,,high,yes,"Context-sensitive normalization; ask follow-up if exact value affects safety, material order or asset identification."
+NUM1538,kal subah,tomorrow morning,relative_date,,high,yes,"Context-sensitive normalization; ask follow-up if exact value affects safety, material order or asset identification."
+NUM1539,parson,day after tomorrow / day before yesterday,ambiguous_relative_date,,high,yes,"Context-sensitive normalization; ask follow-up if exact value affects safety, material order or asset identification."
+NUM1540,one point two five,1.25,decimal,,high,yes,"Context-sensitive normalization; ask follow-up if exact value affects safety, material order or asset identification."
+NUM1541,zero point seven,0.7,decimal,,high,yes,"Context-sensitive normalization; ask follow-up if exact value affects safety, material order or asset identification."
+NUM1542,minus five degree,-5 °C if temperature context confirms,negative_value,,high,yes,"Context-sensitive normalization; ask follow-up if exact value affects safety, material order or asset identification."
+NUM1543,aadha kilo,0.5 kg,fraction,,high,yes,"Context-sensitive normalization; ask follow-up if exact value affects safety, material order or asset identification."
+NUM1544,dedh litre,1.5 L,fraction,,high,yes,"Context-sensitive normalization; ask follow-up if exact value affects safety, material order or asset identification."
+NUM1545,dhai meter,2.5 m,fraction,,high,yes,"Context-sensitive normalization; ask follow-up if exact value affects safety, material order or asset identification."
+NUM1546,five to seven bags,5–7 bags,range,,high,yes,"Context-sensitive normalization; ask follow-up if exact value affects safety, material order or asset identification."
+NUM1547,at least ten pieces,≥10 pieces,bound,,high,yes,"Context-sensitive normalization; ask follow-up if exact value affects safety, material order or asset identification."
+NUM1548,less than three hours,<3 h,bound,,high,yes,"Context-sensitive normalization; ask follow-up if exact value affects safety, material order or asset identification."
+NUM1549,around twenty,~20,approximate,,high,yes,"Context-sensitive normalization; ask follow-up if exact value affects safety, material order or asset identification."
+NUM1550,exactly twenty,20,exact,,high,yes,"Context-sensitive normalization; ask follow-up if exact value affects safety, material order or asset identification."
+NUM1551,twenty or twenty-two,20 or 22,uncertain_alternative,,high,yes,"Context-sensitive normalization; ask follow-up if exact value affects safety, material order or asset identification."
+NUM1552,ID zero zero zero,000,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back.
+NUM1553,ID zero zero oh,000,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 001]
+NUM1554,ID zero zero one,001,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 002]
+NUM1555,ID zero zero two,002,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 003]
+NUM1556,ID zero zero three,003,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 004]
+NUM1557,ID zero zero four,004,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 005]
+NUM1558,ID zero zero five,005,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 006]
+NUM1559,ID zero zero six,006,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 007]
+NUM1560,ID zero zero seven,007,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 008]
+NUM1561,ID zero zero eight,008,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 009]
+NUM1562,ID zero oh zero,000,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 010]
+NUM1563,ID zero oh oh,000,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 011]
+NUM1564,ID zero oh one,001,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 012]
+NUM1565,ID zero oh two,002,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 013]
+NUM1566,ID zero oh three,003,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 014]
+NUM1567,ID zero oh four,004,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 015]
+NUM1568,ID zero oh five,005,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 016]
+NUM1569,ID zero oh six,006,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 017]
+NUM1570,ID zero oh seven,007,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 018]
+NUM1571,ID zero oh eight,008,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 019]
+NUM1572,ID zero one zero,010,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 020]
+NUM1573,ID zero one oh,010,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 021]
+NUM1574,ID zero one one,011,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 022]
+NUM1575,ID zero one two,012,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 023]
+NUM1576,ID zero one three,013,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 024]
+NUM1577,ID zero one four,014,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 025]
+NUM1578,ID zero one five,015,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 026]
+NUM1579,ID zero one six,016,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 027]
+NUM1580,ID zero one seven,017,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 028]
+NUM1581,ID zero one eight,018,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 029]
+NUM1582,ID zero two zero,020,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 030]
+NUM1583,ID zero two oh,020,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 031]
+NUM1584,ID zero two one,021,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 032]
+NUM1585,ID zero two two,022,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 033]
+NUM1586,ID zero two three,023,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 034]
+NUM1587,ID zero two four,024,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 035]
+NUM1588,ID zero two five,025,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 036]
+NUM1589,ID zero two six,026,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 037]
+NUM1590,ID zero two seven,027,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 038]
+NUM1591,ID zero two eight,028,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 039]
+NUM1592,ID zero three zero,030,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 040]
+NUM1593,ID zero three oh,030,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 041]
+NUM1594,ID zero three one,031,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 042]
+NUM1595,ID zero three two,032,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 043]
+NUM1596,ID zero three three,033,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 044]
+NUM1597,ID zero three four,034,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 045]
+NUM1598,ID zero three five,035,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 046]
+NUM1599,ID zero three six,036,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 047]
+NUM1600,ID zero three seven,037,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 048]
+NUM1601,ID zero three eight,038,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 049]
+NUM1602,ID zero four zero,040,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 050]
+NUM1603,ID zero four oh,040,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 051]
+NUM1604,ID zero four one,041,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 052]
+NUM1605,ID zero four two,042,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 053]
+NUM1606,ID zero four three,043,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 054]
+NUM1607,ID zero four four,044,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 055]
+NUM1608,ID zero four five,045,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 056]
+NUM1609,ID zero four six,046,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 057]
+NUM1610,ID zero four seven,047,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 058]
+NUM1611,ID zero four eight,048,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 059]
+NUM1612,ID zero five zero,050,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 060]
+NUM1613,ID zero five oh,050,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 061]
+NUM1614,ID zero five one,051,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 062]
+NUM1615,ID zero five two,052,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 063]
+NUM1616,ID zero five three,053,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 064]
+NUM1617,ID zero five four,054,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 065]
+NUM1618,ID zero five five,055,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 066]
+NUM1619,ID zero five six,056,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 067]
+NUM1620,ID zero five seven,057,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 068]
+NUM1621,ID zero five eight,058,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 069]
+NUM1622,ID zero six zero,060,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 070]
+NUM1623,ID zero six oh,060,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 071]
+NUM1624,ID zero six one,061,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 072]
+NUM1625,ID zero six two,062,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 073]
+NUM1626,ID zero six three,063,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 074]
+NUM1627,ID zero six four,064,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 075]
+NUM1628,ID zero six five,065,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 076]
+NUM1629,ID zero six six,066,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 077]
+NUM1630,ID zero six seven,067,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 078]
+NUM1631,ID zero six eight,068,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 079]
+NUM1632,ID zero seven zero,070,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 080]
+NUM1633,ID zero seven oh,070,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 081]
+NUM1634,ID zero seven one,071,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 082]
+NUM1635,ID zero seven two,072,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 083]
+NUM1636,ID zero seven three,073,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 084]
+NUM1637,ID zero seven four,074,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 085]
+NUM1638,ID zero seven five,075,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 086]
+NUM1639,ID zero seven six,076,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 087]
+NUM1640,ID zero seven seven,077,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 088]
+NUM1641,ID zero seven eight,078,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 089]
+NUM1642,ID zero eight zero,080,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 090]
+NUM1643,ID zero eight oh,080,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 091]
+NUM1644,ID zero eight one,081,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 092]
+NUM1645,ID zero eight two,082,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 093]
+NUM1646,ID zero eight three,083,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 094]
+NUM1647,ID zero eight four,084,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 095]
+NUM1648,ID zero eight five,085,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 096]
+NUM1649,ID zero eight six,086,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 097]
+NUM1650,ID zero eight seven,087,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 098]
+NUM1651,ID zero eight eight,088,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 099]
+NUM1652,ID oh zero zero,000,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 100]
+NUM1653,ID oh zero oh,000,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 101]
+NUM1654,ID oh zero one,001,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 102]
+NUM1655,ID oh zero two,002,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 103]
+NUM1656,ID oh zero three,003,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 104]
+NUM1657,ID oh zero four,004,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 105]
+NUM1658,ID oh zero five,005,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 106]
+NUM1659,ID oh zero six,006,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 107]
+NUM1660,ID oh zero seven,007,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 108]
+NUM1661,ID oh zero eight,008,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 109]
+NUM1662,ID oh oh zero,000,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 110]
+NUM1663,ID oh oh oh,000,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 111]
+NUM1664,ID oh oh one,001,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 112]
+NUM1665,ID oh oh two,002,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 113]
+NUM1666,ID oh oh three,003,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 114]
+NUM1667,ID oh oh four,004,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 115]
+NUM1668,ID oh oh five,005,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 116]
+NUM1669,ID oh oh six,006,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 117]
+NUM1670,ID oh oh seven,007,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 118]
+NUM1671,ID oh oh eight,008,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 119]
+NUM1672,ID oh one zero,010,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 120]
+NUM1673,ID oh one oh,010,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 121]
+NUM1674,ID oh one one,011,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 122]
+NUM1675,ID oh one two,012,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 123]
+NUM1676,ID oh one three,013,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 124]
+NUM1677,ID oh one four,014,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 125]
+NUM1678,ID oh one five,015,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 126]
+NUM1679,ID oh one six,016,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 127]
+NUM1680,ID oh one seven,017,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 128]
+NUM1681,ID oh one eight,018,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 129]
+NUM1682,ID oh two zero,020,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 130]
+NUM1683,ID oh two oh,020,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 131]
+NUM1684,ID oh two one,021,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 132]
+NUM1685,ID oh two two,022,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 133]
+NUM1686,ID oh two three,023,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 134]
+NUM1687,ID oh two four,024,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 135]
+NUM1688,ID oh two five,025,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 136]
+NUM1689,ID oh two six,026,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 137]
+NUM1690,ID oh two seven,027,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 138]
+NUM1691,ID oh two eight,028,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 139]
+NUM1692,ID oh three zero,030,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 140]
+NUM1693,ID oh three oh,030,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 141]
+NUM1694,ID oh three one,031,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 142]
+NUM1695,ID oh three two,032,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 143]
+NUM1696,ID oh three three,033,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 144]
+NUM1697,ID oh three four,034,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 145]
+NUM1698,ID oh three five,035,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 146]
+NUM1699,ID oh three six,036,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 147]
+NUM1700,ID oh three seven,037,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 148]
+NUM1701,ID oh three eight,038,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 149]
+NUM1702,ID oh four zero,040,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 150]
+NUM1703,ID oh four oh,040,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 151]
+NUM1704,ID oh four one,041,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 152]
+NUM1705,ID oh four two,042,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 153]
+NUM1706,ID oh four three,043,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 154]
+NUM1707,ID oh four four,044,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 155]
+NUM1708,ID oh four five,045,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 156]
+NUM1709,ID oh four six,046,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 157]
+NUM1710,ID oh four seven,047,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 158]
+NUM1711,ID oh four eight,048,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 159]
+NUM1712,ID oh five zero,050,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 160]
+NUM1713,ID oh five oh,050,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 161]
+NUM1714,ID oh five one,051,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 162]
+NUM1715,ID oh five two,052,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 163]
+NUM1716,ID oh five three,053,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 164]
+NUM1717,ID oh five four,054,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 165]
+NUM1718,ID oh five five,055,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 166]
+NUM1719,ID oh five six,056,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 167]
+NUM1720,ID oh five seven,057,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 168]
+NUM1721,ID oh five eight,058,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 169]
+NUM1722,ID oh six zero,060,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 170]
+NUM1723,ID oh six oh,060,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 171]
+NUM1724,ID oh six one,061,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 172]
+NUM1725,ID oh six two,062,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 173]
+NUM1726,ID oh six three,063,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 174]
+NUM1727,ID oh six four,064,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 175]
+NUM1728,ID oh six five,065,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 176]
+NUM1729,ID oh six six,066,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 177]
+NUM1730,ID oh six seven,067,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 178]
+NUM1731,ID oh six eight,068,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 179]
+NUM1732,ID oh seven zero,070,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 180]
+NUM1733,ID oh seven oh,070,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 181]
+NUM1734,ID oh seven one,071,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 182]
+NUM1735,ID oh seven two,072,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 183]
+NUM1736,ID oh seven three,073,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 184]
+NUM1737,ID oh seven four,074,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 185]
+NUM1738,ID oh seven five,075,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 186]
+NUM1739,ID oh seven six,076,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 187]
+NUM1740,ID oh seven seven,077,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 188]
+NUM1741,ID oh seven eight,078,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 189]
+NUM1742,ID oh eight zero,080,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 190]
+NUM1743,ID oh eight oh,080,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 191]
+NUM1744,ID oh eight one,081,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 192]
+NUM1745,ID oh eight two,082,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 193]
+NUM1746,ID oh eight three,083,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 194]
+NUM1747,ID oh eight four,084,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 195]
+NUM1748,ID oh eight five,085,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 196]
+NUM1749,ID oh eight six,086,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 197]
+NUM1750,ID oh eight seven,087,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 198]
+NUM1751,ID oh eight eight,088,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 199]
+NUM1752,ID one zero zero,100,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 200]
+NUM1753,ID one zero oh,100,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 201]
+NUM1754,ID one zero one,101,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 202]
+NUM1755,ID one zero two,102,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 203]
+NUM1756,ID one zero three,103,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 204]
+NUM1757,ID one zero four,104,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 205]
+NUM1758,ID one zero five,105,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 206]
+NUM1759,ID one zero six,106,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 207]
+NUM1760,ID one zero seven,107,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 208]
+NUM1761,ID one zero eight,108,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 209]
+NUM1762,ID one oh zero,100,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 210]
+NUM1763,ID one oh oh,100,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 211]
+NUM1764,ID one oh one,101,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 212]
+NUM1765,ID one oh two,102,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 213]
+NUM1766,ID one oh three,103,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 214]
+NUM1767,ID one oh four,104,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 215]
+NUM1768,ID one oh five,105,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 216]
+NUM1769,ID one oh six,106,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 217]
+NUM1770,ID one oh seven,107,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 218]
+NUM1771,ID one oh eight,108,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 219]
+NUM1772,ID one one zero,110,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 220]
+NUM1773,ID one one oh,110,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 221]
+NUM1774,ID one one one,111,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 222]
+NUM1775,ID one one two,112,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 223]
+NUM1776,ID one one three,113,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 224]
+NUM1777,ID one one four,114,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 225]
+NUM1778,ID one one five,115,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 226]
+NUM1779,ID one one six,116,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 227]
+NUM1780,ID one one seven,117,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 228]
+NUM1781,ID one one eight,118,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 229]
+NUM1782,ID one two zero,120,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 230]
+NUM1783,ID one two oh,120,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 231]
+NUM1784,ID one two one,121,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 232]
+NUM1785,ID one two two,122,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 233]
+NUM1786,ID one two three,123,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 234]
+NUM1787,ID one two four,124,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 235]
+NUM1788,ID one two five,125,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 236]
+NUM1789,ID one two six,126,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 237]
+NUM1790,ID one two seven,127,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 238]
+NUM1791,ID one two eight,128,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 239]
+NUM1792,ID one three zero,130,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 240]
+NUM1793,ID one three oh,130,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 241]
+NUM1794,ID one three one,131,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 242]
+NUM1795,ID one three two,132,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 243]
+NUM1796,ID one three three,133,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 244]
+NUM1797,ID one three four,134,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 245]
+NUM1798,ID one three five,135,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 246]
+NUM1799,ID one three six,136,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 247]
+NUM1800,ID one three seven,137,digit_spoken_asset_id,,critical,yes,Digit-by-digit ID; leading zeros are meaningful. Read back. [fixed: was 248]

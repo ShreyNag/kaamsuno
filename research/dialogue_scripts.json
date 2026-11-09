@@ -1,0 +1,933 @@
+{
+  "version": "1.1",
+  "purpose": "Candidate scripts for dialogue-manager testing; not all should be used verbatim in production.",
+  "usage_rules": [
+    "One question at a time unless two details are tightly linked.",
+    "Do not speak while worker is still speaking.",
+    "Emergency policy must be configured with the actual site owner.",
+    "Ask local speakers to review dialect wording.",
+    "Never submit a normal report without confirmation."
+  ],
+  "scripts": [
+    {
+      "script_id": "DIA001",
+      "language": "hi",
+      "intent": "missing_location",
+      "worker_utterance": "Machine band ho gayi hai.",
+      "bot_response": "Kaunsi location par machine band hui hai—site ka naam aur area bata sakte hain?",
+      "expected_next_action": "ask_location",
+      "risk_level": "high",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA002",
+      "language": "hinglish",
+      "intent": "missing_location",
+      "worker_utterance": "Pump kaam nahi kar raha.",
+      "bot_response": "Pump kis area ya bay mein hai?",
+      "expected_next_action": "ask_location",
+      "risk_level": "high",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA003",
+      "language": "en",
+      "intent": "missing_location",
+      "worker_utterance": "The conveyor has stopped.",
+      "bot_response": "Where on site is the conveyor located?",
+      "expected_next_action": "ask_location",
+      "risk_level": "high",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA004",
+      "language": "hinglish",
+      "intent": "unclear_asset_id",
+      "worker_utterance": "Machine ID shayad one zero seven hai.",
+      "bot_response": "ID confirm kar dein: 107, ya koi aur number?",
+      "expected_next_action": "read_back_id",
+      "risk_level": "high",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA005",
+      "language": "hi",
+      "intent": "ambiguous_quantity",
+      "worker_utterance": "Paanch ya pandrah bag chahiye.",
+      "bot_response": "Aapne 5 bags kaha ya 15 bags?",
+      "expected_next_action": "clarify_quantity",
+      "risk_level": "high",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA006",
+      "language": "hinglish",
+      "intent": "missing_unit",
+      "worker_utterance": "Twenty chahiye.",
+      "bot_response": "Twenty kis cheez ke aur kaunsi unit mein—bags, pieces ya kg?",
+      "expected_next_action": "ask_unit_and_item",
+      "risk_level": "normal",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA007",
+      "language": "hi",
+      "intent": "uncertain_time",
+      "worker_utterance": "Kal hua tha, ya parson shayad.",
+      "bot_response": "Exact din confirm nahi hai; kya main report mein 'approx. 1–2 days ago' likhun?",
+      "expected_next_action": "clarify_time",
+      "risk_level": "normal",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA008",
+      "language": "en",
+      "intent": "conflicting_details",
+      "worker_utterance": "It stopped at 10. No, maybe 12.",
+      "bot_response": "Was it 10 or 12? I’ll keep the time unconfirmed until you clarify.",
+      "expected_next_action": "resolve_conflict",
+      "risk_level": "high",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA009",
+      "language": "hinglish",
+      "intent": "correction",
+      "worker_utterance": "Nahi, 15 nahi, 50 kg.",
+      "bot_response": "Understood—50 kg, not 15 kg. Is that correct?",
+      "expected_next_action": "update_and_confirm",
+      "risk_level": "high",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA010",
+      "language": "hi",
+      "intent": "filler_continuation",
+      "worker_utterance": "Umm... matlab... aur ek issue hai.",
+      "bot_response": "Ji, batayein—main sun raha hoon.",
+      "expected_next_action": "keep_listening",
+      "risk_level": "normal",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA011",
+      "language": "hinglish",
+      "intent": "possible_completion",
+      "worker_utterance": "Bas... ek aur cheez.",
+      "bot_response": "Haan, batayein. Main abhi report final nahi kar raha.",
+      "expected_next_action": "keep_listening",
+      "risk_level": "normal",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA012",
+      "language": "en",
+      "intent": "report_confirmation",
+      "worker_utterance": "Report: pump P07, Bay 2, oil leak. Submit?",
+      "bot_response": "I heard: oil leak at pump P07 in Bay 2. Should I submit this report?",
+      "expected_next_action": "await_confirmation",
+      "risk_level": "high",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA013",
+      "language": "hi",
+      "intent": "reject_readback",
+      "worker_utterance": "Nahi, Bay 2 nahi, Bay 3.",
+      "bot_response": "Theek hai, location Bay 3 kar raha hoon. Baaki details sahi hain?",
+      "expected_next_action": "apply_correction",
+      "risk_level": "high",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA014",
+      "language": "hinglish",
+      "intent": "emergency_hazard",
+      "worker_utterance": "Wire se sparks aa rahe hain aur log paas hain.",
+      "bot_response": "Yeh urgent safety issue ho sakta hai. Safe distance rakhein aur site emergency procedure/supervisor ko abhi alert karein. Main urgent report bana raha hoon.",
+      "expected_next_action": "escalate_safety",
+      "risk_level": "critical",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA015",
+      "language": "en",
+      "intent": "unknown_cause",
+      "worker_utterance": "The motor stopped; I don't know why.",
+      "bot_response": "I'll record the motor stopped and the cause is unknown. Where is it located?",
+      "expected_next_action": "do_not_invent_cause",
+      "risk_level": "normal",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA016",
+      "language": "hi",
+      "intent": "no_reporter_id",
+      "worker_utterance": "Naam nahi dena.",
+      "bot_response": "Theek hai. Agar policy allow karti hai, main bina naam ke report continue karta hoon.",
+      "expected_next_action": "respect_optional_identity",
+      "risk_level": "normal",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA017",
+      "language": "hinglish",
+      "intent": "noise_repair",
+      "worker_utterance": "Noise bahut hai, dobara bolta hoon.",
+      "bot_response": "Koi baat nahi. Sirf machine ID ya location dobara bata dein.",
+      "expected_next_action": "targeted_repeat",
+      "risk_level": "normal",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA018",
+      "language": "en",
+      "intent": "no_confirmation",
+      "worker_utterance": "I have to go, just send it.",
+      "bot_response": "I still need you to confirm the key details. I can save this as a draft or follow the site's urgent escalation policy.",
+      "expected_next_action": "do_not_submit_unconfirmed",
+      "risk_level": "high",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA019",
+      "language": "pa_hi",
+      "intent": "regional_phrase",
+      "worker_utterance": "Machine band aa ji, gate de kol.",
+      "bot_response": "Samajh aaya—gate ke paas machine band hai. Gate ka naam/number aur machine ID pata hai?",
+      "expected_next_action": "confirm_local_terms",
+      "risk_level": "high",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA020",
+      "language": "hinglish",
+      "intent": "material_shortage",
+      "worker_utterance": "Cement kam hai, around twenty bags.",
+      "bot_response": "I’ll note approximately 20 cement bags. Which store or work area needs them?",
+      "expected_next_action": "ask_destination",
+      "risk_level": "normal",
+      "notes": "Core hand-authored conversation example."
+    },
+    {
+      "script_id": "DIA021",
+      "language": "hi",
+      "intent": "opening",
+      "worker_utterance": "worker says only 'problem hai'",
+      "bot_response": "Namaste, bataiye site par kya problem hai?",
+      "expected_next_action": "start_report",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA022",
+      "language": "hi",
+      "intent": "missing_location",
+      "worker_utterance": "worker reports a fault without a location",
+      "bot_response": "Yeh kis site aur kis area mein hua?",
+      "expected_next_action": "ask_location",
+      "risk_level": "high",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA023",
+      "language": "hi",
+      "intent": "missing_quantity",
+      "worker_utterance": "worker requests supplies without a quantity",
+      "bot_response": "Quantity kitni hai aur unit kya hai?",
+      "expected_next_action": "ask_quantity",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA024",
+      "language": "hi",
+      "intent": "missing_asset_id",
+      "worker_utterance": "worker reports equipment failure but omits ID",
+      "bot_response": "Machine/asset ka ID bata sakte hain?",
+      "expected_next_action": "ask_asset_id",
+      "risk_level": "high",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA025",
+      "language": "hi",
+      "intent": "readback",
+      "worker_utterance": "worker has provided the required details",
+      "bot_response": "Main report padh kar suna raha hoon. Kya yeh sahi hai?",
+      "expected_next_action": "read_back",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA026",
+      "language": "hi",
+      "intent": "unclear_audio",
+      "worker_utterance": "transcript is low confidence",
+      "bot_response": "Maaf kijiye, yeh detail clear nahi hui. Dobara bata sakte hain?",
+      "expected_next_action": "ask_repeat",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA027",
+      "language": "hi",
+      "intent": "filler_pause",
+      "worker_utterance": "worker hesitates or uses a continuation marker",
+      "bot_response": "Maaf kijiye, yeh detail clear nahi hui. Dobara bata sakte hain?",
+      "expected_next_action": "keep_listening",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA028",
+      "language": "hi",
+      "intent": "confirmation",
+      "worker_utterance": "worker says the read-back is correct",
+      "bot_response": "Main report padh kar suna raha hoon. Kya yeh sahi hai?",
+      "expected_next_action": "submit_if_policy_allows",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA029",
+      "language": "hi",
+      "intent": "rejection",
+      "worker_utterance": "worker says the read-back is wrong",
+      "bot_response": "Maaf kijiye, yeh detail clear nahi hui. Dobara bata sakte hain?",
+      "expected_next_action": "ask_what_to_correct",
+      "risk_level": "high",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA030",
+      "language": "hi",
+      "intent": "emergency",
+      "worker_utterance": "worker reports immediate danger",
+      "bot_response": "Maaf kijiye, yeh detail clear nahi hui. Dobara bata sakte hain?",
+      "expected_next_action": "trigger_configured_emergency_flow",
+      "risk_level": "critical",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA031",
+      "language": "hinglish",
+      "intent": "opening",
+      "worker_utterance": "worker says only 'problem hai'",
+      "bot_response": "Haan ji, batao kya issue hai?",
+      "expected_next_action": "start_report",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA032",
+      "language": "hinglish",
+      "intent": "missing_location",
+      "worker_utterance": "worker reports a fault without a location",
+      "bot_response": "Kaunsi site aur exact area hai?",
+      "expected_next_action": "ask_location",
+      "risk_level": "high",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA033",
+      "language": "hinglish",
+      "intent": "missing_quantity",
+      "worker_utterance": "worker requests supplies without a quantity",
+      "bot_response": "Kitni quantity aur kis unit mein?",
+      "expected_next_action": "ask_quantity",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA034",
+      "language": "hinglish",
+      "intent": "missing_asset_id",
+      "worker_utterance": "worker reports equipment failure but omits ID",
+      "bot_response": "Machine ya asset ID kya hai?",
+      "expected_next_action": "ask_asset_id",
+      "risk_level": "high",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA035",
+      "language": "hinglish",
+      "intent": "readback",
+      "worker_utterance": "worker has provided the required details",
+      "bot_response": "Main report read-back kar raha hoon. Sahi hai toh confirm kar do.",
+      "expected_next_action": "read_back",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA036",
+      "language": "hinglish",
+      "intent": "unclear_audio",
+      "worker_utterance": "transcript is low confidence",
+      "bot_response": "Yeh detail clear nahi hui—please ek baar repeat kar do.",
+      "expected_next_action": "ask_repeat",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA037",
+      "language": "hinglish",
+      "intent": "filler_pause",
+      "worker_utterance": "worker hesitates or uses a continuation marker",
+      "bot_response": "Yeh detail clear nahi hui—please ek baar repeat kar do.",
+      "expected_next_action": "keep_listening",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA038",
+      "language": "hinglish",
+      "intent": "confirmation",
+      "worker_utterance": "worker says the read-back is correct",
+      "bot_response": "Main report read-back kar raha hoon. Sahi hai toh confirm kar do.",
+      "expected_next_action": "submit_if_policy_allows",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA039",
+      "language": "hinglish",
+      "intent": "rejection",
+      "worker_utterance": "worker says the read-back is wrong",
+      "bot_response": "Yeh detail clear nahi hui—please ek baar repeat kar do.",
+      "expected_next_action": "ask_what_to_correct",
+      "risk_level": "high",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA040",
+      "language": "hinglish",
+      "intent": "emergency",
+      "worker_utterance": "worker reports immediate danger",
+      "bot_response": "Yeh detail clear nahi hui—please ek baar repeat kar do.",
+      "expected_next_action": "trigger_configured_emergency_flow",
+      "risk_level": "critical",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA041",
+      "language": "en",
+      "intent": "opening",
+      "worker_utterance": "worker says only 'problem hai'",
+      "bot_response": "Tell me what happened on site.",
+      "expected_next_action": "start_report",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA042",
+      "language": "en",
+      "intent": "missing_location",
+      "worker_utterance": "worker reports a fault without a location",
+      "bot_response": "Which site and exact area is this in?",
+      "expected_next_action": "ask_location",
+      "risk_level": "high",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA043",
+      "language": "en",
+      "intent": "missing_quantity",
+      "worker_utterance": "worker requests supplies without a quantity",
+      "bot_response": "What quantity and unit should I record?",
+      "expected_next_action": "ask_quantity",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA044",
+      "language": "en",
+      "intent": "missing_asset_id",
+      "worker_utterance": "worker reports equipment failure but omits ID",
+      "bot_response": "What is the machine or asset ID?",
+      "expected_next_action": "ask_asset_id",
+      "risk_level": "high",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA045",
+      "language": "en",
+      "intent": "readback",
+      "worker_utterance": "worker has provided the required details",
+      "bot_response": "I'll read the report back. Is it correct?",
+      "expected_next_action": "read_back",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA046",
+      "language": "en",
+      "intent": "unclear_audio",
+      "worker_utterance": "transcript is low confidence",
+      "bot_response": "I couldn't confirm that detail. Could you repeat it?",
+      "expected_next_action": "ask_repeat",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA047",
+      "language": "en",
+      "intent": "filler_pause",
+      "worker_utterance": "worker hesitates or uses a continuation marker",
+      "bot_response": "I couldn't confirm that detail. Could you repeat it?",
+      "expected_next_action": "keep_listening",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA048",
+      "language": "en",
+      "intent": "confirmation",
+      "worker_utterance": "worker says the read-back is correct",
+      "bot_response": "I'll read the report back. Is it correct?",
+      "expected_next_action": "submit_if_policy_allows",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA049",
+      "language": "en",
+      "intent": "rejection",
+      "worker_utterance": "worker says the read-back is wrong",
+      "bot_response": "I couldn't confirm that detail. Could you repeat it?",
+      "expected_next_action": "ask_what_to_correct",
+      "risk_level": "high",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA050",
+      "language": "en",
+      "intent": "emergency",
+      "worker_utterance": "worker reports immediate danger",
+      "bot_response": "I couldn't confirm that detail. Could you repeat it?",
+      "expected_next_action": "trigger_configured_emergency_flow",
+      "risk_level": "critical",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA051",
+      "language": "pa_hi",
+      "intent": "opening",
+      "worker_utterance": "worker says only 'problem hai'",
+      "bot_response": "Haanji, site te ki problem aa?",
+      "expected_next_action": "start_report",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA052",
+      "language": "pa_hi",
+      "intent": "missing_location",
+      "worker_utterance": "worker reports a fault without a location",
+      "bot_response": "Kehri site te, te kehri jagah te?",
+      "expected_next_action": "ask_location",
+      "risk_level": "high",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA053",
+      "language": "pa_hi",
+      "intent": "missing_quantity",
+      "worker_utterance": "worker requests supplies without a quantity",
+      "bot_response": "Quantity kinni hai te unit ki hai?",
+      "expected_next_action": "ask_quantity",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA054",
+      "language": "pa_hi",
+      "intent": "missing_asset_id",
+      "worker_utterance": "worker reports equipment failure but omits ID",
+      "bot_response": "Machine da ID ki hai ji?",
+      "expected_next_action": "ask_asset_id",
+      "risk_level": "high",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA055",
+      "language": "pa_hi",
+      "intent": "readback",
+      "worker_utterance": "worker has provided the required details",
+      "bot_response": "Main report suna reha haan—sahi aa ji?",
+      "expected_next_action": "read_back",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA056",
+      "language": "pa_hi",
+      "intent": "unclear_audio",
+      "worker_utterance": "transcript is low confidence",
+      "bot_response": "Eh detail clear nahi hoi ji, ik vaar fer dasso.",
+      "expected_next_action": "ask_repeat",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA057",
+      "language": "pa_hi",
+      "intent": "filler_pause",
+      "worker_utterance": "worker hesitates or uses a continuation marker",
+      "bot_response": "Eh detail clear nahi hoi ji, ik vaar fer dasso.",
+      "expected_next_action": "keep_listening",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA058",
+      "language": "pa_hi",
+      "intent": "confirmation",
+      "worker_utterance": "worker says the read-back is correct",
+      "bot_response": "Main report suna reha haan—sahi aa ji?",
+      "expected_next_action": "submit_if_policy_allows",
+      "risk_level": "normal",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA059",
+      "language": "pa_hi",
+      "intent": "rejection",
+      "worker_utterance": "worker says the read-back is wrong",
+      "bot_response": "Eh detail clear nahi hoi ji, ik vaar fer dasso.",
+      "expected_next_action": "ask_what_to_correct",
+      "risk_level": "high",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA060",
+      "language": "pa_hi",
+      "intent": "emergency",
+      "worker_utterance": "worker reports immediate danger",
+      "bot_response": "Eh detail clear nahi hoi ji, ik vaar fer dasso.",
+      "expected_next_action": "trigger_configured_emergency_flow",
+      "risk_level": "critical",
+      "notes": "Template candidate; validate language naturalness with local speakers."
+    },
+    {
+      "script_id": "DIA061",
+      "language": "hi",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "pump mein issue hai",
+      "bot_response": "Yeh kis site aur kis area mein hua? Machine/asset ka ID bata sakte hain?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Hindi; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA062",
+      "language": "hi",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "generator mein issue hai",
+      "bot_response": "Yeh kis site aur kis area mein hua? Machine/asset ka ID bata sakte hain?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Hindi; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA063",
+      "language": "hi",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "conveyor mein issue hai",
+      "bot_response": "Yeh kis site aur kis area mein hua? Machine/asset ka ID bata sakte hain?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Hindi; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA064",
+      "language": "hi",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "crane mein issue hai",
+      "bot_response": "Yeh kis site aur kis area mein hua? Machine/asset ka ID bata sakte hain?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Hindi; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA065",
+      "language": "hi",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "panel mein issue hai",
+      "bot_response": "Yeh kis site aur kis area mein hua? Machine/asset ka ID bata sakte hain?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Hindi; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA066",
+      "language": "hi",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "compressor mein issue hai",
+      "bot_response": "Yeh kis site aur kis area mein hua? Machine/asset ka ID bata sakte hain?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Hindi; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA067",
+      "language": "hi",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "truck mein issue hai",
+      "bot_response": "Yeh kis site aur kis area mein hua? Machine/asset ka ID bata sakte hain?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Hindi; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA068",
+      "language": "hi",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "welding machine mein issue hai",
+      "bot_response": "Yeh kis site aur kis area mein hua? Machine/asset ka ID bata sakte hain?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Hindi; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA069",
+      "language": "hinglish",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "pump mein issue hai",
+      "bot_response": "Kaunsi site aur exact area hai? Machine ya asset ID kya hai?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Hinglish; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA070",
+      "language": "hinglish",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "generator mein issue hai",
+      "bot_response": "Kaunsi site aur exact area hai? Machine ya asset ID kya hai?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Hinglish; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA071",
+      "language": "hinglish",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "conveyor mein issue hai",
+      "bot_response": "Kaunsi site aur exact area hai? Machine ya asset ID kya hai?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Hinglish; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA072",
+      "language": "hinglish",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "crane mein issue hai",
+      "bot_response": "Kaunsi site aur exact area hai? Machine ya asset ID kya hai?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Hinglish; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA073",
+      "language": "hinglish",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "panel mein issue hai",
+      "bot_response": "Kaunsi site aur exact area hai? Machine ya asset ID kya hai?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Hinglish; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA074",
+      "language": "hinglish",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "compressor mein issue hai",
+      "bot_response": "Kaunsi site aur exact area hai? Machine ya asset ID kya hai?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Hinglish; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA075",
+      "language": "hinglish",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "truck mein issue hai",
+      "bot_response": "Kaunsi site aur exact area hai? Machine ya asset ID kya hai?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Hinglish; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA076",
+      "language": "hinglish",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "welding machine mein issue hai",
+      "bot_response": "Kaunsi site aur exact area hai? Machine ya asset ID kya hai?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Hinglish; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA077",
+      "language": "en",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "There is an issue with the pump.",
+      "bot_response": "Which site and exact area is this in? What is the machine or asset ID?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for English; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA078",
+      "language": "en",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "There is an issue with the generator.",
+      "bot_response": "Which site and exact area is this in? What is the machine or asset ID?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for English; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA079",
+      "language": "en",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "There is an issue with the conveyor.",
+      "bot_response": "Which site and exact area is this in? What is the machine or asset ID?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for English; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA080",
+      "language": "en",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "There is an issue with the crane.",
+      "bot_response": "Which site and exact area is this in? What is the machine or asset ID?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for English; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA081",
+      "language": "en",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "There is an issue with the panel.",
+      "bot_response": "Which site and exact area is this in? What is the machine or asset ID?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for English; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA082",
+      "language": "en",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "There is an issue with the compressor.",
+      "bot_response": "Which site and exact area is this in? What is the machine or asset ID?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for English; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA083",
+      "language": "en",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "There is an issue with the truck.",
+      "bot_response": "Which site and exact area is this in? What is the machine or asset ID?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for English; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA084",
+      "language": "en",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "There is an issue with the welding machine.",
+      "bot_response": "Which site and exact area is this in? What is the machine or asset ID?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for English; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA085",
+      "language": "pa_hi",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "pump mein issue hai",
+      "bot_response": "Kehri site te, te kehri jagah te? Machine da ID ki hai ji?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Punjabi-influenced Hindi; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA086",
+      "language": "pa_hi",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "generator mein issue hai",
+      "bot_response": "Kehri site te, te kehri jagah te? Machine da ID ki hai ji?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Punjabi-influenced Hindi; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA087",
+      "language": "pa_hi",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "conveyor mein issue hai",
+      "bot_response": "Kehri site te, te kehri jagah te? Machine da ID ki hai ji?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Punjabi-influenced Hindi; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA088",
+      "language": "pa_hi",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "crane mein issue hai",
+      "bot_response": "Kehri site te, te kehri jagah te? Machine da ID ki hai ji?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Punjabi-influenced Hindi; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA089",
+      "language": "pa_hi",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "panel mein issue hai",
+      "bot_response": "Kehri site te, te kehri jagah te? Machine da ID ki hai ji?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Punjabi-influenced Hindi; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA090",
+      "language": "pa_hi",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "compressor mein issue hai",
+      "bot_response": "Kehri site te, te kehri jagah te? Machine da ID ki hai ji?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Punjabi-influenced Hindi; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA091",
+      "language": "pa_hi",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "truck mein issue hai",
+      "bot_response": "Kehri site te, te kehri jagah te? Machine da ID ki hai ji?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Punjabi-influenced Hindi; asset vocabulary must match site terminology."
+    },
+    {
+      "script_id": "DIA092",
+      "language": "pa_hi",
+      "intent": "equipment_issue_missing_details",
+      "worker_utterance": "welding machine mein issue hai",
+      "bot_response": "Kehri site te, te kehri jagah te? Machine da ID ki hai ji?",
+      "expected_next_action": "ask_location_then_asset_id",
+      "risk_level": "high",
+      "notes": "Template for Punjabi-influenced Hindi; asset vocabulary must match site terminology."
+    }
+  ]
+}
