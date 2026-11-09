@@ -83,13 +83,14 @@ class Spoken(FrameProcessor):
         await self.push_frame(frame, direction)
 
 
-def converse(turns: list[str], tmp_path) -> tuple[list[list[str]], dict, ReportProcessor]:
+def converse(turns: list[str], tmp_path, send_report=None) -> tuple[list[list[str]], dict, ReportProcessor]:
     """Each turn: the worker says one segment, then the turn ends. Returns what the bot said after each turn."""
     REQUESTS.clear()
     hops = HopLogger("flow", log_dir=tmp_path)
     reporter = ReportProcessor(session_id="flow", schema=SCHEMA, templates=T,
                                interpreter=Interpreter(SCHEMA, scripted_llm, system_prompt="", uncertainty_cue=lambda t: None),
-                               stt=None, hops=hops, hub=ReportHub(), reports_dir=tmp_path / "reports")
+                               stt=None, hops=hops, hub=ReportHub(), reports_dir=tmp_path / "reports",
+                               send_report=send_report)
     spoken = Spoken()
     task = PipelineTask(Pipeline([reporter, spoken]), params=PipelineParams())
     per_turn: list[list[str]] = []
@@ -135,8 +136,8 @@ def test_nahi_bay_3_after_the_readback_updates_location_and_reconfirms(tmp_path)
     said, doc, reporter = converse(
         ["bay 2 mein scaffolding hil raha hai bahut urgent", "nahi, bay 3", "haan sahi hai", "haan sahi hai"], tmp_path)
     assert said[1] == ["Theek hai, location Bay 3. Sahi hai?"]  # only the corrected field is re-read
-    assert said[2] == [T["_confirmed"]]
-    assert said[3] == []  # nothing new: the bot says nothing rather than repeat itself
+    assert said[2] == [T["_confirmed"]]  # "... Aur kuch batana hai?"
+    assert said[3] == [T["_anything_else_prompt"]]  # "haan sahi hai" doesn't answer "aur kuch?"
     loc = doc["report"]["location"]
     assert loc["value"] == "Bay 3" and [h["value"] for h in loc["history"]] == ["Bay 2"] and loc["conflicts"] == []
     assert doc["report"]["reporter_confirmation"]["value"] == "corrected_then_confirmed"
@@ -247,3 +248,87 @@ def test_all_details_in_one_sentence_never_ask_incident_type(tmp_path):
     assert "Kya hua hai" not in said[0][0]  # the incident_type question
     assert said[0][0].startswith("Main report read-back kar raha hoon: 3rd floor, material shortage")
     assert doc["report"]["incident_type"]["value"] == "material_shortage"
+
+
+# --- after the confirmation: "aur kuch?" -> send, more details, or a new issue -------------------------
+SCRIPT["location bay 3 hai"] = {"location": u("Bay 3", "location bay 3")}
+NEW_ISSUE = "ek aur problem hai teesri manzil pe cement kam pad gaya hai"
+SCRIPT[NEW_ISSUE] = {
+    "location": u("3rd floor", "teesri manzil"), "incident_type": u("material_shortage", "cement kam pad gaya"),
+    "material": u("cement", "cement"), "description": u("cement shortage", "cement kam pad gaya hai")}
+
+
+class FakeSupervisor:
+    def __init__(self, ok=True):
+        self.ok, self.got = ok, []
+
+    async def __call__(self, values, kind):
+        self.got.append((dict(values), kind))
+        return self.ok
+
+
+def test_nahi_after_aur_kuch_sends_the_report(tmp_path):
+    sup = FakeSupervisor()
+    said, doc, reporter = converse([READY, "haan", "nahi"], tmp_path, send_report=sup)
+    assert said[1] == [T["_confirmed"]] and "Aur kuch" in T["_confirmed"]
+    assert said[2] == [T["_submitted"]]
+    (values, kind), = sup.got
+    assert kind == "report" and values["location"] == "Bay 2" and values["incident_id"] == "flow"
+    assert values["status"] == "submitted" and values["reporter_confirmation"] == "confirmed"
+    assert doc["report"]["status"]["value"] == "submitted"
+    assert reporter.dialogue.phase == "submitted"
+
+
+def test_bas_also_sends_and_a_failed_send_is_said_honestly(tmp_path):
+    sup = FakeSupervisor(ok=False)
+    said, doc, _ = converse([READY, "haan", "bas"], tmp_path, send_report=sup)
+    assert said[2] == [T["_send_failed"]] and len(sup.got) == 1
+    assert doc["report"]["status"]["value"] == "submitted"  # saved locally either way
+
+
+def test_no_channel_configured_is_not_reported_as_sent(tmp_path):
+    said, _, reporter = converse([READY, "haan", "nahi"], tmp_path)
+    assert said[2] == [T["_send_failed"]]
+    assert reporter.sent == [("flow", "report", False)]
+
+
+def test_new_details_after_aur_kuch_are_re_read_then_confirmed_again(tmp_path):
+    sup = FakeSupervisor()
+    said, doc, _ = converse([READY, "haan", "location bay 3 hai", "haan", "nahi"], tmp_path, send_report=sup)
+    assert said[2] == ["Theek hai, location Bay 3. Sahi hai?"]
+    assert said[3] == [T["_confirmed"]]
+    assert said[4] == [T["_submitted"]]
+    assert sup.got[0][0]["location"] == "Bay 3"
+    assert doc["report"]["reporter_confirmation"]["value"] == "corrected_then_confirmed"
+
+
+def test_unclear_reply_to_aur_kuch_is_prompted_once_then_sent(tmp_path):
+    sup = FakeSupervisor()
+    said, _, _ = converse([READY, "haan", "kya bola", "hmm"], tmp_path, send_report=sup)
+    assert said[2] == [T["_anything_else_prompt"]]
+    assert said[3] == [T["_submitted"]] and len(sup.got) == 1
+
+
+def test_a_new_issue_sends_the_confirmed_report_and_starts_a_new_one(tmp_path):
+    sup = FakeSupervisor()
+    said, doc, reporter = converse([READY, "haan", NEW_ISSUE], tmp_path, send_report=sup)
+    # the first report goes out as confirmed: the new issue's words did not leak into it
+    (first, kind), = sup.got
+    assert (first["location"], first["incident_type"], first["incident_id"]) == ("Bay 2", "safety_hazard", "flow")
+    assert first["status"] == "submitted"
+    assert doc["report"]["location"]["value"] == "Bay 2"  # flow.json is the first report
+    # the new report is built from the same words and asks its first missing field
+    assert said[2] == [f"{T['_new_report']} {T['urgency']}"]
+    assert reporter.incident_id == "flow-2"
+    second = json.loads((tmp_path / "reports" / "flow-2.json").read_text(encoding="utf-8"))
+    assert second["report"]["incident_type"]["value"] == "material_shortage"
+    assert second["report"]["location"]["value"] == "3rd floor"
+    assert second["report"]["incident_id"]["value"] == "flow-2"
+    assert second["transcript"] == [NEW_ISSUE]
+
+
+def test_speaking_again_after_the_report_was_sent_starts_a_new_report(tmp_path):
+    sup = FakeSupervisor()
+    said, _, reporter = converse([READY, "haan", "nahi", NEW_ISSUE], tmp_path, send_report=sup)
+    assert said[3] == [T["urgency"]]  # already sent: no "pehli report bhej di" again
+    assert len(sup.got) == 1 and reporter.incident_id == "flow-2"

@@ -56,10 +56,26 @@ OURS: dict[str, dict[str, list[str]]] = {
         "hi": ["Achha, kaunsi baat galat hai? Kripya woh bataiye."],
         "en": ["Okay, which detail is wrong? Tell me and I'll fix it."],
     },
-    "_confirmed": {  # after the read-back is approved; sending to the supervisor is Phase 3, so not "bhej diya"
-        "hinglish": ["Theek hai, report confirm ho gayi. Dhanyavaad."],
-        "hi": ["Theek hai, report pakki ho gayi. Dhanyavaad."],
-        "en": ["Okay, the report is confirmed. Thank you."],
+    "_confirmed": {  # after the read-back is approved; sending waits for the answer to "aur kuch?"
+        "hinglish": ["Theek hai, report confirm ho gayi. Aur kuch batana hai?"],
+        "hi": ["Theek hai, report pakki ho gayi. Aur kuch batana hai?"],
+        "en": ["Okay, the report is confirmed. Anything else?"],
+    },
+    "_anything_else_prompt": {
+        "hi": ["Aur kuch bataana hai? Nahi toh bas boliye, main report bhej deta hoon."],
+        "en": ["Anything else to add? If not, say no and I'll send the report."],
+    },
+    "_submitted": {
+        "hi": ["Report supervisor ko bhej di gayi hai. Dhanyavaad."],
+        "en": ["I've sent the report to your supervisor. Thank you."],
+    },
+    "_send_failed": {
+        "hi": ["Report save ho gayi, lekin supervisor ko abhi nahi bhej paaye. Kripya unhe phone kar dijiye."],
+        "en": ["The report is saved, but I couldn't send it to your supervisor. Please call them."],
+    },
+    "_new_report": {
+        "hi": ["Pehli report supervisor ko bhej di. Ab nayi report."],
+        "en": ["I've sent the first report. Now the new one."],
     },
     # Keys her scripts don't cover: hi/en versions of the Hinglish placeholders (which stay the hinglish text)
     "incident_type": {"hi": ["Kya hua hai? Machine kharab hai, saamaan kam hai, ya koi khatra hai?"],

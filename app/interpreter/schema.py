@@ -89,7 +89,11 @@ PLACEHOLDER_TEMPLATES = {
     "_readback_prompt": "Report sahi hai? Haan ya nahi boliye.",
     "_reread": "Theek hai, {changes}. Sahi hai?",
     "_rejection": "Theek hai, kaunsi detail galat hai? Woh bata dijiye.",
-    "_confirmed": "Theek hai, report confirm ho gayi. Dhanyavaad.",
+    "_confirmed": "Theek hai, report confirm ho gayi. Aur kuch batana hai?",
+    "_anything_else_prompt": "Aur kuch batana hai? Nahi toh bas boliye, main report bhej deta hoon.",
+    "_submitted": "Report supervisor ko bhej di. Dhanyavaad.",
+    "_send_failed": "Report save ho gayi, lekin supervisor ko abhi nahi bhej paaye. Unhe phone kar dijiye.",
+    "_new_report": "Pehli report supervisor ko bhej di. Ab nayi report.",
     "_not_given": "{field_label} nahi pata",
 }
 

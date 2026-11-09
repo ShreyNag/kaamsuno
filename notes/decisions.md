@@ -358,3 +358,14 @@ Measured on the last 10 turns in `logs/` (`python -m eval.latency_report`):
   - `tests/test_turn_eager.py`: synthetic timelines, real config and lists, Smart Turn 0.98/0.65/none, 1/2/2.5 s pauses, final, partial-only or late text. Pauses after "aur", "ke paas", "umm", "chaar saat", "teesri manzil pe" (and Devanagari) never end the turn. "mixer kharab hai" (ST 0.98) and "bas itna hi" end ≤ 0.5 s after the speech when Prisma's text arrives at +0.45 s.
   - `tests/test_turn_modes.py`: the same on the real matlab_pause.wav recording (VAD, Smart Turn and turn strategy as the bot runs them; text injected).
   - The re-recorded s02–s12 pause clips are still missing, so they are not in these tests.
+
+## After the confirmation: "aur kuch?", sending, a second issue (2026-11-10)
+
+- **"Haan" to the read-back → "…confirm ho gayi. Aur kuch batana hai?"** (phase `confirmed`). Then:
+  - no / "bas" → send → "Report supervisor ko bhej di" (status `submitted`). A failed or unconfigured send says so ("save ho gayi, lekin … nahi bhej paaye"); it never claims a send that didn't happen.
+  - new details for the same report → re-read only them, then "aur kuch?" again.
+  - a new issue (cue words "ek aur", "dusri", "another"…, or the incident type changed) → the confirmed report is sent, a new report `<session>-2` starts, and this turn's words are re-interpreted against it (one extra Groq call). The bot says "Pehli report … bhej di. Ab nayi report." plus its first question.
+  - anything else → one prompt ("nahi toh bas boliye"), then send. The worker can't get stuck in "aur kuch?".
+- **The confirmed report is snapshotted at "haan".** During the read-back the interpreter treats every different value as a correction, so a new issue's words overwrite the old report before we know it's a new issue. The snapshot is what gets sent.
+- After sending, more speech with new content starts a new report; otherwise the bot stays silent.
+- The page keeps one URL per session (`/report/<session>`) and shows the current report; each report has its own file `reports/<incident_id>.json`.

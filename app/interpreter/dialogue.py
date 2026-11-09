@@ -9,12 +9,18 @@ DialogueManager keeps the conversation state; one `decide()` per turn end:
         nothing pending, or the cap reached -> read-back                         (phase "readback")
     readback (every reply goes through the interpreter first, as a possible correction):
         a field changed, or was re-stated   -> re-read only those fields         ("nahi, Bay 3")
-        yes                                 -> confirmed line                    (phase "confirmed")
+        yes                                 -> "confirmed. Aur kuch?"            (phase "confirmed")
         names a field                       -> "what is the right location?"     ("location galat hai")
         no                                  -> "which detail is wrong?"
         no yes/no and no field content      -> short "is it right? haan ya nahi"
-    confirmed:
+    confirmed (the bot asked "aur kuch?"):
+        a new issue ("ek aur problem", or the incident type changed) -> "new_report": the reporter sends
+                                               the confirmed report and starts a new one from this turn
         the worker changed something        -> re-read the changes (back to "readback")
+        no / "bas"                          -> "submit": the reporter sends it   (phase "submitted")
+        anything else                       -> "aur kuch? nahi to bas boliye" once, then submit
+    submitted:
+        a new issue or new details          -> "new_report"
         otherwise                           -> say nothing
 
 Pending fields, in order: the required ones (config.ASK_FIRST, then ASK_LAST), then the important
@@ -43,6 +49,11 @@ from app.turn.tail_classifier import load_fillers, tokens
 YES_WORDS = frozenset("""haan han haa ha ji sahi theek thik correct yes yeah yep ok okay bilkul right pakka confirm
 हाँ हां हा जी सही ठीक बिल्कुल""".split())
 NO_WORDS = frozenset("nahi nahin nai nhi na galat no nope wrong नहीं नही ना गलत".split())
+# Answers to "aur kuch?" that mean "nothing more, send it"
+DONE_WORDS = NO_WORDS | frozenset("bas khatam done nothing enough बस खत्म".split())
+# A second, separate problem after the report was confirmed: it gets its own report
+NEW_ISSUE_CUES = ("ek aur", "aur ek", "dusri", "doosri", "dusra", "doosra", "another", "one more", "new problem",
+                  "naya", "nayi", "alag problem", "alag dikkat", "एक और", "दूसरी", "दूसरा", "नया", "नई")
 CONFIRM_REASONS = ("low_confidence", "conflict", "readback", "reread", "readback_prompt")
 
 
@@ -72,6 +83,15 @@ def is_no(text: str) -> bool:
 
 def is_yes(text: str) -> bool:
     return bool(_words(text) & YES_WORDS) and not is_no(text)
+
+
+def is_done(text: str) -> bool:
+    return bool(_words(text) & DONE_WORDS)
+
+
+def mentions_new_issue(text: str) -> bool:
+    padded = " " + " ".join(re.findall(r"[\wऀ-ॿ]+", text.lower())) + " "
+    return any(f" {cue} " in padded for cue in NEW_ISSUE_CUES)
 
 
 def usable(text: str) -> bool:
@@ -117,7 +137,7 @@ def captured_anything(report: Report, schema: Schema) -> bool:
 class DialogueManager:
     low_confidence: float = config.LOW_CONFIDENCE
     max_questions: int = config.MAX_QUESTIONS
-    phase: str = "collecting"  # collecting | readback | confirmed
+    phase: str = "collecting"  # collecting | readback | confirmed ("aur kuch?" asked) | submitted
     confirmation: str = "not_obtained"  # her reporter_confirmation enum
     asked: Counter = field(default_factory=Counter)  # (field, reason) -> times asked
     questions: int = 0  # field questions asked (the cap counts these)
@@ -125,6 +145,7 @@ class DialogueManager:
     last_text: str = ""
     emergency_announced: bool = False
     _corrected: bool = False
+    _unclear_after_confirm: int = 0  # replies to "aur kuch?" that were neither no, yes nor new content
 
     def decide(self, report: Report, schema: Schema, templates, turn_text: str = "",
                changed: dict[str, object] | None = None, touched: set[str] | None = None) -> Question:
@@ -143,7 +164,9 @@ class DialogueManager:
         if is_known(urgency) and urgency["value"] == "emergency" and not self.emergency_announced:
             self.emergency_announced = True
             return Question(None, "emergency", t["_emergency"])
-        if self.phase in ("readback", "confirmed"):
+        if self.phase in ("confirmed", "submitted"):
+            return self._after_confirmation(turn_text, changed, t)
+        if self.phase == "readback":
             return self._after_readback(report, schema, t, turn_text, changed, touched)
         if not captured_anything(report, schema):
             return Question(None, "opening", t["_opening"])
@@ -214,14 +237,27 @@ class DialogueManager:
             parts.append(v)
         return parts
 
-    def _after_readback(self, report, schema, t, turn_text, changed, touched) -> Question:
-        if changed:
+    def _after_confirmation(self, turn_text: str, changed: dict[str, object], t) -> Question:
+        """The bot asked "aur kuch?" (phase confirmed), or already sent the report (phase submitted)."""
+        if mentions_new_issue(turn_text) or "incident_type" in changed:
+            return Question(None, "new_report", "")  # the reporter sends this report and starts the next
+        if self.phase == "submitted":
+            return Question(None, "new_report", "") if changed else Question(None, "silent", "")
+        if changed:  # more details for the same report: re-read them, then confirm again
             self.phase, self._corrected = "readback", True
             return self._reread(changed, t)
-        if self.phase == "confirmed":
-            return Question(None, "silent", "")
+        if is_done(turn_text) or self._unclear_after_confirm >= 1:
+            self.phase = "submitted"
+            return Question(None, "submit", t["_submitted"])  # the reporter sends before it says this
+        self._unclear_after_confirm += 1
+        return Question(None, "anything_else_prompt", t["_anything_else_prompt"])
+
+    def _after_readback(self, report, schema, t, turn_text, changed, touched) -> Question:
+        if changed:
+            self._corrected = True
+            return self._reread(changed, t)
         if is_yes(turn_text):
-            self.phase = "confirmed"
+            self.phase, self._unclear_after_confirm = "confirmed", 0
             self.confirmation = "corrected_then_confirmed" if self._corrected else "confirmed"
             return Question(None, "confirmed", t["_confirmed"])
         restated = {n: report[n]["value"] for n in sorted(touched) if n in report and is_known(report[n])}

@@ -534,9 +534,12 @@ def test_readback_yes_no_and_correction():
     assert (q.reason, q.field, q.text) == ("reread", "location", "Theek hai, location Bay 3. Sahi hai?")
     q = dm.decide(r, SCHEMA, T, "haan sahi hai")
     assert q.reason == "confirmed" and dm.confirmation == "corrected_then_confirmed"
-    assert dm.decide(r, SCHEMA, T, "theek hai").silent  # nothing new after confirming: say nothing
+    assert dm.decide(r, SCHEMA, T, "theek hai").reason == "anything_else_prompt"  # doesn't answer "aur kuch?"
     q = dm.decide(r, SCHEMA, T, "aur do log bhi the", changed={"description": "two people there"})
     assert q.reason == "reread" and dm.phase == "readback"  # new info after confirming: re-read it
+    assert dm.decide(r, SCHEMA, T, "haan").reason == "confirmed"
+    assert dm.decide(r, SCHEMA, T, "nahi bas").reason == "submit" and dm.phase == "submitted"
+    assert dm.decide(r, SCHEMA, T, "theek hai").silent  # sent, nothing new: say nothing
 
 
 def test_location_must_name_a_place():
