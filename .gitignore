@@ -17,3 +17,8 @@ data/**
 eval/out/
 logs/
 reports/
+
+# never shared: archives, the prompt files used to drive the build
+*.zip
+phase*_prompt.md
+research_integration_prompt.md
