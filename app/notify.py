@@ -1,12 +1,15 @@
-"""Sending a report to the supervisor: a readable Telegram message.
+"""Sending a report to the supervisor: a readable Telegram (or WhatsApp) message.
 
     format_message(values, kind)   report values -> plain text (no markup, so no escaping problems)
     TelegramSender(token, chat_id) async callable (values, kind) -> bool, for ReportProcessor(send_report=...)
-    build_sender()                 from .env (TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID); None if not set
+    WhatsAppSender(sid, token, from, to)   the same over Twilio's WhatsApp API (sandbox)
+    build_sender()                 NOTIFY_CHANNEL=telegram|whatsapp (default telegram) and its keys from .env;
+                                   None if not set
 
 Check the setup without running the bot:
 
-    .venv/Scripts/python -m app.notify          sends a sample report to TELEGRAM_CHAT_ID
+    .venv/Scripts/python -m app.notify                      sends a sample report (NOTIFY_CHANNEL)
+    .venv/Scripts/python -m app.notify --channel whatsapp   ... over WhatsApp
 """
 
 from __future__ import annotations
@@ -92,7 +95,57 @@ class TelegramSender:
         return True
 
 
-def build_sender() -> TelegramSender | None:
+class WhatsAppSender:
+    """Twilio's WhatsApp API (the sandbox works): POST Messages.json, same text as Telegram.
+    True only when Twilio accepts the message (2xx with a message sid); errors are logged, never raised.
+    Sandbox: the supervisor's phone must have sent "join <code>" to the sandbox number first."""
+
+    MAX_CHARS = 1600  # Twilio's WhatsApp body limit
+
+    def __init__(self, account_sid: str, auth_token: str, from_: str, to: str, timeout_s: float = 8.0):
+        self._url = f"https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json"
+        self._auth = (account_sid, auth_token)
+        self.from_, self.to, self._timeout = _wa(from_), _wa(to), timeout_s
+
+    async def __call__(self, values: dict[str, Any], kind: str = "report") -> bool:
+        text = format_message(values, kind)
+        if len(text) > self.MAX_CHARS:
+            text = text[: self.MAX_CHARS - 1] + "…"
+        t0 = time.time()
+        try:
+            async with httpx.AsyncClient(timeout=self._timeout) as client:
+                resp = await client.post(self._url, auth=self._auth, data={"From": self.from_, "To": self.to, "Body": text})
+            body = resp.json()
+        except Exception as e:  # noqa: BLE001
+            logger.error(f"whatsapp: send failed: {type(e).__name__}: {e}")
+            return False
+        if not (200 <= resp.status_code < 300 and body.get("sid")):
+            logger.error(f"whatsapp: {resp.status_code} twilio code {body.get('code')}: {body.get('message')}")
+            return False
+        logger.info(f"whatsapp: sent {kind} {values.get('incident_id')} in {round((time.time() - t0) * 1000)} ms "
+                    f"(status {body.get('status')})")
+        return True
+
+
+def _wa(number: str) -> str:
+    number = number.strip()
+    return number if number.startswith("whatsapp:") else f"whatsapp:{number}"
+
+
+def build_sender(channel: str | None = None) -> TelegramSender | WhatsAppSender | None:
+    """NOTIFY_CHANNEL (telegram | whatsapp, default telegram). None if that channel's keys are not set."""
+    channel = (channel or config.NOTIFY_CHANNEL).lower()
+    if channel == "whatsapp":
+        keys = (config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN, config.TWILIO_WHATSAPP_FROM,
+                config.SUPERVISOR_WHATSAPP_TO)
+        if not all(keys):
+            logger.warning("TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN / TWILIO_WHATSAPP_FROM / SUPERVISOR_WHATSAPP_TO "
+                           "not all set: reports are saved but not sent")
+            return None
+        return WhatsAppSender(*keys)
+    if channel != "telegram":
+        logger.warning(f"NOTIFY_CHANNEL={channel!r} is not telegram or whatsapp: reports are saved but not sent")
+        return None
     if not (config.TELEGRAM_BOT_TOKEN and config.TELEGRAM_CHAT_ID):
         logger.warning("TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID not set: reports are saved but not sent")
         return None
@@ -107,12 +160,17 @@ SAMPLE = {
 }
 
 if __name__ == "__main__":
+    import argparse
     import asyncio
     import sys
 
     sys.stdout.reconfigure(encoding="utf-8")
+    ap = argparse.ArgumentParser(description="Send a sample report to the supervisor channel.")
+    ap.add_argument("--channel", choices=("telegram", "whatsapp"), default=None,
+                    help="default: NOTIFY_CHANNEL from .env (telegram)")
+    ch = ap.parse_args().channel or config.NOTIFY_CHANNEL
     print(format_message(SAMPLE), "\n")
-    sender = build_sender()
+    sender = build_sender(ch)
     if sender is None:
-        raise SystemExit("Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in .env first.")
-    raise SystemExit(0 if asyncio.run(sender(SAMPLE, "report")) else "Telegram did not accept the message (see log).")
+        raise SystemExit(f"The {ch} keys are not set in .env (see .env.example).")
+    raise SystemExit(0 if asyncio.run(sender(SAMPLE, "report")) else f"{ch} did not accept the message (see log).")

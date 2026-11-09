@@ -32,6 +32,12 @@ GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 # Supervisor channel (app/notify.py). Not set: reports are saved locally and the bot says it couldn't send.
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "").strip()
+# NOTIFY_CHANNEL=whatsapp sends through Twilio's WhatsApp API instead (the sandbox works for the demo)
+NOTIFY_CHANNEL = _env("NOTIFY_CHANNEL", "telegram").strip().lower()
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "").strip()
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "").strip()
+TWILIO_WHATSAPP_FROM = os.getenv("TWILIO_WHATSAPP_FROM", "").strip()  # sandbox: whatsapp:+14155238886
+SUPERVISOR_WHATSAPP_TO = os.getenv("SUPERVISOR_WHATSAPP_TO", "").strip()  # whatsapp:+91XXXXXXXXXX
 
 # --- Language / speech services ---------------------------------------------
 LANGUAGE_CODE = _env("LANGUAGE_CODE", "en-IN")  # en-IN accepts Hinglish, outputs Latin script
