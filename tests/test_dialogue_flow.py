@@ -7,7 +7,9 @@ from __future__ import annotations
 import asyncio
 import json
 
-from pipecat.frames.frames import EndFrame, TranscriptionFrame, TTSSpeakFrame, UserStartedSpeakingFrame, \
+import pytest
+
+from pipecat.frames.frames import BotStoppedSpeakingFrame, EndFrame, TranscriptionFrame, TTSSpeakFrame, UserStartedSpeakingFrame, \
     UserStoppedSpeakingFrame
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
@@ -83,14 +85,15 @@ class Spoken(FrameProcessor):
         await self.push_frame(frame, direction)
 
 
-def converse(turns: list[str], tmp_path, send_report=None) -> tuple[list[list[str]], dict, ReportProcessor]:
+def converse(turns: list[str], tmp_path, send_report=None, silence_send_s=60.0, bot_stops=False,
+             wait_after_s=0.0) -> tuple[list[list[str]], dict, ReportProcessor]:
     """Each turn: the worker says one segment, then the turn ends. Returns what the bot said after each turn."""
     REQUESTS.clear()
     hops = HopLogger("flow", log_dir=tmp_path)
     reporter = ReportProcessor(session_id="flow", schema=SCHEMA, templates=T,
                                interpreter=Interpreter(SCHEMA, scripted_llm, system_prompt="", uncertainty_cue=lambda t: None),
                                stt=None, hops=hops, hub=ReportHub(), reports_dir=tmp_path / "reports",
-                               send_report=send_report)
+                               send_report=send_report, silence_send_s=silence_send_s)
     spoken = Spoken()
     task = PipelineTask(Pipeline([reporter, spoken]), params=PipelineParams())
     per_turn: list[list[str]] = []
@@ -104,6 +107,12 @@ def converse(turns: list[str], tmp_path, send_report=None) -> tuple[list[list[st
             await asyncio.sleep(0.1)  # the segment lands before the SystemFrame turn end
             await task.queue_frame(UserStoppedSpeakingFrame())
             await asyncio.sleep(0.4)
+            if bot_stops:  # the transport's "bot finished speaking" after each reply
+                await task.queue_frame(BotStoppedSpeakingFrame())
+            per_turn.append(spoken.said[before:])
+        before = len(spoken.said)
+        await asyncio.sleep(wait_after_s)  # the worker stays silent
+        if wait_after_s:
             per_turn.append(spoken.said[before:])
         await task.queue_frame(EndFrame())
 
@@ -302,11 +311,46 @@ def test_new_details_after_aur_kuch_are_re_read_then_confirmed_again(tmp_path):
     assert doc["report"]["reporter_confirmation"]["value"] == "corrected_then_confirmed"
 
 
-def test_unclear_reply_to_aur_kuch_is_prompted_once_then_sent(tmp_path):
+RAMBLE = "pata nahi sir woh kal wala kaam bhi abhi tak pending hai"
+
+
+def test_a_ramble_after_aur_kuch_is_prompted_once_and_never_sent(tmp_path):
     sup = FakeSupervisor()
-    said, _, _ = converse([READY, "haan", "kya bola", "hmm"], tmp_path, send_report=sup)
-    assert said[2] == [T["_anything_else_prompt"]]
-    assert said[3] == [T["_submitted"]] and len(sup.got) == 1
+    said, _, reporter = converse([READY, "haan", "kya bola", RAMBLE, "hmm"], tmp_path, send_report=sup)
+    assert said[2] == [T["_anything_else_prompt"]]  # prompted once more
+    assert said[3] == [] and said[4] == []  # then quiet; a ramble with "nahi" in it is not a clear no
+    assert sup.got == [] and reporter.dialogue.phase == "confirmed"
+
+
+def test_silence_after_aur_kuch_sends_the_report(tmp_path):
+    sup = FakeSupervisor()
+    said, doc, _ = converse([READY, "haan"], tmp_path, send_report=sup, silence_send_s=0.3, bot_stops=True,
+                            wait_after_s=0.8)
+    assert said[1] == [T["_confirmed"]]
+    assert said[2] == [T["_submitted"]] and len(sup.got) == 1
+    assert doc["report"]["status"]["value"] == "submitted"
+
+
+def test_silence_after_a_ramble_sends_too(tmp_path):
+    sup = FakeSupervisor()
+    said, _, _ = converse([READY, "haan", "kya bola", RAMBLE], tmp_path, send_report=sup, silence_send_s=0.6,
+                          wait_after_s=1.0)  # the bot said nothing to the ramble: the timer starts at once
+    assert said[3] == []  # not at once
+    assert said[4] == [T["_submitted"]] and len(sup.got) == 1
+
+
+def test_speaking_before_the_silence_timer_runs_out_cancels_it(tmp_path):
+    sup = FakeSupervisor()
+    said, _, _ = converse([READY, "haan", "kya bola"], tmp_path, send_report=sup, silence_send_s=0.6,
+                          bot_stops=True)  # each next turn starts 0.5 s after the bot stopped
+    assert sup.got == []
+
+
+@pytest.mark.parametrize("reply", ["nahi", "bas", "nahi sir", "bas itna hi", "nahi, bhej do", "no that's all"])
+def test_clear_short_answers_send(reply, tmp_path):
+    sup = FakeSupervisor()
+    said, _, _ = converse([READY, "haan", reply], tmp_path, send_report=sup)
+    assert said[2] == [T["_submitted"]], reply
 
 
 def test_a_new_issue_sends_the_confirmed_report_and_starts_a_new_one(tmp_path):

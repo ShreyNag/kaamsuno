@@ -99,6 +99,8 @@ LOW_CONFIDENCE = 0.6  # a critical field below this is asked about again
 # At turn end, wait this long for in-flight interpreter calls, then ask from the report as it is
 INTERPRETER_DRAIN_TIMEOUT_S = float(_env("INTERPRETER_DRAIN_TIMEOUT_S", "1.2"))
 GREETING = "Namaste. Kya hua hai? Bataiye."
+# After "aur kuch?": this long with no speech (from when the bot stops talking) sends the report
+AUR_KUCH_SILENCE_S = float(_env("AUR_KUCH_SILENCE_S", "6"))
 MAX_QUESTIONS = int(_env("MAX_QUESTIONS", "3"))  # field questions per report; then read back what we have
 # A field is asked at most this often: the question, then once more ("_reask", or "_repeat" when nothing
 # usable was heard). Then the dialogue moves on and the field is listed as unconfirmed.

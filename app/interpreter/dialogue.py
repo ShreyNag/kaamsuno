@@ -18,8 +18,9 @@ DialogueManager keeps the conversation state; one `decide()` per turn end:
         a new issue ("ek aur problem", or the incident type changed) -> "new_report": the reporter sends
                                                the confirmed report and starts a new one from this turn
         the worker changed something        -> re-read the changes (back to "readback")
-        no / "bas"                          -> "submit": the reporter sends it   (phase "submitted")
-        anything else                       -> "aur kuch? nahi to bas boliye" once, then submit
+        a short, clear no / "bas"           -> "submit": the reporter sends it   (phase "submitted")
+        anything else                       -> "aur kuch? nahi to bas boliye" once, then silent; the
+                                               reporter sends after AUR_KUCH_SILENCE_S of silence
     submitted:
         a new issue or new details          -> "new_report"
         otherwise                           -> say nothing
@@ -50,8 +51,10 @@ from app.turn.tail_classifier import load_fillers, tokens
 YES_WORDS = frozenset("""haan han haa ha ji sahi theek thik correct yes yeah yep ok okay bilkul right pakka confirm
 हाँ हां हा जी सही ठीक बिल्कुल""".split())
 NO_WORDS = frozenset("nahi nahin nai nhi na galat no nope wrong नहीं नही ना गलत".split())
-# Answers to "aur kuch?" that mean "nothing more, send it"
-DONE_WORDS = NO_WORDS | frozenset("bas khatam done nothing enough बस खत्म".split())
+# Answers to "aur kuch?" that mean "nothing more, send it" - only in a short reply (DONE_MAX_WORDS): a ramble
+# that happens to contain "nahi" ("pata nahi kya hua tha…") is not a clear answer and never sends the report
+DONE_WORDS = NO_WORDS | frozenset("bas khatam done nothing enough bhej bhejo send बस खत्म भेज".split())
+DONE_MAX_WORDS = 5
 # A second, separate problem after the report was confirmed: it gets its own report
 NEW_ISSUE_CUES = ("ek aur", "aur ek", "dusri", "doosri", "dusra", "doosra", "another", "one more", "new problem",
                   "naya", "nayi", "alag problem", "alag dikkat", "एक और", "दूसरी", "दूसरा", "नया", "नई")
@@ -87,7 +90,9 @@ def is_yes(text: str) -> bool:
 
 
 def is_done(text: str) -> bool:
-    return bool(_words(text) & DONE_WORDS)
+    """A clear "nothing more": a done word in a short reply ("nahi", "bas itna hi", "nahi sir, bhej do")."""
+    words = re.findall(r"[\wऀ-ॿ]+", text.lower())
+    return 0 < len(words) <= DONE_MAX_WORDS and bool(set(words) & DONE_WORDS)
 
 
 def mentions_new_issue(text: str) -> bool:
@@ -253,11 +258,22 @@ class DialogueManager:
         if changed:  # more details for the same report: re-read them, then confirm again
             self.phase, self._corrected = "readback", True
             return self._reread(changed, t)
-        if is_done(turn_text) or self._unclear_after_confirm >= 1:
+        if is_done(turn_text):
             self.phase = "submitted"
             return Question(None, "submit", t["_submitted"])  # the reporter sends before it says this
+        # Unclear (a ramble, "haan", noise): prompt once more, then keep listening quietly. Never sent on a
+        # ramble; the reporter sends after AUR_KUCH_SILENCE_S of silence.
         self._unclear_after_confirm += 1
-        return Question(None, "anything_else_prompt", t["_anything_else_prompt"])
+        if self._unclear_after_confirm == 1:
+            return Question(None, "anything_else_prompt", t["_anything_else_prompt"])
+        return Question(None, "silent", "")
+
+    def submit_on_silence(self) -> bool:
+        """The worker said nothing for a while after "aur kuch?": send. False if not in that phase."""
+        if self.phase != "confirmed":
+            return False
+        self.phase = "submitted"
+        return True
 
     def _after_readback(self, report, schema, t, turn_text, changed, touched) -> Question:
         if changed:

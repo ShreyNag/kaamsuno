@@ -24,6 +24,7 @@ from pathlib import Path
 
 from loguru import logger
 from pipecat.frames.frames import (
+    BotStoppedSpeakingFrame,
     Frame,
     TranscriptionFrame,
     TTSSpeakFrame,
@@ -58,6 +59,7 @@ class ReportProcessor(FrameProcessor):
         set_dialogue_context: Callable[[DialogueContext], None] | None = None,
         reports_dir: Path | None = None,
         send_report: Callable[[dict, str], Awaitable[bool]] | None = None,
+        silence_send_s: float = config.AUR_KUCH_SILENCE_S,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -66,6 +68,10 @@ class ReportProcessor(FrameProcessor):
         self._set_context = set_dialogue_context  # tells the turn controller what we just asked
         self._reports_dir = reports_dir
         self._send_report = send_report  # (report values, "report" | "emergency") -> sent?
+        self._silence_send_s = silence_send_s
+        self._silence_task: asyncio.Task | None = None  # "aur kuch?" then silence -> send
+        self._user_speaking = False
+        self._last_templates = templates if not isinstance(templates, TemplateBook) else templates.for_language("hinglish")
         self._report_n = 1
         self.incident_id = session_id
         self._seg_offset = 0  # this report's segments start here (a 2nd issue starts a new report)
@@ -186,14 +192,45 @@ class ReportProcessor(FrameProcessor):
             self.publish()
         elif isinstance(frame, VADUserStoppedSpeakingFrame):
             self._last_speech_end = time.time() - frame.stop_secs
+        elif isinstance(frame, BotStoppedSpeakingFrame):
+            await self._arm_silence_send()  # comes upstream from the transport after every reply
         elif isinstance(frame, UserStartedSpeakingFrame):
+            self._user_speaking = True
+            await self._cancel_silence_send()
             await self._cancel_turn_task()  # the worker kept talking: drop the pending question
             self._status = "listening"
             self.publish()
         elif isinstance(frame, UserStoppedSpeakingFrame):
+            self._user_speaking = False
             await self._cancel_turn_task()
             self._turn_task = self.create_task(self._on_turn_end(), "reporter_turn_end")
         await self.push_frame(frame, direction)
+
+    async def _arm_silence_send(self) -> None:
+        """The bot finished speaking while it waits for an answer to "aur kuch?": (re)start the timer."""
+        if self.dialogue.phase != "confirmed" or self._turn_task is not None or self._user_speaking:
+            return
+        await self._cancel_silence_send()
+        self._silence_task = self.create_task(self._send_after_silence(), "aur_kuch_silence")
+
+    async def _cancel_silence_send(self) -> None:
+        if self._silence_task:
+            await self.cancel_task(self._silence_task)
+            self._silence_task = None
+
+    async def _send_after_silence(self) -> None:
+        await asyncio.sleep(self._silence_send_s)
+        self._silence_task = None
+        if not self.dialogue.submit_on_silence():
+            return
+        q = await self._submit(self._last_templates)
+        self._question = Question(None, f"{q.reason}_on_silence", q.text)
+        self._hops.log("question", field=None, reason=self._question.reason, text=q.text, phase="submitted",
+                       incident_id=self.incident_id)
+        self._questions.append({"field": None, "reason": self._question.reason, "text": q.text})
+        self._status = "sent to the supervisor"
+        self.publish()
+        await self.push_frame(TTSSpeakFrame(q.text))
 
     async def _cancel_turn_task(self) -> None:
         if self._turn_task:
@@ -221,6 +258,7 @@ class ReportProcessor(FrameProcessor):
         lang = detect_language(said) if said else "hinglish"
         templates = self._templates.for_language(lang) if isinstance(self._templates, TemplateBook) \
             else self._templates
+        self._last_templates = templates
         changed = self._changed_fields()
         await self._settle_alert()
         q = self.dialogue.decide(self._interp.report, self._schema, templates, said, changed,
@@ -251,6 +289,8 @@ class ReportProcessor(FrameProcessor):
         if not q.silent:
             await self.push_frame(TTSSpeakFrame(q.text))
         self._turn_task = None
+        if q.silent:  # nothing will be spoken, so no BotStoppedSpeaking will start the "aur kuch?" timer
+            await self._arm_silence_send()
 
     async def send(self, kind: str = "report") -> bool:
         """Send the current report to the supervisor (`send_report`). Never raises; False if not sent."""
